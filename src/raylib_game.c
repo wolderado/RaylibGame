@@ -11,7 +11,7 @@
 *
 ********************************************************************************************/
 
-#include "raylib.h"
+#include "raylib/raylib.h"
 
 #if defined(PLATFORM_WEB)
     #define CUSTOM_MODAL_DIALOGS            // Force custom modal dialogs usage

@@ -1,0 +1,6 @@
+Windows:
+make -e PLATFORM=PLATFORM_DESKTOP -B
+
+Web:
+In Makefile, change platform to web
+make -e PLATFORM=PLATFORM_WEB -B
