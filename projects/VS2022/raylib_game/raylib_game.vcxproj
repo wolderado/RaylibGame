@@ -351,6 +351,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\raylib_game.c" />
+    <ClCompile Include="GameTest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\..\src\raylib_game.rc" />

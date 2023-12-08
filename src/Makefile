@@ -21,21 +21,33 @@
 #
 #**************************************************************************************************
 
+all: $(PROJECT_NAME) print_message
+
 .PHONY: all clean
 
 # Define required environment variables
 #------------------------------------------------------------------------------------------------
 # Define target platform: PLATFORM_DESKTOP, PLATFORM_WEB, PLATFORM_DRM
-PLATFORM              ?= PLATFORM_DESKTOP
+PLATFORM              ?= PLATFORM_WEB
 
 # Define project variables
 PROJECT_NAME          ?= raylib_game
 PROJECT_VERSION       ?= 1.0
-PROJECT_BUILD_PATH    ?= .
+PROJECT_BUILD_PATH    ?= ./build
 
 RAYLIB_PATH           ?= ../../raylib
 RAYLIB_INCLUDE_PATH   ?= $(RAYLIB_PATH)/src
 RAYLIB_LIB_PATH       ?= $(RAYLIB_PATH)/src
+
+# Change paths on web platform
+ifeq ($(PLATFORM),PLATFORM_WEB)
+    RAYLIB_LIB_PATH = $(RAYLIB_PATH)/src/web
+    PROJECT_BUILD_PATH = ./build/web
+    PROJECT_NAME := index
+endif
+
+
+
 
 # Build mode for project: DEBUG or RELEASE
 BUILD_MODE            ?= DEBUG
@@ -87,8 +99,8 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
     EMSDK_PATH         ?= C:/emsdk
     EMSCRIPTEN_PATH    ?= $(EMSDK_PATH)/upstream/emscripten
     CLANG_PATH          = $(EMSDK_PATH)/upstream/bin
-    PYTHON_PATH         = $(EMSDK_PATH)/python/3.9.2-1_64bit
-    NODE_PATH           = $(EMSDK_PATH)/node/14.15.5_64bit/bin
+    PYTHON_PATH         = $(EMSDK_PATH)\python\3.9.2-nuget_64bit\python.exe
+    NODE_PATH           = $(EMSDK_PATH)\node\16.20.0_64bit\bin\node.exe
     export PATH         = $(EMSDK_PATH);$(EMSCRIPTEN_PATH);$(CLANG_PATH);$(NODE_PATH);$(PYTHON_PATH):$$(PATH)
 endif
 
@@ -310,6 +322,8 @@ OBJS = $(patsubst %.c, %.o, $(PROJECT_SOURCE_FILES))
 all:
 	$(MAKE) $(PROJECT_NAME)
 
+
+
 # Project target defined by PROJECT_NAME
 $(PROJECT_NAME): $(OBJS)
 	$(CC) -o $(PROJECT_BUILD_PATH)/$(PROJECT_NAME)$(EXT) $(OBJS) $(CFLAGS) $(INCLUDE_PATHS) $(LDFLAGS) $(LDLIBS) -D$(PLATFORM)
@@ -318,6 +332,7 @@ $(PROJECT_NAME): $(OBJS)
 # NOTE: This pattern will compile every module defined on $(OBJS)
 %.o: %.c
 	$(CC) -c $< -o $@ $(CFLAGS) $(INCLUDE_PATHS) -D$(PLATFORM)
+
 
 # Clean everything
 clean:
@@ -341,4 +356,11 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
 	del *.o *.html *.js
 endif
 	@echo Cleaning done
+
+
+print_message:
+	@echo Build Ready
+	@echo WebTest Commands:
+	@echo python -m http.server 8080
+	@echo localhost:8080/index.html
 
