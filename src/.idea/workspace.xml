@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="CMakeRunConfigurationManager">
+    <generated>
+      <config projectName="src" targetName="run" />
+      <config projectName="src" targetName="Commands" />
+      <config projectName="src" targetName="localhost" />
+      <config projectName="src" targetName="WebTest" />
+      <config projectName="src" targetName="all" />
+      <config projectName="src" targetName="raylib_game" />
+    </generated>
+  </component>
+  <component name="CMakeSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" />
+    </configurations>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="23813626-e860-407e-add6-72449def8d1e" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Player.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Player.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/src.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Makefile.Android" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/CMakeLists.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/CMakeOptions.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/Makefile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/build.zig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/camera.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/config.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/config.h.in" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/core.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/easings.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/cgltf.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/dirent.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/dr_flac.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/dr_mp3.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/dr_wav.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glad.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glad_gles2.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/.mailmap" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/CMake/GenerateMappings.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/CMake/Info.plist.in" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/CMake/MacOSXBundleInfo.plist.in" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/CMake/cmake_uninstall.cmake.in" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/CMake/glfw3.pc.in" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/CMake/glfw3Config.cmake.in" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/CMake/i686-w64-mingw32-clang.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/CMake/i686-w64-mingw32.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/CMake/modules/FindEpollShim.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/CMake/modules/FindOSMesa.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/CMake/modules/FindWaylandProtocols.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/CMake/modules/FindXKBCommon.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/CMake/x86_64-w64-mingw32-clang.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/CMake/x86_64-w64-mingw32.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/CMakeLists.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/CONTRIBUTORS.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/LICENSE.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/deps/getopt.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/deps/getopt.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/deps/glad/gl.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/deps/glad/gles2.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/deps/glad/khrplatform.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/deps/glad/vk_platform.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/deps/glad/vulkan.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/deps/glad_gl.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/deps/glad_vulkan.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/deps/mingw/_mingw_dxhelper.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/deps/mingw/dinput.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/deps/mingw/xinput.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/deps/vs2008/stdint.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/include/GLFW/glfw3.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/include/GLFW/glfw3native.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/CMakeLists.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/cocoa_init.m" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/cocoa_joystick.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/cocoa_joystick.m" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/cocoa_monitor.m" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/cocoa_platform.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/cocoa_time.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/cocoa_time.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/cocoa_window.m" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/context.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/egl_context.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/egl_context.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/glfw.rc.in" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/glfw_config.h.in" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/glx_context.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/glx_context.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/init.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/input.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/internal.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/linux_joystick.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/linux_joystick.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/mappings.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/mappings.h.in" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/monitor.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/nsgl_context.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/nsgl_context.m" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/null_init.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/null_joystick.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/null_joystick.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/null_monitor.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/null_platform.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/null_window.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/osmesa_context.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/osmesa_context.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/platform.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/platform.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/posix_module.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/posix_poll.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/posix_poll.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/posix_thread.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/posix_thread.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/posix_time.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/posix_time.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/vulkan.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/wgl_context.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/wgl_context.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/win32_init.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/win32_joystick.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/win32_joystick.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/win32_module.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/win32_monitor.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/win32_platform.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/win32_thread.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/win32_thread.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/win32_time.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/win32_time.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/win32_window.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/window.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/wl_init.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/wl_monitor.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/wl_platform.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/wl_window.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/x11_init.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/x11_monitor.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/x11_platform.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/x11_window.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/xkb_unicode.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/glfw/src/xkb_unicode.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/jar_mod.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/jar_xm.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/m3d.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/miniaudio.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/msf_gif.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/nanosvg.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/nanosvgrast.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/par_shapes.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/qoa.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/qoaplay.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/qoi.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/rl_gputex.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/rprand.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/sdefl.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/sinfl.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/stb_image.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/stb_image_resize.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/stb_image_resize2.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/stb_image_write.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/stb_perlin.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/stb_rect_pack.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/stb_truetype.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/stb_vorbis.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/stb_vorbis.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/tinyobj_loader_c.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/external/vox_loader.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/gestures.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/minshell.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/models.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/physac.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/platforms/rcore_android.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/platforms/rcore_desktop.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/platforms/rcore_desktop_sdl.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/platforms/rcore_drm.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/platforms/rcore_template.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/platforms/rcore_web.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/raudio.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/raudio.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/raylib.dll.aps" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/raylib.dll.rc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/raylib.dll.rc.data" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/raylib.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/raylib.ico" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/raylib.rc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/raylib.rc.data" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/raymath.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/rcamera.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/rcore.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/rgestures.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/rglfw.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/rlgl.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/rmem.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/rmodels.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/rnet.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/rshapes.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/rtext.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/rtextures.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/shapes.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/shell.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/text.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/textures.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/utils.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/utils.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib/uwp_events.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/raylib_game.c" beforeDir="false" afterPath="$PROJECT_DIR$/raylib_game.cpp" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="MakefileLocalSettings">
+    <option name="availableProjects">
+      <map>
+        <entry>
+          <key>
+            <ExternalProjectPojo>
+              <option name="name" value="src" />
+              <option name="path" value="$PROJECT_DIR$" />
+            </ExternalProjectPojo>
+          </key>
+          <value>
+            <list>
+              <ExternalProjectPojo>
+                <option name="name" value="src" />
+                <option name="path" value="$PROJECT_DIR$" />
+              </ExternalProjectPojo>
+            </list>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="projectSyncType">
+      <map>
+        <entry key="$PROJECT_DIR$" value="RE_IMPORT" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 5
+}</component>
+  <component name="ProjectId" id="2ZKL5MGd9X21CkwiixcxnMUZ0TC" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;configurable.group.appearance&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RunManager" selected="Makefile Application.all">
+    <configuration name="Commands" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="src" TARGET_NAME="Commands" CONFIG_NAME="Commands" version="1">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="WebTest" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="src" TARGET_NAME="WebTest" CONFIG_NAME="WebTest" version="1">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="all" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="src" TARGET_NAME="all" CONFIG_NAME="all" version="1">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="localhost" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="src" TARGET_NAME="localhost" CONFIG_NAME="localhost" version="1">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="raylib_game" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="src" TARGET_NAME="raylib_game" CONFIG_NAME="raylib_game" version="1">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="run" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="src" TARGET_NAME="run" CONFIG_NAME="run" version="1">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Makefile Application.all" />
+      <item itemvalue="Makefile Application.run" />
+      <item itemvalue="Makefile Application.Commands" />
+      <item itemvalue="Makefile Application.localhost" />
+      <item itemvalue="Makefile Application.raylib_game" />
+      <item itemvalue="Makefile Application.WebTest" />
+    </list>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="23813626-e860-407e-add6-72449def8d1e" name="Changes" comment="" />
+      <created>1702165423796</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1702165423796</updated>
+      <workItem from="1702165429309" duration="175000" />
+      <workItem from="1702165644697" duration="23000" />
+      <workItem from="1702165676052" duration="92000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

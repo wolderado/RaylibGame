@@ -21,14 +21,12 @@
 #
 #**************************************************************************************************
 
-all: $(PROJECT_NAME) print_message
-
-.PHONY: all clean
+.PHONY: all clean run
 
 # Define required environment variables
 #------------------------------------------------------------------------------------------------
 # Define target platform: PLATFORM_DESKTOP, PLATFORM_WEB, PLATFORM_DRM
-PLATFORM              ?= PLATFORM_WEB
+PLATFORM              ?= PLATFORM_DESKTOP
 
 # Define project variables
 PROJECT_NAME          ?= raylib_game
@@ -43,10 +41,12 @@ RAYLIB_LIB_PATH       ?= $(RAYLIB_PATH)/src
 ifeq ($(PLATFORM),PLATFORM_WEB)
     RAYLIB_LIB_PATH = $(RAYLIB_PATH)/src/web
     PROJECT_BUILD_PATH = ./build/web
-    PROJECT_NAME := index
+    PROJECT_NAME = index
 endif
 
 
+# Define executable path
+EXE_NAME := $(PROJECT_BUILD_PATH)/$(PROJECT_NAME)$(EXT)
 
 
 # Build mode for project: DEBUG or RELEASE
@@ -106,7 +106,7 @@ endif
 
 # Define default C compiler: CC
 #------------------------------------------------------------------------------------------------
-CC = gcc
+CC = g++
 
 ifeq ($(PLATFORM),PLATFORM_DESKTOP)
     ifeq ($(PLATFORM_OS),OSX)
@@ -133,6 +133,8 @@ ifeq ($(PLATFORM),PLATFORM_DRM)
 endif
 
 
+
+
 # Define default make program: MAKE
 #------------------------------------------------------------------------------------------------
 MAKE ?= make
@@ -154,7 +156,7 @@ endif
 #  -Wno-missing-braces  ignore invalid warning (GCC bug 53119)
 #  -Wno-unused-value    ignore unused return values of some functions (i.e. fread())
 #  -D_DEFAULT_SOURCE    use with -std=c99 on Linux and PLATFORM_WEB, required for timespec
-CFLAGS = -Wall -std=c99 -D_DEFAULT_SOURCE -Wno-missing-braces -Wunused-result
+CFLAGS = -Wall -std=c++14 -D_DEFAULT_SOURCE -Wno-missing-braces -Wunused-result -g -Wall
 
 ifeq ($(BUILD_MODE),DEBUG)
     CFLAGS += -g -D_DEBUG
@@ -232,17 +234,17 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
     # --preload-file resources   # specify a resources folder for data compilation
     # --source-map-base          # allow debugging in browser with source map
     LDFLAGS += -s USE_GLFW=3 -s TOTAL_MEMORY=$(BUILD_WEB_HEAP_SIZE) -s FORCE_FILESYSTEM=1
-    
+
     # Build using asyncify
     ifeq ($(BUILD_WEB_ASYNCIFY),TRUE)
         LDFLAGS += -s ASYNCIFY
     endif
-    
+
     # Add resources building if required
     ifeq ($(BUILD_WEB_RESOURCES),TRUE)
         LDFLAGS += --preload-file $(BUILD_WEB_RESOURCES_PATH)
     endif
-    
+
     # Add debug mode flags if required
     ifeq ($(BUILD_MODE),DEBUG)
         LDFLAGS += -s ASSERTIONS=1 --profiling
@@ -310,17 +312,31 @@ endif
 
 # Define source code files required
 #------------------------------------------------------------------------------------------------
-PROJECT_SOURCE_FILES ?= raylib_game.c
+PROJECT_SOURCE_FILES ?= raylib_game.cpp Player.cpp
 
-# Define all object files from source files
-OBJS = $(patsubst %.c, %.o, $(PROJECT_SOURCE_FILES))
 
-# Define processes to execute
+
+
+# Define processes to executeOBJS = $(patsubst %.cpp,%.o,$(PROJECT_SOURCE_FILES))
+#ifeq ($(PLATFORM),PLATFORM_DESKTOP)
+	#OBJS = $(patsubst %.cpp, %.o, $(PROJECT_SOURCE_FILES))
+#endif
+
+OBJS = $(patsubst %.cpp,%.o, $(PROJECT_SOURCE_FILES))
+
 #------------------------------------------------------------------------------------------------
 # Default target entry
 # NOTE: We call this Makefile target or Makefile.Android target
 all:
 	$(MAKE) $(PROJECT_NAME)
+ifeq ($(PLATFORM),PLATFORM_DESKTOP)
+	$(EXE_NAME)
+endif
+
+
+# Compile source files
+%.o: %.cpp %.h
+	$(CC) -c $< -o $@ $(CFLAGS) $(INCLUDE_PATHS) -D$(PLATFORM) -include $(patsubst %.cpp,%.h,$<)
 
 
 
@@ -328,10 +344,19 @@ all:
 $(PROJECT_NAME): $(OBJS)
 	$(CC) -o $(PROJECT_BUILD_PATH)/$(PROJECT_NAME)$(EXT) $(OBJS) $(CFLAGS) $(INCLUDE_PATHS) $(LDFLAGS) $(LDLIBS) -D$(PLATFORM)
 
+
 # Compile source files
 # NOTE: This pattern will compile every module defined on $(OBJS)
-%.o: %.c
+%.o: %.cpp
 	$(CC) -c $< -o $@ $(CFLAGS) $(INCLUDE_PATHS) -D$(PLATFORM)
+
+
+
+
+
+$(info FINAL COMMAND)
+$(info Final command: $(CC) -c $< -o $@ $(CFLAGS) $(INCLUDE_PATHS) -D$(PLATFORM) -include $(patsubst %.cpp,%.h,$<))
+$(info Final command OUTPUT: $(CC) -o $(PROJECT_BUILD_PATH)/$(PROJECT_NAME)$(EXT) $(OBJS) $(CFLAGS) $(INCLUDE_PATHS) $(LDFLAGS) $(LDLIBS) -D$(PLATFORM))
 
 
 # Clean everything
@@ -358,9 +383,15 @@ endif
 	@echo Cleaning done
 
 
-print_message:
-	@echo Build Ready
-	@echo WebTest Commands:
-	@echo python -m http.server 8080
-	@echo localhost:8080/index.html
+run: $(EXE_NAME)
+	$(info Running $(EXE_NAME))
+	$(EXE_NAME)
+
+
+$(info ------------------------------------)
+$(info Build Ready)
+$(info WebTest Commands:)
+$(info python -m http.server 8080)
+$(info localhost:8080/index.html)
+
 

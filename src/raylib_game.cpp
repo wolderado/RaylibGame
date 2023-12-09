@@ -11,7 +11,8 @@
 *
 ********************************************************************************************/
 
-#include "raylib/raylib.h"
+#include "../../raylib/src/raylib.h"
+#include "Player.h"
 
 #if defined(PLATFORM_WEB)
     #define CUSTOM_MODAL_DIALOGS            // Force custom modal dialogs usage
@@ -60,6 +61,7 @@ static RenderTexture2D target = { 0 };  // Render texture to render our game
 // Module Functions Declaration
 //----------------------------------------------------------------------------------
 static void UpdateDrawFrame(void);      // Update and Draw one frame
+static Player player;
 
 //------------------------------------------------------------------------------------
 // Program main entry point
@@ -72,14 +74,17 @@ int main(void)
 
     // Initialization
     //--------------------------------------------------------------------------------------
-    InitWindow(screenWidth, screenHeight, "raylib gamejam template");
+    InitWindow(screenWidth, screenHeight, "Space Battle Game");
     
     // TODO: Load resources / Initialize variables at this point
+
+
+    player.Init();
     
     // Render texture to draw full screen, enables screen scaling
     // NOTE: If screen is scaled, mouse input should be scaled proportionally
     target = LoadRenderTexture(screenWidth, screenHeight);
-    SetTextureFilter(target.texture, TEXTURE_FILTER_BILINEAR);
+    SetTextureFilter(target.texture, TEXTURE_FILTER_POINT);
 
 #if defined(PLATFORM_WEB)
     emscripten_set_main_loop(UpdateDrawFrame, 60, 1);
@@ -117,6 +122,8 @@ void UpdateDrawFrame(void)
     // TODO: Update variables / Implement example logic at this point
     //----------------------------------------------------------------------------------
 
+
+
     // Draw
     //----------------------------------------------------------------------------------
     // Render game screen to a texture, 
@@ -136,7 +143,11 @@ void UpdateDrawFrame(void)
         // Draw render texture to screen, scaled if required
         DrawTexturePro(target.texture, (Rectangle){ 0, 0, (float)target.texture.width, -(float)target.texture.height }, (Rectangle){ 0, 0, (float)target.texture.width, (float)target.texture.height }, (Vector2){ 0, 0 }, 0.0f, WHITE);
 
+
         // TODO: Draw everything that requires to be drawn at this point, maybe UI?
+
+        player.Update(GetFrameTime());
+        DrawText("IT WORKS!", GetScreenWidth()/2, GetScreenHeight()/2, 100, RED);
 
     EndDrawing();
     //----------------------------------------------------------------------------------  
