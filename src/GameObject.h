@@ -6,11 +6,15 @@
 #define SRC_GAMEOBJECT_H
 
 #include <string>
+#include <iostream>
 
 #include "../../raylib/src/raylib.h"
 #include "../../raylib/src/raymath.h"
+
 #include "Globals.h"
 #include "Color.h"
+#include "Renderer.h"
+
 
 
 enum ObjectRenderType{
@@ -23,7 +27,9 @@ enum ObjectRenderType{
 class GameObject {
 public:
     std::string Name = "UNIDENTIFIED OBJECT";
-    Transform Transform{};
+    Vector3 Position;
+    Vector3 Rotation;
+    Vector3 Scale;
 
 
 

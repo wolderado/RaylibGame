@@ -105,7 +105,7 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
     export PATH        := $(EMSDK_PATH);$(EMSCRIPTEN_PATH);$(CLANG_PATH);$(NODE_PATH);$(PYTHON_PATH);C:/raylib/MinGW/bin;$(PATH)
 endif
 
-# Define default C compiler: CC
+# Compiler
 #------------------------------------------------------------------------------------------------
 CC = g++
 
@@ -180,6 +180,8 @@ ifeq ($(PLATFORM),PLATFORM_DRM)
     CFLAGS += -std=gnu99 -DEGL_NO_X11
 endif
 
+
+
 # Define include paths for required headers: INCLUDE_PATHS
 #------------------------------------------------------------------------------------------------
 INCLUDE_PATHS = -I. -I$(RAYLIB_PATH)/src -I$(RAYLIB_PATH)/src/external
@@ -234,7 +236,7 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
     # --memory-init-file 0       # to avoid an external memory initialization code file (.mem)
     # --preload-file resources   # specify a resources folder for data compilation
     # --source-map-base          # allow debugging in browser with source map
-    LDFLAGS += -s USE_GLFW=3 -s TOTAL_MEMORY=$(BUILD_WEB_HEAP_SIZE) -s FORCE_FILESYSTEM=1
+    LDFLAGS += -s USE_GLFW=3 -s TOTAL_MEMORY=$(BUILD_WEB_HEAP_SIZE) -sFULL_ES3 -s FORCE_FILESYSTEM=1
 
     # Build using asyncify
     ifeq ($(BUILD_WEB_ASYNCIFY),TRUE)
@@ -313,8 +315,7 @@ endif
 
 # Define source code files required
 #------------------------------------------------------------------------------------------------
-PROJECT_SOURCE_FILES ?= raylib_game.cpp Player.cpp Renderer.cpp GameObject.cpp GameObjectManager.cpp
-
+PROJECT_SOURCE_FILES ?= raylib_game.cpp Player.cpp Renderer.cpp GameObject.cpp GameObjectManager.cpp Asteroid.cpp
 
 
 
@@ -348,6 +349,7 @@ $(PROJECT_NAME): $(OBJS)
 
 # Compile source files
 # NOTE: This pattern will compile every module defined on $(OBJS)
+
 %.o: %.cpp
 	$(CC) -c $< -o $@ $(CFLAGS) $(INCLUDE_PATHS) -D$(PLATFORM)
 

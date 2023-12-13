@@ -16,13 +16,15 @@ void GameObjectManager::UpdateAll(float deltaTime) {
 
 shared_ptr<GameObject> GameObjectManager::CreateNewObject() {
     shared_ptr<GameObject> gameObject = make_shared<GameObject>();
-    activeGameObjects.push_back(gameObject);
+    InitObject(gameObject);
     return gameObject;
 }
 
 shared_ptr<GameObject> GameObjectManager::CreateNewAsteroid(Vector3 position) {
-    shared_ptr<GameObject> newObject = CreateNewObject();
-    newObject->SetTeam(TEAM_NEUTRAL);
+    shared_ptr<Asteroid> newAsteroid = make_shared<Asteroid>();
+    InitObject(newAsteroid);
+
+    newAsteroid->SetTeam(TEAM_NEUTRAL);
 
 /*    //Load models
     Mesh sphereMesh = GenMeshSphere(1.0f, 8, 8);
@@ -52,14 +54,20 @@ shared_ptr<GameObject> GameObjectManager::CreateNewAsteroid(Vector3 position) {
 
     string modelPath = "resources/Asteroid" + to_string(GetRandomValue(1, 3)) + ".glb";
     Model asteroidModel = LoadModel(modelPath.c_str());
-    newObject->SetModel(asteroidModel);
+    newAsteroid->SetModel(asteroidModel);
 
 
-    newObject->Transform.translation = position;
-    newObject->Transform.scale = Vector3Scale(Vector3One(), GetRandomValue(1, 50) * 0.1f);
-    newObject->Transform.rotation = QuaternionFromEuler(GetRandomValue(0, 360), GetRandomValue(0, 360), GetRandomValue(0, 360));
+    newAsteroid->Position = position;
+    newAsteroid->Scale = Vector3Scale(Vector3One(), GetRandomValue(1, 50) * 0.1f);
+    newAsteroid->Rotation.x = GetRandomValue(0, 360);
+    newAsteroid->Rotation.y = GetRandomValue(0, 360);
+    newAsteroid->Rotation.z = GetRandomValue(0, 360);
 
 
 
-    return newObject;
+    return newAsteroid;
+}
+
+void GameObjectManager::InitObject(shared_ptr<GameObject> target) {
+    activeGameObjects.push_back(target);
 }

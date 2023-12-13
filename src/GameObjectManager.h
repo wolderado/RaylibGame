@@ -10,6 +10,8 @@
 #include <iostream>
 #include <string>
 #include "GameObject.h"
+#include "Asteroid.h"
+
 
 using namespace std;
 
@@ -20,6 +22,7 @@ public:
     shared_ptr<GameObject> CreateNewAsteroid(Vector3 position);
 private:
     vector<shared_ptr<GameObject>> activeGameObjects;
+    void InitObject(shared_ptr<GameObject> target);
 
 };
 

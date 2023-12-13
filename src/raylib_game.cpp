@@ -46,7 +46,7 @@
 static RenderTexture2D target = { 0 };  // Render texture to render our game
 static void UpdateDrawFrame(void);      // Update and Draw one frame
 Player player;
-Renderer renderer;
+Renderer* renderer;
 GameObjectManager gameObjectManager;
 
 
@@ -65,10 +65,11 @@ int main(void)
     std::cout << "---------------------------------------" << "\n";
 
     player.Init();
-    renderer.InitRenderer(&player);
+    renderer = Renderer::GetInstance();
+    renderer->InitRenderer(&player);
 
 
-    for (int i = 0; i < 100; ++i) {
+    for (int i = 0; i < 300; ++i) {
         Vector3 rndPos = { (float)GetRandomValue(-100, 100), (float)GetRandomValue(-100, 100), (float)GetRandomValue(-100, 100) };
         gameObjectManager.CreateNewAsteroid(rndPos);
     }
@@ -95,7 +96,7 @@ int main(void)
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
-    renderer.Unload();
+    renderer->Unload();
     UnloadRenderTexture(target);
     
     // TODO: Unload all loaded resources at this point
@@ -121,11 +122,11 @@ void UpdateDrawFrame(void)
     // Render game screen to a texture,
     BeginTextureMode(target);
         ClearBackground(PALETTE_WHITE);
-        renderer.RenderBackground();
+        renderer->RenderBackground();
 
         //3D Rendering starts here
         BeginMode3D(*player.GetCamera());
-        renderer.RenderAtmosphere();
+        renderer->RenderAtmosphere();
 
         Color dotColor = PALETTE_BLUE2;
         dotColor = ColorAlpha(dotColor,0.05f);
@@ -150,6 +151,7 @@ void UpdateDrawFrame(void)
     // Draw render texture to screen, scaled if required
     DrawTexturePro(target.texture, (Rectangle){ 0, 0, (float)target.texture.width, -(float)target.texture.height }, (Rectangle){ 0, 0, (float)ScreenWidth, (float)ScreenHeight }, (Vector2){ 0, 0 }, 0.0f, WHITE);
 
+    DrawFPS(10, 10);
     // TODO: Draw UI
 
 
