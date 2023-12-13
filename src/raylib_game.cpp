@@ -11,17 +11,24 @@
 *
 ********************************************************************************************/
 
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "../../raylib/src/raylib.h"
 #include "Player.h"
+#include "Renderer.h"
+#include "Color.h"
+#include "GameObjectManager.h"
+
+
 
 #if defined(PLATFORM_WEB)
     #define CUSTOM_MODAL_DIALOGS            // Force custom modal dialogs usage
     #include <emscripten/emscripten.h>      // Emscripten library - LLVM to JavaScript compiler
 #endif
 
-#include <stdio.h>                          // Required for: printf()
-#include <stdlib.h>                         // Required for: 
-#include <string.h>                         // Required for: 
 
 //----------------------------------------------------------------------------------
 // Defines and Macros
@@ -35,62 +42,49 @@
     #define LOG(...)
 #endif
 
-//----------------------------------------------------------------------------------
-// Types and Structures Definition
-//----------------------------------------------------------------------------------
-typedef enum { 
-    SCREEN_LOGO = 0, 
-    SCREEN_TITLE, 
-    SCREEN_GAMEPLAY, 
-    SCREEN_ENDING
-} GameScreen;
-
-// TODO: Define your custom data types here
-
-//----------------------------------------------------------------------------------
-// Global Variables Definition
-//----------------------------------------------------------------------------------
-static const int screenWidth = 1280;
-static const int screenHeight = 720;
 
 static RenderTexture2D target = { 0 };  // Render texture to render our game
-
-// TODO: Define global variables here, recommended to make them static
-
-//----------------------------------------------------------------------------------
-// Module Functions Declaration
-//----------------------------------------------------------------------------------
 static void UpdateDrawFrame(void);      // Update and Draw one frame
-static Player player;
+Player player;
+Renderer renderer;
+GameObjectManager gameObjectManager;
+
 
 //------------------------------------------------------------------------------------
 // Program main entry point
 //------------------------------------------------------------------------------------
 int main(void)
 {
-#if !defined(_DEBUG)
-    SetTraceLogLevel(LOG_NONE);         // Disable raylib trace log messsages
-#endif
 
-    // Initialization
-    //--------------------------------------------------------------------------------------
-    InitWindow(screenWidth, screenHeight, "Space Battle Game");
-    
-    // TODO: Load resources / Initialize variables at this point
 
+    SetTraceLogLevel(LOG_NONE);
+
+    InitWindow(ScreenWidth, ScreenHeight, "Space Battle Game");
+
+    //Divider
+    std::cout << "---------------------------------------" << "\n";
 
     player.Init();
+    renderer.InitRenderer(&player);
+
+
+    for (int i = 0; i < 100; ++i) {
+        Vector3 rndPos = { (float)GetRandomValue(-100, 100), (float)GetRandomValue(-100, 100), (float)GetRandomValue(-100, 100) };
+        gameObjectManager.CreateNewAsteroid(rndPos);
+    }
+
+
+
     
     // Render texture to draw full screen, enables screen scaling
-    // NOTE: If screen is scaled, mouse input should be scaled proportionally
-    target = LoadRenderTexture(screenWidth, screenHeight);
+    target = LoadRenderTexture(RenderWidth, RenderHeight);
     SetTextureFilter(target.texture, TEXTURE_FILTER_POINT);
 
 #if defined(PLATFORM_WEB)
     emscripten_set_main_loop(UpdateDrawFrame, 60, 1);
 #else
-    SetTargetFPS(60);     // Set our game frames-per-second
-    //--------------------------------------------------------------------------------------
+    SetTargetFPS(60);
+
 
     // Main game loop
     while (!WindowShouldClose())    // Detect window close button
@@ -101,11 +95,12 @@ int main(void)
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
+    renderer.Unload();
     UnloadRenderTexture(target);
     
     // TODO: Unload all loaded resources at this point
 
-    CloseWindow();        // Close window and OpenGL context
+    CloseWindow();
     //--------------------------------------------------------------------------------------
 
     return 0;
@@ -118,37 +113,47 @@ int main(void)
 void UpdateDrawFrame(void)
 {
     // Update
-    //----------------------------------------------------------------------------------
-    // TODO: Update variables / Implement example logic at this point
-    //----------------------------------------------------------------------------------
 
-
+    float deltaTime = GetFrameTime() * TimeSpeed;
 
     // Draw
     //----------------------------------------------------------------------------------
-    // Render game screen to a texture, 
-    // it could be useful for scaling or further sahder postprocessing
+    // Render game screen to a texture,
     BeginTextureMode(target);
-        ClearBackground(RAYWHITE);
-        
-        // TODO: Draw your game screen here
-        DrawRectangle(10, 10, screenWidth - 20, screenHeight - 20, SKYBLUE);
-        
+        ClearBackground(PALETTE_WHITE);
+        renderer.RenderBackground();
+
+        //3D Rendering starts here
+        BeginMode3D(*player.GetCamera());
+        renderer.RenderAtmosphere();
+
+        Color dotColor = PALETTE_BLUE2;
+        dotColor = ColorAlpha(dotColor,0.05f);
+        DrawCube((Vector3){ 5.0f, 0.0f, 5.0f }, 5.0f, 1.0f, 1.0f, FAKE_TRANSPARENT1);
+        DrawCubeWires((Vector3){ 5.0f, 0.0f, 5.0f }, 5.0f, 1.0f, 1.0f, PALETTE_BLUE2);
+
+        DrawCubeWires((Vector3){ 5.0f, 0.0f, -15.0f }, 1.0f, 2.0f, 1.0f, GREEN);
+        DrawSphereWires((Vector3){ 0.0f, 20.0f, 0.0f }, 1.0f, 5, 5, PALETTE_RED2);
+
+        player.Update(deltaTime);
+        gameObjectManager.UpdateAll(deltaTime);
+        EndMode3D();
     EndTextureMode();
+
+
+
+
     
     // Render to screen (main framebuffer)
     BeginDrawing();
-        ClearBackground(RAYWHITE);
-        
-        // Draw render texture to screen, scaled if required
-        DrawTexturePro(target.texture, (Rectangle){ 0, 0, (float)target.texture.width, -(float)target.texture.height }, (Rectangle){ 0, 0, (float)target.texture.width, (float)target.texture.height }, (Vector2){ 0, 0 }, 0.0f, WHITE);
+    ClearBackground(PALETTE_WHITE);
+    // Draw render texture to screen, scaled if required
+    DrawTexturePro(target.texture, (Rectangle){ 0, 0, (float)target.texture.width, -(float)target.texture.height }, (Rectangle){ 0, 0, (float)ScreenWidth, (float)ScreenHeight }, (Vector2){ 0, 0 }, 0.0f, WHITE);
+
+    // TODO: Draw UI
 
 
-        // TODO: Draw everything that requires to be drawn at this point, maybe UI?
-
-        player.Update(GetFrameTime());
-        DrawText("IT WORKS!", GetScreenWidth()/2, GetScreenHeight()/2, 100, RED);
-
+    //DrawText("IT WORKS!", GetScreenWidth()/2, GetScreenHeight()/2, 100, RED);
     EndDrawing();
     //----------------------------------------------------------------------------------  
 }

@@ -4,3 +4,7 @@ make -e PLATFORM=PLATFORM_DESKTOP -B
 Web:
 In Makefile, change platform to web
 make -e PLATFORM=PLATFORM_WEB -B
+
+Manual compilation:
+
+emcc -o ./build/web/index.html raylib_game.o Player.o Renderer.o GameObject.o GameObjectManager.o -Wall -std=c++14 -D_DEFAULT_SOURCE -Wno-missing-braces -Wunused-result -g -Wall -g -D_DEBUG -I. -I../../raylib/src -I../../raylib/src/external -L. -L../../raylib/src/web -s USE_GLFW=3 -s TOTAL_MEMORY=128MB -s FORCE_FILESYSTEM=1 --preload-file resources -s ASSERTIONS=1 --profiling --shell-file minshell.html ../../raylib/src/web/libraylib.a -DPLATFORM_WEB

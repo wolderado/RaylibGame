@@ -98,10 +98,11 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
     # Emscripten required variables
     EMSDK_PATH         ?= C:/emsdk
     EMSCRIPTEN_PATH    ?= $(EMSDK_PATH)/upstream/emscripten
-    CLANG_PATH          = $(EMSDK_PATH)/upstream/bin
-    PYTHON_PATH         = $(EMSDK_PATH)\python\3.9.2-nuget_64bit\python.exe
-    NODE_PATH           = $(EMSDK_PATH)\node\16.20.0_64bit\bin\node.exe
-    export PATH         = $(EMSDK_PATH);$(EMSCRIPTEN_PATH);$(CLANG_PATH);$(NODE_PATH);$(PYTHON_PATH):$$(PATH)
+    CLANG_PATH         := $(EMSDK_PATH)/upstream/bin
+    PYTHON_PATH        := $(EMSDK_PATH)/python/3.9.2-nuget_64bit/python.exe
+    NODE_PATH          := $(EMSDK_PATH)/node/16.20.0_64bit/bin
+    #    export PATH        := $(EMSDK_PATH);$(EMSCRIPTEN_PATH);$(CLANG_PATH);$(NODE_PATH);$(PYTHON_PATH):$$(PATH)
+    export PATH        := $(EMSDK_PATH);$(EMSCRIPTEN_PATH);$(CLANG_PATH);$(NODE_PATH);$(PYTHON_PATH);C:/raylib/MinGW/bin;$(PATH)
 endif
 
 # Define default C compiler: CC
@@ -312,7 +313,7 @@ endif
 
 # Define source code files required
 #------------------------------------------------------------------------------------------------
-PROJECT_SOURCE_FILES ?= raylib_game.cpp Player.cpp
+PROJECT_SOURCE_FILES ?= raylib_game.cpp Player.cpp Renderer.cpp GameObject.cpp GameObjectManager.cpp
 
 
 
