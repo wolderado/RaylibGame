@@ -12,8 +12,10 @@ void Asteroid::Update(float deltaTime) {
 }
 
 Asteroid::Asteroid() {
+    float rotateSpeed= 0.005f;
+
     rndAngularMomentum =
-            {GetRandomValue(-100, 100) * 0.01f,
-             GetRandomValue(-100, 100) * 0.01f,
-             GetRandomValue(-100, 100) * 0.01f};
+            {GetRandomValue(-100, 100) * rotateSpeed,
+             GetRandomValue(-100, 100) * rotateSpeed,
+             GetRandomValue(-100, 100) * rotateSpeed};
 }

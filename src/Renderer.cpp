@@ -19,10 +19,10 @@ Renderer* Renderer::GetInstance() {
 }
 
 
-void Renderer::InitRenderer(Player* pla) {
+void Renderer::InitRenderer(Camera* cam) {
 
-    player = shared_ptr<Player>(pla);
-    camera = shared_ptr<Camera>(pla->GetCamera());
+    //player = shared_ptr<Player>(pla);
+    camera = shared_ptr<Camera>(cam);
 
     backgroundTexture = LoadTexture("resources/skybox.png");
 
@@ -71,9 +71,9 @@ void Renderer::RenderBackground() {
 
 
 
-void Renderer::RenderAtmosphere() {
+void Renderer::RenderAtmosphere(float cameraVelocityRatio,Vector3 cameraVelocity) {
 
-    DrawDots();
+    DrawDots(cameraVelocityRatio,cameraVelocity);
 }
 
 
@@ -83,22 +83,22 @@ void Renderer::Unload() {
     UnloadModel(GenericLODModel);
 }
 
-void Renderer::DrawDots() {
+void Renderer::DrawDots(float cameraVelocityRatio,Vector3 cameraVelocity) {
     //O(n^3) complexity
     float scale = 1.0f;
     float dotDistance = 6.0f;
-    float lineLength = player->GetVelocityRatioToMaxValue() * maxLineLength;
+    float lineLength = cameraVelocityRatio * maxLineLength;
     lineLength = fmax(lineLength, 0.02f);
-    Vector3 playerVelocity = player->GetVelocityNormalized();
+    Vector3 playerVelocity = Vector3Normalize(cameraVelocity);
 
     for (float x = -dotDistance; x < dotDistance; x +=scale) {
         for (float y = -dotDistance; y < dotDistance; y +=scale) {
             for (float z = -dotDistance; z < dotDistance; z +=scale) {
 
                 Vector3 modPlayerPos;
-                modPlayerPos.x = round(player->Position.x / scale) * scale;
-                modPlayerPos.y = round(player->Position.y / scale) * scale;
-                modPlayerPos.z = round(player->Position.z / scale) * scale;
+                modPlayerPos.x = round(camera->position.x / scale) * scale;
+                modPlayerPos.y = round(camera->position.y / scale) * scale;
+                modPlayerPos.z = round(camera->position.z / scale) * scale;
 
                 Vector3 pos = Vector3Add(modPlayerPos,(Vector3) {x, y, z});
 
@@ -111,7 +111,7 @@ void Renderer::DrawDots() {
                     continue;
 
 
-                float distanceSquared = Vector3LengthSqr(Vector3Subtract(pos, player->Position));
+                float distanceSquared = Vector3LengthSqr(Vector3Subtract(pos, camera->position));
                 float ratio = 1.0f - (distanceSquared / (dotDistance * dotDistance ));
                 ratio = ratio * ratio;
                 ratio = Clamp(ratio, 0.0f, 1.0f);
@@ -133,15 +133,24 @@ void Renderer::RenderModelWire(Model targetModel,Vector3 position, Vector3 rotat
     if(IsVisible(position,ModelsCullDotValue) == false)
         return;
 
-    float distToPlayer = Vector3DistanceSqr(position,player->Position);
-    if(distToPlayer > LOD2Distance * LOD2Distance)
+    float distToPlayer = Vector3DistanceSqr(position,camera->position);
+    if(distToPlayer > CullDistance * CullDistance)
         return;
 
     Mesh targetMesh = targetModel.meshes[0];
 
-    if(distToPlayer > LOD1Distance * LOD1Distance)
+    if(distToPlayer > LOD1Distance * LOD1Distance) {
+        //Generic LOD mesh
         targetMesh = GenericLODModel.meshes[0];
+        //Scale up to hide lod change
+        scale = Vector3Scale(scale,1.5f);
 
+        //Smooth scaling to prevent LOD popping
+        float distRatio = (distToPlayer  - (LODScaleDistanceOffset * LODScaleDistanceOffset)) / (CullDistance * CullDistance);
+        distRatio = fmin(distRatio,1.0f);
+        distRatio = fmax(distRatio,0.0f);
+        scale = Vector3Scale(scale,1.0f - distRatio );
+    }
 
     rlPushMatrix();
 
@@ -176,11 +185,13 @@ void Renderer::RenderModelWire(Model targetModel,Vector3 position, Vector3 rotat
 
 void Renderer::RenderModel(Model targetModel,Vector3 position, Vector3 rotation, Vector3 scale, Color color) {
 
+
+    //Frustum culling
     if(IsVisible(position,ModelsCullDotValue) == false)
         return;
 
     //Don't render inside of it's too far. Only render wires
-    if(Vector3DistanceSqr(position,player->Position) > LOD1Distance * LOD1Distance)
+    if(Vector3DistanceSqr(position,camera->position) > LOD1Distance * LOD1Distance)
         return;
 
 
@@ -211,19 +222,36 @@ Color LerpColor(Color a, Color b, float t)
 //Draws both inside and wireframe of the object. Also fades in the LODs
 void Renderer::RenderModelWithWires(Model targetModel, Vector3 position, Vector3 rotation, Vector3 scale, Color color) {
 
-    RenderModel(targetModel, position,rotation, scale, FAKE_TRANSPARENT1);
-    RenderModelWire(targetModel,position,rotation, Vector3Scale(scale,1.01f),color);
+    float distToPlayer = Vector3DistanceSqr(position,camera->position);
+
+    //Frustum culling
+    if(IsVisible(position,ModelsCullDotValue) == false)
+        return;
+
+    //Distance culling
+    if(distToPlayer > CullDistance * CullDistance)
+        return;
+
+    //Ignore fill model if too far
+    if(distToPlayer < LOD1Distance * LOD1Distance)
+        RenderModel(targetModel, position,rotation, scale, FAKE_TRANSPARENT1);
+
+
+    //Scale lines based on distance to prevent clashing with fill model
+    float distRatioLOD1 = distToPlayer / (LOD1Distance * LOD1Distance);
+    float offsetScale = Lerp(1.01f,1.4f,distRatioLOD1);
+    RenderModelWire(targetModel,position,rotation, Vector3Scale(scale,offsetScale),color);
 }
 
 
 bool Renderer::IsVisible(Vector3 position) {
 
-    Vector3 toTarget = Vector3Subtract(position,player->Position);
+    Vector3 toTarget = Vector3Subtract(position,camera->position);
     return Vector3DotProduct(Vector3Normalize(toTarget), Vector3Normalize(GetCameraForward(camera.get()))) > 0.0f;
 }
 
 
 bool Renderer::IsVisible(Vector3 position, float customDotValue) {
-    Vector3 toTarget = Vector3Subtract(position,player->Position);
+    Vector3 toTarget = Vector3Subtract(position,camera->position);
     return Vector3DotProduct(Vector3Normalize(toTarget), Vector3Normalize(GetCameraForward(camera.get()))) > customDotValue;
 }

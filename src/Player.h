@@ -10,24 +10,17 @@
 #include "../../raylib/src/raymath.h"
 #include "../../raylib/src/rcamera.h"
 #include "Globals.h"
-
-
-
+#include "GameObject.h"
 
 
 using namespace std;
 
-class Player {
+class Player : public GameObject {
 public:
-    Vector3 Position;
-    Vector3 Rotation;
-
     Player();
     void Init();
-    void Update(float deltaTime);
+    void Update(float deltaTime) override;
     Camera* GetCamera();
-    Vector3 GetVelocityNormalized();
-    Vector3 GetVelocity();
     float GetVelocityRatioToMaxValue();
 
 private:
@@ -41,7 +34,6 @@ private:
 
     Camera3D playerCamera;
     Vector3 smoothedInput;
-    Vector3 currentVelocity;
 
 
 

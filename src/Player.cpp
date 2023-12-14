@@ -10,6 +10,8 @@ Player::Player(){
 
 void Player::Init() {
 
+    SetTeam(TEAM_PLAYER);
+
     playerCamera = { 0 };
     playerCamera.position = (Vector3){ 0.25f, 0.25f, 0.25f };
     playerCamera.target = (Vector3){ 0.0f, 0.0f, 1.0f };
@@ -31,8 +33,11 @@ Camera* Player::GetCamera() {
 
 void Player::ProcessInput(float deltaTime){
 
+
     ProcessRotation(deltaTime);
     ProcessThrust(deltaTime);
+
+    GameObject::Update(deltaTime);
 
 }
 
@@ -102,39 +107,27 @@ void Player::ProcessThrust(float deltaTime) {
 
 
     float move = 0;
-    if(IsKeyDown(KEY_LEFT_SHIFT))
+    if (IsKeyDown(KEY_LEFT_SHIFT))
         move += acceleratePower;
 
-    if(IsKeyDown(KEY_LEFT_CONTROL))
-    {
+    if (IsKeyDown(KEY_LEFT_CONTROL)) {
         move = 0;
         currentVelocity = Vector3Lerp(currentVelocity, Vector3Zero(), stopInertiaSpeed * deltaTime);
     }
 
     Vector3 forward = GetCameraForward(&playerCamera);
-    Vector3 velChange = Vector3Scale(forward,move * deltaTime);
+    Vector3 velChange = Vector3Scale(forward, move * deltaTime);
     currentVelocity = Vector3Add(currentVelocity, velChange);
     currentVelocity = Vector3ClampValue(currentVelocity, -maxVelocity, maxVelocity);
 
 
-    Position = Vector3Add(Position, currentVelocity);
-    playerCamera.position = Position;
 
-    playerCamera.position  = Position;
+    playerCamera.position = Position;
     playerCamera.target = Vector3Add(playerCamera.position, Vector3Normalize(forward));
 
     //playerCamera.target = Vector3Add(playerCamera.target, Position);
     //playerCamera.target = Vector3Scale(GetCameraForward(&playerCamera),1);
 }
-
-Vector3 Player::GetVelocityNormalized() {
-    return Vector3Normalize(currentVelocity);
-}
-
-Vector3 Player::GetVelocity() {
-    return currentVelocity;
-}
-
 
 
 float Player::GetVelocityRatioToMaxValue() {

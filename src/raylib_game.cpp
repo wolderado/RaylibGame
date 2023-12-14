@@ -20,7 +20,7 @@
 #include "Player.h"
 #include "Renderer.h"
 #include "Color.h"
-#include "GameObjectManager.h"
+#include "World.h"
 
 
 
@@ -45,9 +45,9 @@
 
 static RenderTexture2D target = { 0 };  // Render texture to render our game
 static void UpdateDrawFrame(void);      // Update and Draw one frame
-Player player;
+shared_ptr<Player> player;
 Renderer* renderer;
-GameObjectManager gameObjectManager;
+World* world;
 
 
 //------------------------------------------------------------------------------------
@@ -64,14 +64,15 @@ int main(void)
     //Divider
     std::cout << "---------------------------------------" << "\n";
 
-    player.Init();
+    player = shared_ptr<Player>(world->GetInstance()->CreatePlayer());
     renderer = Renderer::GetInstance();
-    renderer->InitRenderer(&player);
+    renderer->InitRenderer(player->GetCamera());
 
 
-    for (int i = 0; i < 300; ++i) {
+
+    for (int i = 0; i < 100; ++i) {
         Vector3 rndPos = { (float)GetRandomValue(-100, 100), (float)GetRandomValue(-100, 100), (float)GetRandomValue(-100, 100) };
-        gameObjectManager.CreateNewAsteroid(rndPos);
+        world->GetInstance()->CreateNewAsteroid(rndPos);
     }
 
 
@@ -125,8 +126,8 @@ void UpdateDrawFrame(void)
         renderer->RenderBackground();
 
         //3D Rendering starts here
-        BeginMode3D(*player.GetCamera());
-        renderer->RenderAtmosphere();
+        BeginMode3D(*player->GetCamera());
+        renderer->RenderAtmosphere(player->GetVelocityRatioToMaxValue(),player->GetVelocity());
 
         Color dotColor = PALETTE_BLUE2;
         dotColor = ColorAlpha(dotColor,0.05f);
@@ -136,8 +137,8 @@ void UpdateDrawFrame(void)
         DrawCubeWires((Vector3){ 5.0f, 0.0f, -15.0f }, 1.0f, 2.0f, 1.0f, GREEN);
         DrawSphereWires((Vector3){ 0.0f, 20.0f, 0.0f }, 1.0f, 5, 5, PALETTE_RED2);
 
-        player.Update(deltaTime);
-        gameObjectManager.UpdateAll(deltaTime);
+        //player.Update(deltaTime);
+        world->GetInstance()->UpdateAll(deltaTime);
         EndMode3D();
     EndTextureMode();
 

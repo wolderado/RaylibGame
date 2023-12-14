@@ -15,6 +15,7 @@
 #include "Color.h"
 #include "Renderer.h"
 
+const bool DEBUG_SHOW_COLLISION_AREA = false;
 
 
 enum ObjectRenderType{
@@ -30,7 +31,9 @@ public:
     Vector3 Position;
     Vector3 Rotation;
     Vector3 Scale;
-
+    bool CanCollide = true;
+    float CollisionSize = 1.0f;
+    float Mass = 1;
 
 
     GameObject();
@@ -41,7 +44,11 @@ public:
     virtual void Destroy();
     TEAM GetTeam();
     void SetTeam(TEAM newTeam);
+    Vector3 GetVelocity() { return currentVelocity; }
+    Vector3 GetVelocityNormalized() { return Vector3Normalize(currentVelocity); }
 
+    //Collision event triggered by world interactions
+    virtual void OnCollision(GameObject* otherObject,Vector3 collisionTotalVelocity);
 
 protected:
     TEAM myTeam = TEAM_NEUTRAL;
@@ -49,6 +56,7 @@ protected:
     Model myModel;
     ObjectRenderType myRenderType = Invisible;
     Color myColor;
+    Vector3 currentVelocity;
 };
 
 
