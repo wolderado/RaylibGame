@@ -19,27 +19,32 @@ void Player::Init() {
     playerCamera.fovy = 60.0f;
     playerCamera.projection = CAMERA_PERSPECTIVE;
 
+    hudCamera = { 0 };
+    hudCamera.position = Vector3Zero();
+    hudCamera.target = (Vector3){ 0.0f, 0.0f, 1.0f };
+    hudCamera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
+    hudCamera.fovy = 60.0f;
+    hudCamera.projection = CAMERA_PERSPECTIVE;
+
+
     std::cout << "Initialized Player" << "\n";
 }
 
 void Player::Update(float deltaTime) {
 
     ProcessInput(deltaTime);
+    GameObject::Update(deltaTime);
 }
 
-Camera* Player::GetCamera() {
-    return &playerCamera;
-}
+
 
 void Player::ProcessInput(float deltaTime){
 
-
     ProcessRotation(deltaTime);
     ProcessThrust(deltaTime);
-
-    GameObject::Update(deltaTime);
-
 }
+
+
 
 void Player::ProcessRotation(float deltaTime) {
     Vector3 inputVec = {0,0,0};
@@ -95,8 +100,35 @@ void Player::ProcessRotation(float deltaTime) {
 
     //Rotate camera methods
     CameraYaw(&playerCamera, smoothedInput.x, false);
-    CameraPitch(&playerCamera, smoothedInput.y,false,false,true);
+    CameraPitch(&playerCamera, smoothedInput.y,false,false, true);
     CameraRoll(&playerCamera, smoothedInput.z );
+
+
+/*
+    Vector3 toTarget = Vector3Subtract(playerCamera.target,playerCamera.position);
+    toTarget = Vector3Normalize(toTarget);
+
+
+    Rotation.x = asinf(-toTarget.y);
+    Rotation.y = atan2f(toTarget.x, toTarget.z);
+    Rotation.z = 0.0f;  // Assuming roll is 0
+
+    float yaw = Rotation.y;
+    float pitch = Rotation.x;
+
+    Vector3 direction = {
+            cosf(pitch) * sinf(yaw),
+            -sinf(pitch),
+            cosf(pitch) * cosf(yaw)
+    };
+
+    DrawLine3D(playerCamera.target, Vector3Add(playerCamera.target,toTarget), PURPLE);
+
+    DrawSphereWires(Vector3Add(playerCamera.target,toTarget), 0.1f, 16, 16, PURPLE);
+
+    DrawSphereWires(Vector3Add(playerCamera.target,direction), 0.2f, 16, 16, RED);
+
+    //DrawSphereWires(playerCamera.target, 0.1f, 16, 16, RED);*/
 }
 
 void Player::ProcessThrust(float deltaTime) {
@@ -106,17 +138,19 @@ void Player::ProcessThrust(float deltaTime) {
     float acceleratePower = Lerp(thrustChangeSpeedMin, thrustChangeSpeedMax, accT);
 
 
-    float move = 0;
+    thrust = 0;
     if (IsKeyDown(KEY_LEFT_SHIFT))
-        move += acceleratePower;
+        thrust += acceleratePower * deltaTime;
 
     if (IsKeyDown(KEY_LEFT_CONTROL)) {
-        move = 0;
+        thrust = 0;
         currentVelocity = Vector3Lerp(currentVelocity, Vector3Zero(), stopInertiaSpeed * deltaTime);
     }
 
+    smoothThrust = Lerp(smoothThrust, thrust, deltaTime * 5.0f);
+
     Vector3 forward = GetCameraForward(&playerCamera);
-    Vector3 velChange = Vector3Scale(forward, move * deltaTime);
+    Vector3 velChange = Vector3Scale(forward, thrust);
     currentVelocity = Vector3Add(currentVelocity, velChange);
     currentVelocity = Vector3ClampValue(currentVelocity, -maxVelocity, maxVelocity);
 
@@ -132,4 +166,22 @@ void Player::ProcessThrust(float deltaTime) {
 
 float Player::GetVelocityRatioToMaxValue() {
     return Vector3Length(currentVelocity) / maxVelocity;
+}
+
+Camera* Player::GetCamera() {
+    return &playerCamera;
+}
+
+Camera *Player::GetHUDCamera() {
+    return &hudCamera;
+}
+
+Vector3 Player::GetCameraDirection() {
+    Vector3 toTarget = Vector3Subtract(playerCamera.target,playerCamera.position);
+    toTarget = Vector3Normalize(toTarget);
+    return toTarget;
+}
+
+Vector3 Player::GetSwayInput() {
+    return (Vector3){smoothedInput.y,smoothedInput.x,smoothThrust};
 }

@@ -11,6 +11,7 @@
 #include "../../raylib/src/rcamera.h"
 #include "../../raylib/src/rlgl.h"
 #include "Color.h"
+#include "Globals.h"
 
 
 
@@ -31,7 +32,7 @@ public:
     bool IsVisible(Vector3 position,float customDotValue);
     void RenderModelWire(Model targetModel,Vector3 position, Vector3 rotation, Vector3 scale, Color color);
     void RenderModel(Model targetModel,Vector3 position, Vector3 rotation, Vector3 scale, Color color);
-    void RenderModelWithWires(Model targetModel,Vector3 position, Vector3 rotation, Vector3 scale, Color color);
+    void RenderModelWithWires(Model targetModel,Vector3 position, Vector3 rotation, Vector3 scale, Color color,bool ignoreOptimizations = false);
 
 private:
     static Renderer* instance;
@@ -41,12 +42,12 @@ private:
     const float CullDistance = 700;
     const float LODScaleDistanceOffset = 10;
 
-    Vector3 starPositions[1000];
-    Texture backgroundTexture;
+    Texture skyboxTexture;
     shared_ptr<Camera> camera;
     //shared_ptr<Player> player;
     void DrawDots(float cameraVelocityRatio,Vector3 cameraVelocity);
-    Model GenericLODModel;
+    Model genericLODModel;
+    Model skyboxModel;
 };
 
 

@@ -8,6 +8,7 @@ void Asteroid::Update(float deltaTime) {
 
     Rotation = Vector3Add(Rotation, Vector3Scale(rndAngularMomentum,deltaTime));
 
+
     GameObject::Update(deltaTime);
 }
 

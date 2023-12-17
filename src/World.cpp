@@ -20,16 +20,28 @@ World* World::GetInstance() {
 
 
 void World::UpdateAll(float deltaTime) {
+
+    for (auto& pair : activeGameObjects) {
+        //cout << "Updating game object " << pair.second->Name << endl;
+        pair.second->Update(deltaTime);
+        CheckCollision(pair.second.get());
+        pair.second->Render(deltaTime);
+
+    }
+
+
+/*
     for (shared_ptr<GameObject> &gameObject : activeGameObjects) {
         //cout << "Updating game object" << endl;
         gameObject->Update(deltaTime);
         CheckCollision(gameObject.get());
         gameObject->Render(deltaTime);
-    }
+    }*/
 }
 
 shared_ptr<GameObject> World::CreateNewObject() {
     shared_ptr<GameObject> gameObject = make_shared<GameObject>();
+;
     InitObject(gameObject);
     return gameObject;
 }
@@ -39,6 +51,7 @@ shared_ptr<GameObject> World::CreateNewAsteroid(Vector3 position) {
 
 
     newAsteroid->SetTeam(TEAM_NEUTRAL);
+    newAsteroid->Name = "Asteroid";
 
 /*    //Load models
     Mesh sphereMesh = GenMeshSphere(1.0f, 8, 8);
@@ -87,35 +100,43 @@ shared_ptr<GameObject> World::CreateNewAsteroid(Vector3 position) {
 void World::InitObject(shared_ptr<GameObject> target) {
     //Get the biggest scale value to approximate collision size
     target->CollisionSize *= fmax(fmax(target->Scale.x,target->Scale.y),target->Scale.z);
-    activeGameObjects.push_back(target);
+    activeGameObjects[nextObjectId] = target;
+    target->Name = target->Name + string(" [ID=") + to_string(nextObjectId) + string("]");
+    nextObjectId++;
 }
 
 shared_ptr<Player> World::CreatePlayer() {
     player.Init();
     shared_ptr<Player> newPlayer = make_shared<Player>(player);
+    newPlayer->Name = "Player";
     InitObject(newPlayer);
     return newPlayer;
 }
 
 void World::CheckCollision(GameObject* object) {
 
-    if(object->CanCollide == false)
+    if (object->CanCollide == false)
         return;
 
-    if(Vector3LengthSqr(object->GetVelocity()) < 0.001f)
+    if (Vector3LengthSqr(object->GetVelocity()) < 0.001f)
         return;
 
-    for (shared_ptr<GameObject> &otherObject : activeGameObjects)
-    {
-        if(object->CanCollide == false || otherObject.get() == object)
-            continue;
-
-        if(CheckCollisionSpheres(object->Position,object->CollisionSize,otherObject->Position,otherObject->CollisionSize))
+    for (const auto &gmPair: activeGameObjects) {
         {
-            Vector3 totalVel = Vector3Add(object->GetVelocity(),otherObject->GetVelocity());
-            object->OnCollision(otherObject.get(),totalVel);
-            otherObject->OnCollision(object,totalVel);
-            break;
+            if (object->CanCollide == false || gmPair.second.get() == object)
+                continue;
+
+            if (CheckCollisionSpheres(object->Position, object->CollisionSize, gmPair.second->Position,
+                                      gmPair.second->CollisionSize)) {
+                Vector3 totalVel = Vector3Add(object->GetVelocity(), gmPair.second->GetVelocity());
+                object->OnCollision(gmPair.second.get(), totalVel);
+                gmPair.second->OnCollision(object, totalVel);
+                break;
+            }
         }
     }
+}
+
+void World::OnGameObjectDestroyed() {
+
 }

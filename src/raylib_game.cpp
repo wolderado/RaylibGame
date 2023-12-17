@@ -21,6 +21,7 @@
 #include "Renderer.h"
 #include "Color.h"
 #include "World.h"
+#include "HUD.h"
 
 
 
@@ -44,10 +45,12 @@
 
 
 static RenderTexture2D target = { 0 };  // Render texture to render our game
+static RenderTexture2D targetHUD = { 0 };  // Render texture to render our game
 static void UpdateDrawFrame(void);      // Update and Draw one frame
 shared_ptr<Player> player;
 Renderer* renderer;
 World* world;
+HUD hud;
 
 
 //------------------------------------------------------------------------------------
@@ -55,8 +58,6 @@ World* world;
 //------------------------------------------------------------------------------------
 int main(void)
 {
-
-
     SetTraceLogLevel(LOG_NONE);
 
     InitWindow(ScreenWidth, ScreenHeight, "Space Battle Game");
@@ -67,6 +68,7 @@ int main(void)
     player = shared_ptr<Player>(world->GetInstance()->CreatePlayer());
     renderer = Renderer::GetInstance();
     renderer->InitRenderer(player->GetCamera());
+    hud.Init(player);
 
 
 
@@ -76,11 +78,13 @@ int main(void)
     }
 
 
-
     
     // Render texture to draw full screen, enables screen scaling
     target = LoadRenderTexture(RenderWidth, RenderHeight);
     SetTextureFilter(target.texture, TEXTURE_FILTER_POINT);
+
+    targetHUD = LoadRenderTexture(RenderWidth, RenderHeight);
+    SetTextureFilter(targetHUD.texture, TEXTURE_FILTER_POINT);
 
 #if defined(PLATFORM_WEB)
     emscripten_set_main_loop(UpdateDrawFrame, 60, 1);
@@ -115,33 +119,28 @@ int main(void)
 void UpdateDrawFrame(void)
 {
     // Update
-
     float deltaTime = GetFrameTime() * TimeSpeed;
 
     // Draw
     //----------------------------------------------------------------------------------
-    // Render game screen to a texture,
     BeginTextureMode(target);
-        ClearBackground(PALETTE_WHITE);
         renderer->RenderBackground();
 
-        //3D Rendering starts here
         BeginMode3D(*player->GetCamera());
-        renderer->RenderAtmosphere(player->GetVelocityRatioToMaxValue(),player->GetVelocity());
-
-        Color dotColor = PALETTE_BLUE2;
-        dotColor = ColorAlpha(dotColor,0.05f);
-        DrawCube((Vector3){ 5.0f, 0.0f, 5.0f }, 5.0f, 1.0f, 1.0f, FAKE_TRANSPARENT1);
-        DrawCubeWires((Vector3){ 5.0f, 0.0f, 5.0f }, 5.0f, 1.0f, 1.0f, PALETTE_BLUE2);
-
-        DrawCubeWires((Vector3){ 5.0f, 0.0f, -15.0f }, 1.0f, 2.0f, 1.0f, GREEN);
-        DrawSphereWires((Vector3){ 0.0f, 20.0f, 0.0f }, 1.0f, 5, 5, PALETTE_RED2);
-
-        //player.Update(deltaTime);
-        world->GetInstance()->UpdateAll(deltaTime);
+            renderer->RenderAtmosphere(player->GetVelocityRatioToMaxValue(),player->GetVelocity());
+            world->GetInstance()->UpdateAll(deltaTime);
+            //hud.Render3D(deltaTime);
         EndMode3D();
     EndTextureMode();
 
+
+    //HUD Camera Render
+    BeginTextureMode(targetHUD);
+        ClearBackground((Color){0,0,0,0});
+        BeginMode3D(*player->GetHUDCamera());
+            hud.Render3D(deltaTime);
+        EndMode3D();
+    EndTextureMode();
 
 
 
@@ -149,11 +148,14 @@ void UpdateDrawFrame(void)
     // Render to screen (main framebuffer)
     BeginDrawing();
     ClearBackground(PALETTE_WHITE);
-    // Draw render texture to screen, scaled if required
+    // Draw render texture to screen
     DrawTexturePro(target.texture, (Rectangle){ 0, 0, (float)target.texture.width, -(float)target.texture.height }, (Rectangle){ 0, 0, (float)ScreenWidth, (float)ScreenHeight }, (Vector2){ 0, 0 }, 0.0f, WHITE);
+    DrawTexturePro(targetHUD.texture, (Rectangle){ 0, 0, (float)targetHUD.texture.width, -(float)targetHUD.texture.height }, (Rectangle){ 0, 0, (float)ScreenWidth, (float)ScreenHeight }, (Vector2){ 0, 0 }, 0.0f, WHITE);
 
+
+    // Draw UI
     DrawFPS(10, 10);
-    // TODO: Draw UI
+    hud.Render(deltaTime);
 
 
     //DrawText("IT WORKS!", GetScreenWidth()/2, GetScreenHeight()/2, 100, RED);

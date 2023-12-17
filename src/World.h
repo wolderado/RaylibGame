@@ -9,9 +9,11 @@
 #include <memory>
 #include <iostream>
 #include <string>
+#include <map>
 #include "GameObject.h"
 #include "Asteroid.h"
 #include "Player.h"
+
 
 
 using namespace std;
@@ -27,12 +29,13 @@ public:
 
 
 private:
+    uint32_t nextObjectId = 0;
     Player player;
     static World* instance;
-    vector<shared_ptr<GameObject>> activeGameObjects;
+    map<uint32_t, shared_ptr<GameObject>> activeGameObjects;
     void InitObject(shared_ptr<GameObject> target);
     void CheckCollision(GameObject* object);
-
+    void OnGameObjectDestroyed();
 };
 
 

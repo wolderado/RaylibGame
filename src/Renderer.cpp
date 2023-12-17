@@ -24,18 +24,14 @@ void Renderer::InitRenderer(Camera* cam) {
     //player = shared_ptr<Player>(pla);
     camera = shared_ptr<Camera>(cam);
 
-    backgroundTexture = LoadTexture("resources/skybox.png");
-
-    for (int i = 0; i < sizeof(starPositions) / sizeof(starPositions[0]); ++i) {
-        starPositions[i].x = GetRandomValue(-100,100);
-        starPositions[i].y = GetRandomValue(-100,100);
-        starPositions[i].z = GetRandomValue(-100,100);
-
-        starPositions[i] = Vector3Normalize(starPositions[i]);
-    }
-
     string modelPath = "resources/AsteroidLOD.glb";
-    GenericLODModel = LoadModel(modelPath.c_str());
+    genericLODModel = LoadModel(modelPath.c_str());
+
+    //Skybox generation
+    skyboxModel = LoadModel("resources/skybox.glb");
+    skyboxTexture = LoadTexture("resources/skyboxSeamless.png");
+    skyboxModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = skyboxTexture;
+
 
 }
 
@@ -54,38 +50,50 @@ float CalculateDistanceToDotCenter(float x,float y,float z, float maxDistance)
 
 
 void Renderer::RenderBackground() {
+
     ClearBackground(PALETTE_GRAY1);
-    //DrawTexturePro(backgroundTexture, (Rectangle){ 0, 0, (float)backgroundTexture.width, -(float)backgroundTexture.height }, (Rectangle){ 0, 0, (float)RenderWidth, (float)RenderHeight }, (Vector2){ 0, 0 }, 0.0f, WHITE);
+    //Draw skybox
+    //DrawModel(skyboxModel, camera->position, 100.0f, WHITE);
+/*
+    float scale = 64;
+    Vector3 dirVector = Vector3Normalize(GetCameraForward(camera.get()));
+*//*    DrawTexturePro(skyboxTexture, (Rectangle){ dirVector.x * skyboxTexture.width, dirVector.y * skyboxTexture.width, scale, scale },
+                   (Rectangle){ 0, 0, RenderWidth, RenderHeight }, (Vector2){ 0, 0 }, 0.0f, WHITE);*//*
 
 
-/*    for (Vector3 star : starPositions){
-        Vector3 pos = Vector3Scale(star, 10000);
-        Vector2 screenPos = GetWorldToScreenEx(pos, *camera, RenderWidth, RenderHeight);
-        DrawPixel(screenPos.x, screenPos.y, RED);
-        //DrawSphere(pos, 0.1f, PALETTE_GRAY2);
-    }*/
+   // DrawText(TextFormat("FPS: %3.1f", (1.0f/GetFrameTime())), 10, 10, 10, PALETTE_GRAY2);*/
 
 
-   // DrawText(TextFormat("FPS: %3.1f", (1.0f/GetFrameTime())), 10, 10, 10, PALETTE_GRAY2);
+
+/*    float scale = 0.25f;
+    Vector3 forward = Vector3Add(camera->position,(Vector3){0,0,1});
+    Vector2 screenPoint = GetWorldToScreen(forward,*camera);
+
+    DrawTexturePro(skyboxTexture, (Rectangle){-screenPoint.x * scale, -screenPoint.y * scale, (float)skyboxTexture.width, (float)skyboxTexture.height },
+                   (Rectangle){ 0, 0, RenderWidth, RenderHeight }, (Vector2){ 0.5f,  0.5f }, 0.0f, WHITE);*/
 }
 
 
 
 void Renderer::RenderAtmosphere(float cameraVelocityRatio,Vector3 cameraVelocity) {
 
+    //DrawModel(skyboxModel, camera->position, 100.0f, WHITE);
+
     DrawDots(cameraVelocityRatio,cameraVelocity);
+
 }
 
 
 
 void Renderer::Unload() {
-    UnloadTexture(backgroundTexture);
-    UnloadModel(GenericLODModel);
+    UnloadTexture(skyboxTexture);
+    UnloadModel(genericLODModel);
+    UnloadModel(skyboxModel);
 }
 
 void Renderer::DrawDots(float cameraVelocityRatio,Vector3 cameraVelocity) {
     //O(n^3) complexity
-    float scale = 1.0f;
+    float scale = 1.5f;
     float dotDistance = 6.0f;
     float lineLength = cameraVelocityRatio * maxLineLength;
     lineLength = fmax(lineLength, 0.02f);
@@ -127,41 +135,26 @@ void Renderer::DrawDots(float cameraVelocityRatio,Vector3 cameraVelocity) {
 
 void Renderer::RenderModelWire(Model targetModel,Vector3 position, Vector3 rotation, Vector3 scale, Color color) {
 
-    //Trace vertices with correct indices
-
-    //Culling
-    if(IsVisible(position,ModelsCullDotValue) == false)
-        return;
 
     float distToPlayer = Vector3DistanceSqr(position,camera->position);
-    if(distToPlayer > CullDistance * CullDistance)
-        return;
-
     Mesh targetMesh = targetModel.meshes[0];
 
-    if(distToPlayer > LOD1Distance * LOD1Distance) {
-        //Generic LOD mesh
-        targetMesh = GenericLODModel.meshes[0];
-        //Scale up to hide lod change
-        scale = Vector3Scale(scale,1.5f);
 
-        //Smooth scaling to prevent LOD popping
-        float distRatio = (distToPlayer  - (LODScaleDistanceOffset * LODScaleDistanceOffset)) / (CullDistance * CullDistance);
-        distRatio = fmin(distRatio,1.0f);
-        distRatio = fmax(distRatio,0.0f);
-        scale = Vector3Scale(scale,1.0f - distRatio );
-    }
-
-    rlPushMatrix();
 
     //Transforms
-    Matrix finalMatrix = MatrixMultiply(MatrixScale(scale.x, scale.y, scale.z), MatrixRotateXYZ(rotation));
-    finalMatrix = MatrixMultiply(finalMatrix, MatrixTranslate(position.x, position.y, position.z));
-    rlMultMatrixf(MatrixToFloat(finalMatrix));
+    Matrix rotationMatrix = MatrixRotateXYZ((Vector3){ rotation.x, rotation.y, rotation.z });
+    Matrix scaleMatrix = MatrixScale(scale.x, scale.y, scale.z);
+    Matrix translationMatrix = MatrixTranslate(position.x, position.y, position.z);
+    Matrix transformationMatrix = MatrixMultiply(MatrixMultiply(rotationMatrix, scaleMatrix), translationMatrix);
+
+    rlPushMatrix();
+    rlMultMatrixf(MatrixToFloat(transformationMatrix));
+    rlEnableBackfaceCulling();
 
     //Line rendering
     rlBegin(RL_LINES);
     rlColor4ub(color.r, color.g, color.b, color.a);
+
     for (int i = 0; i < targetMesh.triangleCount * 3; i += 3)
     {
         unsigned short index1 = targetMesh.indices[i];
@@ -179,20 +172,12 @@ void Renderer::RenderModelWire(Model targetModel,Vector3 position, Vector3 rotat
         rlVertex3f(targetMesh.vertices[3 * index1], targetMesh.vertices[3 * index1 + 1], targetMesh.vertices[3 * index1 + 2]);
     }
 
+    rlDisableBackfaceCulling();
     rlEnd();
     rlPopMatrix();
 }
 
 void Renderer::RenderModel(Model targetModel,Vector3 position, Vector3 rotation, Vector3 scale, Color color) {
-
-
-    //Frustum culling
-    if(IsVisible(position,ModelsCullDotValue) == false)
-        return;
-
-    //Don't render inside of it's too far. Only render wires
-    if(Vector3DistanceSqr(position,camera->position) > LOD1Distance * LOD1Distance)
-        return;
 
 
     //Transforms
@@ -220,28 +205,63 @@ Color LerpColor(Color a, Color b, float t)
 
 
 //Draws both inside and wireframe of the object. Also fades in the LODs
-void Renderer::RenderModelWithWires(Model targetModel, Vector3 position, Vector3 rotation, Vector3 scale, Color color) {
+void Renderer::RenderModelWithWires(Model targetModel, Vector3 position, Vector3 rotation, Vector3 scale, Color color,bool ignoreOptimizations) {
 
-    float distToPlayer = Vector3DistanceSqr(position,camera->position);
+    if(targetModel.meshCount > 1)
+    {
+        for (int i = 0; i < targetModel.meshCount; ++i) {
+            RenderModelWithWires(LoadModelFromMesh(targetModel.meshes[i]),position,rotation,scale,color,ignoreOptimizations);
+        }
 
-    //Frustum culling
-    if(IsVisible(position,ModelsCullDotValue) == false)
         return;
-
-    //Distance culling
-    if(distToPlayer > CullDistance * CullDistance)
-        return;
-
-    //Ignore fill model if too far
-    if(distToPlayer < LOD1Distance * LOD1Distance)
-        RenderModel(targetModel, position,rotation, scale, FAKE_TRANSPARENT1);
+    }
 
 
+    float distToPlayer = Vector3DistanceSqr(position, camera->position);
     //Scale lines based on distance to prevent clashing with fill model
     float distRatioLOD1 = distToPlayer / (LOD1Distance * LOD1Distance);
     float offsetScale = Lerp(1.01f,1.4f,distRatioLOD1);
+
+    if(ignoreOptimizations == false) {
+
+        //Frustum culling
+        if (IsVisible(position, ModelsCullDotValue) == false)
+            return;
+
+        //TODO: Convert this from real distance to screen size
+        //Distance culling
+        if (distToPlayer > CullDistance * CullDistance)
+            return;
+
+
+        if(distToPlayer > LOD1Distance * LOD1Distance){
+            //Generic LOD mesh
+            targetModel = LoadModelFromMesh(genericLODModel.meshes[0]);
+            //Scale up to hide lod change
+            scale = Vector3Scale(scale,1.5f);
+
+            //Smooth scaling to prevent LOD popping
+            float distRatio = (distToPlayer  - (LODScaleDistanceOffset * LODScaleDistanceOffset)) / (CullDistance * CullDistance);
+            distRatio = fmin(distRatio,1.0f);
+            distRatio = fmax(distRatio,0.0f);
+            scale = Vector3Scale(scale,1.0f - distRatio );
+        }
+
+        //Ignore fill model if too far
+        if (distToPlayer < LOD1Distance * LOD1Distance)
+            RenderModel(targetModel, position, rotation, scale, FAKE_TRANSPARENT1);
+
+
+    }else
+    {
+        RenderModel(targetModel, position, rotation, scale, FAKE_TRANSPARENT1);
+        offsetScale = 1.01f;
+    }
+
+
     RenderModelWire(targetModel,position,rotation, Vector3Scale(scale,offsetScale),color);
 }
+
 
 
 bool Renderer::IsVisible(Vector3 position) {

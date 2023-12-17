@@ -21,7 +21,10 @@ public:
     void Init();
     void Update(float deltaTime) override;
     Camera* GetCamera();
+    Camera* GetHUDCamera();
     float GetVelocityRatioToMaxValue();
+    Vector3 GetCameraDirection();
+    Vector3 GetSwayInput();
 
 private:
     const float rotateAccelerateSpeed = 0.075f;
@@ -33,7 +36,10 @@ private:
     const float maxVelocity = 0.3f;
 
     Camera3D playerCamera;
+    Camera3D hudCamera;
     Vector3 smoothedInput;
+    float thrust;
+    float smoothThrust;
 
 
 

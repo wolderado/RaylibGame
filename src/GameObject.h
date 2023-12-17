@@ -7,6 +7,8 @@
 
 #include <string>
 #include <iostream>
+#include <vector>
+#include <functional>
 
 #include "../../raylib/src/raylib.h"
 #include "../../raylib/src/raymath.h"
@@ -42,13 +44,14 @@ public:
     virtual void Hurt(float damage);
     virtual void SetModel(Model model);
     virtual void Destroy();
+    virtual void OnCollision(GameObject* otherObject,Vector3 collisionTotalVelocity);  //Collision event triggered by world interactions
+
     TEAM GetTeam();
     void SetTeam(TEAM newTeam);
     Vector3 GetVelocity() { return currentVelocity; }
     Vector3 GetVelocityNormalized() { return Vector3Normalize(currentVelocity); }
 
-    //Collision event triggered by world interactions
-    virtual void OnCollision(GameObject* otherObject,Vector3 collisionTotalVelocity);
+
 
 protected:
     TEAM myTeam = TEAM_NEUTRAL;
