@@ -25,6 +25,7 @@ public:
     float GetVelocityRatioToMaxValue();
     Vector3 GetCameraDirection();
     Vector3 GetSwayInput();
+    void ShakeCamera(float amount);
 
 private:
     const float rotateAccelerateSpeed = 0.075f;
@@ -35,17 +36,25 @@ private:
     const float stopInertiaSpeed = 4.0f;
     const float maxVelocity = 0.3f;
 
+
     Camera3D playerCamera;
     Camera3D hudCamera;
     Vector3 smoothedInput;
     float thrust;
     float smoothThrust;
+    float trauma = 0;
+    float traumaDecay = 1.0f;
+    float shakeMaxMoveAmount = 0.5f;
+    Vector3 camPosition;
+    Vector3 shakeOffset;
 
 
 
     void ProcessInput(float deltaTime);
     void ProcessRotation(float deltaTime);
     void ProcessThrust(float deltaTime);
+    void ProcessCamera(float deltaTime);
+    void OnCollision(GameObject* otherObject,Vector3 collisionTotalVelocity) override;
 };
 
 #endif // PLAYER_H

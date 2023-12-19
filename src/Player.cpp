@@ -32,7 +32,12 @@ void Player::Init() {
 
 void Player::Update(float deltaTime) {
 
+    if (IsKeyPressed(KEY_SPACE)) {
+        ShakeCamera(1.0f);
+    }
+
     ProcessInput(deltaTime);
+    ProcessCamera(deltaTime);
     GameObject::Update(deltaTime);
 }
 
@@ -42,6 +47,7 @@ void Player::ProcessInput(float deltaTime){
 
     ProcessRotation(deltaTime);
     ProcessThrust(deltaTime);
+
 }
 
 
@@ -147,7 +153,7 @@ void Player::ProcessThrust(float deltaTime) {
         currentVelocity = Vector3Lerp(currentVelocity, Vector3Zero(), stopInertiaSpeed * deltaTime);
     }
 
-    smoothThrust = Lerp(smoothThrust, thrust, deltaTime * 5.0f);
+    smoothThrust = Lerp(smoothThrust, thrust, deltaTime * 10.0f);
 
     Vector3 forward = GetCameraForward(&playerCamera);
     Vector3 velChange = Vector3Scale(forward, thrust);
@@ -155,9 +161,11 @@ void Player::ProcessThrust(float deltaTime) {
     currentVelocity = Vector3ClampValue(currentVelocity, -maxVelocity, maxVelocity);
 
 
-
-    playerCamera.position = Position;
+    camPosition = Position;
+    playerCamera.position = Vector3Add(Position,shakeOffset);
     playerCamera.target = Vector3Add(playerCamera.position, Vector3Normalize(forward));
+    hudCamera.position = shakeOffset;
+    hudCamera.target = Vector3Add(shakeOffset, (Vector3){ 0.0f, 0.0f, 1.0f });
 
     //playerCamera.target = Vector3Add(playerCamera.target, Position);
     //playerCamera.target = Vector3Scale(GetCameraForward(&playerCamera),1);
@@ -184,4 +192,30 @@ Vector3 Player::GetCameraDirection() {
 
 Vector3 Player::GetSwayInput() {
     return (Vector3){smoothedInput.y,smoothedInput.x,smoothThrust};
+}
+
+void Player::ShakeCamera(float amount) {
+    trauma += amount;
+    trauma = fmin(trauma,1.0f);
+}
+
+void Player::ProcessCamera(float deltaTime) {
+
+    float shakeAmount = trauma * trauma;
+    float offsetX = GetRandomValue(-100, 100) * shakeMaxMoveAmount * shakeAmount * deltaTime;
+    float offsetY = GetRandomValue(-100, 100) * shakeMaxMoveAmount * shakeAmount * deltaTime;
+    float offsetZ = GetRandomValue(-100, 100) * shakeMaxMoveAmount * shakeAmount * deltaTime;
+
+    shakeOffset = (Vector3){offsetX,offsetY,offsetZ};
+
+    if(trauma > 0)
+        trauma -= traumaDecay * deltaTime;
+}
+
+void Player::OnCollision(GameObject *otherObject, Vector3 collisionTotalVelocity) {
+    GameObject::OnCollision(otherObject, collisionTotalVelocity);
+
+    float collisionForce = Vector3Length(collisionTotalVelocity);
+    float shakeForce = collisionForce / maxVelocity;
+    ShakeCamera(shakeForce);
 }

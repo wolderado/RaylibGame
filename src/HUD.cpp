@@ -23,9 +23,7 @@ void HUD::Render(float deltaTime)
 
 void HUD::Render3D(float deltaTime)
 {
-
     DrawGuns(deltaTime);
-
 
 
     if(DEBUG_SHOW_GIZMO) {
@@ -39,7 +37,7 @@ void HUD::Render3D(float deltaTime)
 
 void HUD::Unload()
 {
-    UnloadTexture(cockpitTexture);
+    //UnloadTexture(cockpitTexture);
 }
 
 void HUD::DrawGuns(float deltaTime) {
@@ -51,6 +49,8 @@ void HUD::DrawGuns(float deltaTime) {
     Vector3 positionSway = Vector3Scale((Vector3){-smoothSway.y,-smoothSway.x,-smoothSway.z},swayPositionAmount);
 
     //Gun Renderings
+
+    //Left Gun
     Vector3 weaponLeftPos = (Vector3){5.5f,-1.0f,5.0f};
     weaponLeftPos = Vector3Add(weaponLeftPos,positionSway);
     Vector3 gunRotationLeft = Vector3Scale((Vector3){0,180,0},DEG2RAD);
@@ -59,6 +59,7 @@ void HUD::DrawGuns(float deltaTime) {
     Renderer::GetInstance()->RenderModelWithWires(playerGunModel,weaponLeftPos, gunRotationLeft,Vector3One(),PALETTE_BLUE2, true);
 
 
+    //Right Gun
     Vector3 weaponRightPos = (Vector3){-5.5f,-1.0f,5.0f};
     weaponRightPos = Vector3Add(weaponRightPos,positionSway);
     Vector3 gunRotationRight = Vector3Scale((Vector3){0,180,0},DEG2RAD);
