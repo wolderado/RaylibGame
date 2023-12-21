@@ -30,6 +30,8 @@ void Renderer::InitRenderer(Camera* cam) {
     //Skybox generation
     skyboxModel = LoadModel("resources/skybox.glb");
     skyboxTexture = LoadTexture("resources/skyboxSeamless.png");
+    //healthBarsTextureSheet = LoadTexture("resources/healthBars.png");
+    billboardTextureSheet = LoadTexture("resources/bullets.png");
     skyboxModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = skyboxTexture;
 
 
@@ -81,12 +83,15 @@ void Renderer::RenderAtmosphere(float cameraVelocityRatio,Vector3 cameraVelocity
 
     DrawDots(cameraVelocityRatio,cameraVelocity);
 
+    //DrawBillboard(*camera,skyboxTexture,Vector3Add(camera->position,(Vector3){0,0,1}),1.0f,WHITE);
 }
 
 
 
 void Renderer::Unload() {
     UnloadTexture(skyboxTexture);
+    UnloadTexture(billboardTextureSheet);
+    //UnloadTexture(healthBarsTextureSheet);
     UnloadModel(genericLODModel);
     UnloadModel(skyboxModel);
 }
@@ -274,4 +279,42 @@ bool Renderer::IsVisible(Vector3 position) {
 bool Renderer::IsVisible(Vector3 position, float customDotValue) {
     Vector3 toTarget = Vector3Subtract(position,camera->position);
     return Vector3DotProduct(Vector3Normalize(toTarget), Vector3Normalize(GetCameraForward(camera.get()))) > customDotValue;
+}
+
+void Renderer::RenderBillboard(int spriteIndex, Vector3 position, float size) {
+
+    Vector3 cameraUp = GetCameraUp(camera.get());
+    DrawBillboardPro(*camera,billboardTextureSheet,(Rectangle){(float)spriteIndex * 16,0,16,16},position,cameraUp,(Vector2){1,1},(Vector2){0,0},0.0f,WHITE);
+
+}
+
+void Renderer::RenderHealthBar(Vector3 position,Vector3 scale,float currentHealth,float maxHealth) {
+
+
+/*    Vector3 barPosition = position;
+    float maxScale = fmax(scale.z,fmax(scale.x,scale.y));
+
+    Vector3 up = GetCameraUp(camera.get());
+*//*
+    barRefPos = Vector3Add(barRefPos,Vector3Scale(up,maxScale * 2.0f));
+*//*
+
+    barPosition.y += maxScale * 2.0f;
+
+    Model cubeModel = LoadModelFromMesh(GenMeshCube(20,1,1));
+
+    Vector3 rot = Vector3Zero();
+    Vector3 forward = GetCameraForward(camera.get());
+    //Calculate angle from forward
+    rot.y = atan2(forward.x,forward.z);
+
+
+    RenderModelWithWires(cubeModel,barPosition,rot,(Vector3){1,1,1},FAKE_TRANSPARENT1,true);
+    DrawCubeWires(position,20,1,1,RED);*/
+
+/*
+    Vector3 cameraUp = GetCameraUp(camera.get());
+    DrawBillboardPro(*camera,healthBarsTextureSheet,(Rectangle){(float)0 * 16,0,16,16},position,cameraUp,(Vector2){5,5},(Vector2){0,0},0.0f,WHITE);
+*/
+
 }

@@ -11,48 +11,60 @@
 #include "../../raylib/src/rcamera.h"
 #include "Globals.h"
 #include "GameObject.h"
+#include "BulletManager.h"
 
 
 using namespace std;
 
 class Player : public GameObject {
 public:
+    using ShootDelegate = function<void(int)>;
+
     Player();
     void Init();
     void Update(float deltaTime) override;
+    void LateUpdate(float deltaTime) override;
     Camera* GetCamera();
     Camera* GetHUDCamera();
     float GetVelocityRatioToMaxValue();
     Vector3 GetCameraDirection();
     Vector3 GetSwayInput();
     void ShakeCamera(float amount);
+    void SetShootDelegate(const function<void(int)> &delegate);
+
 
 private:
-    const float rotateAccelerateSpeed = 0.075f;
-    const float rotateSettleSpeed = 8;
-    const float maxRotationSpeed = 0.04f;
-    const float thrustChangeSpeedMin = 0.1f;
-    const float thrustChangeSpeedMax = 1.0f;
-    const float stopInertiaSpeed = 4.0f;
-    const float maxVelocity = 0.3f;
-
+     float rotateAccelerateSpeed = 0.075f;
+     float rotateSettleSpeed = 8;
+     float maxRotationSpeed = 0.04f;
+     float thrustChangeSpeedMin = 0.1f;
+     float thrustChangeSpeedMax = 1.0f;
+     float thrustShakeTrauma = 0.2f;
+     float stopInertiaSpeed = 4.0f;
+     float maxVelocity = 0.3f;
+     float shootShakeTrauma = 0.3f;
+     float shootCooldown = 0.05f;
+     float shootBackwardsPush = 0.001f;
 
     Camera3D playerCamera;
     Camera3D hudCamera;
     Vector3 smoothedInput;
-    float thrust;
-    float smoothThrust;
+    float thrust = 0;
+    float smoothThrust = 0;
     float trauma = 0;
     float traumaDecay = 1.0f;
     float shakeMaxMoveAmount = 0.5f;
-    Vector3 camPosition;
-    Vector3 shakeOffset;
-
+    float shootTimer = 0;
+    Vector3 camPosition = {0,0,0};
+    Vector3 shakeOffset = {0,0,0};
+    ShootDelegate shootDelegate;
+    int shootCanonIndex = 0;
 
 
     void ProcessInput(float deltaTime);
     void ProcessRotation(float deltaTime);
     void ProcessThrust(float deltaTime);
+    void ProcessShoot(float deltaTime);
     void ProcessCamera(float deltaTime);
     void OnCollision(GameObject* otherObject,Vector3 collisionTotalVelocity) override;
 };

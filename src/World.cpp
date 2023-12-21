@@ -7,7 +7,7 @@
 World* World::instance = nullptr;
 
 World::World() {
-    instance = this;
+
 }
 
 
@@ -22,21 +22,12 @@ World* World::GetInstance() {
 void World::UpdateAll(float deltaTime) {
 
     for (auto& pair : activeGameObjects) {
-        //cout << "Updating game object " << pair.second->Name << endl;
+/*        cout << "Updating game object " << pair.second->Name << endl;*/
         pair.second->Update(deltaTime);
         CheckCollision(pair.second.get());
         pair.second->Render(deltaTime);
-
+        pair.second->LateUpdate(deltaTime);
     }
-
-
-/*
-    for (shared_ptr<GameObject> &gameObject : activeGameObjects) {
-        //cout << "Updating game object" << endl;
-        gameObject->Update(deltaTime);
-        CheckCollision(gameObject.get());
-        gameObject->Render(deltaTime);
-    }*/
 }
 
 shared_ptr<GameObject> World::CreateNewObject() {
@@ -52,32 +43,6 @@ shared_ptr<GameObject> World::CreateNewAsteroid(Vector3 position) {
 
     newAsteroid->SetTeam(TEAM_NEUTRAL);
     newAsteroid->Name = "Asteroid";
-
-/*    //Load models
-    Mesh sphereMesh = GenMeshSphere(1.0f, 8, 8);
-
-    // Mesh vertices position array
-    for (int i = 0; i < sphereMesh.vertexCount; i++)
-    {
-        if(i%3 == 0)
-            continue;
-
-        Vector3 newVertex = { sphereMesh.vertices[3*i], sphereMesh.vertices[3*i + 1], sphereMesh.vertices[3*i + 2] };
-        Vector3 normal = { sphereMesh.normals[3*i], sphereMesh.normals[3*i + 1], sphereMesh.normals[3*i + 2] };
-
-
-        newVertex = Vector3Add(newVertex, Vector3Scale(normal,GetRandomValue(-100,100)  * 0.001f));
-
-        sphereMesh.vertices[3*i] = newVertex.x;
-        sphereMesh.vertices[3*i + 1] = newVertex.y;
-        sphereMesh.vertices[3*i + 2] = newVertex.z;
-    }
-
-
-    UpdateMeshBuffer(sphereMesh, 0, sphereMesh.vertices, sphereMesh.vertexCount * 3 * sizeof(float),0);
-    TestModel = LoadModelFromMesh(sphereMesh);
-    newObject->SetModel(LoadModelFromMesh(sphereMesh));*/
-
 
     string modelPath = "resources/Asteroid" + to_string(GetRandomValue(1, 3)) + ".glb";
     Model asteroidModel = LoadModel(modelPath.c_str());
@@ -101,19 +66,15 @@ void World::InitObject(shared_ptr<GameObject> target) {
     //Get the biggest scale value to approximate collision size
     target->CollisionSize *= fmax(fmax(target->Scale.x,target->Scale.y),target->Scale.z);
     activeGameObjects[nextObjectId] = target;
+    target->WorldID = nextObjectId;
+    target->SetHealth(100);
     target->Name = target->Name + string(" [ID=") + to_string(nextObjectId) + string("]");
     nextObjectId++;
 }
 
-shared_ptr<Player> World::CreatePlayer() {
-    player.Init();
-    shared_ptr<Player> newPlayer = make_shared<Player>(player);
-    newPlayer->Name = "Player";
-    InitObject(newPlayer);
-    return newPlayer;
-}
-
 void World::CheckCollision(GameObject* object) {
+
+    //TODO: Optimize this function further by using Spatial partitioning or grid based collision detection
 
     if (object->CanCollide == false)
         return;
@@ -122,21 +83,35 @@ void World::CheckCollision(GameObject* object) {
         return;
 
     for (const auto &gmPair: activeGameObjects) {
-        {
-            if (object->CanCollide == false || gmPair.second.get() == object)
-                continue;
+        if (object->CanCollide == false || gmPair.second.get() == object)
+            continue;
 
-            if (CheckCollisionSpheres(object->Position, object->CollisionSize, gmPair.second->Position,
-                                      gmPair.second->CollisionSize)) {
-                Vector3 totalVel = Vector3Add(object->GetVelocity(), gmPair.second->GetVelocity());
-                object->OnCollision(gmPair.second.get(), totalVel);
-                gmPair.second->OnCollision(object, totalVel);
-                break;
-            }
+        if (CheckCollisionPure(object->Position, object->CollisionSize, gmPair.second->Position,
+                               gmPair.second->CollisionSize)) {
+            Vector3 totalVel = Vector3Add(object->GetVelocity(), gmPair.second->GetVelocity());
+            object->OnCollision(gmPair.second.get(), totalVel);
+            gmPair.second->OnCollision(object, totalVel);
+            break;
         }
     }
 }
 
+shared_ptr<GameObject> World::CheckBulletCollision(Vector3 bulletPosition) {
+    //TODO: Optimize this function further by using Spatial partitioning or grid based collision detection
+
+    for (const auto &gmPair: activeGameObjects) {
+        if (CheckCollisionPure(bulletPosition, 0.1f, gmPair.second->Position, gmPair.second->CollisionSize)) {
+            return activeGameObjects[gmPair.first];
+        }
+    }
+
+    return nullptr;
+}
+
 void World::OnGameObjectDestroyed() {
 
+}
+
+bool World::CheckCollisionPure(Vector3 position1, float size1, Vector3 position2, float size2) {
+    return CheckCollisionSpheres(position1, size1, position2,size2);
 }

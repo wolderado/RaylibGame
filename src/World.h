@@ -12,7 +12,6 @@
 #include <map>
 #include "GameObject.h"
 #include "Asteroid.h"
-#include "Player.h"
 
 
 
@@ -25,16 +24,17 @@ public:
     void UpdateAll(float deltaTime);
     shared_ptr<GameObject> CreateNewObject();
     shared_ptr<GameObject> CreateNewAsteroid(Vector3 position);
-    shared_ptr<Player> CreatePlayer();
-
-
-private:
-    uint32_t nextObjectId = 0;
-    Player player;
-    static World* instance;
-    map<uint32_t, shared_ptr<GameObject>> activeGameObjects;
     void InitObject(shared_ptr<GameObject> target);
     void CheckCollision(GameObject* object);
+    bool CheckCollisionPure(Vector3 position1,float size1, Vector3 position2,float size2);
+    shared_ptr<GameObject> CheckBulletCollision(Vector3 bulletPosition);
+    map<uint32_t, shared_ptr<GameObject>> activeGameObjects;
+private:
+    uint32_t nextObjectId = 0;
+    static World* instance;
+
+
+
     void OnGameObjectDestroyed();
 };
 

@@ -6,10 +6,14 @@
 
 void HUD::Init(shared_ptr<Player> targetPlayer)
 {
-    //cockpitTexture = LoadTexture("resources/Cockpit.png");
-
-    playerGunModel = LoadModel("resources/PlayerGun.glb");
     player = shared_ptr<Player>(targetPlayer);
+    playerGunModel = LoadModel("resources/PlayerGun.glb");
+    playerGunMuzzleModel = LoadModel("resources/PlayerGunMuzzle.glb");
+
+
+    auto shootFunction = std::bind(&HUD::GunShoot, this, std::placeholders::_1);
+    player->SetShootDelegate(shootFunction);
+
 }
 
 
@@ -17,6 +21,8 @@ void HUD::Render(float deltaTime)
 {
 /*    DrawTexturePro(cockpitTexture, (Rectangle){0,0,(float)cockpitTexture.width,(float)cockpitTexture.height},
                    (Rectangle){0,0,ScreenWidth,ScreenHeight}, (Vector2){0,0}, 0, WHITE);*/
+
+
 }
 
 
@@ -24,6 +30,7 @@ void HUD::Render(float deltaTime)
 void HUD::Render3D(float deltaTime)
 {
     DrawGuns(deltaTime);
+
 
 
     if(DEBUG_SHOW_GIZMO) {
@@ -37,6 +44,8 @@ void HUD::Render3D(float deltaTime)
 
 void HUD::Unload()
 {
+    UnloadModel(playerGunModel);
+    UnloadModel(playerGunMuzzleModel);
     //UnloadTexture(cockpitTexture);
 }
 
@@ -57,6 +66,7 @@ void HUD::DrawGuns(float deltaTime) {
     angleSway.z = -angleSway.z;
     gunRotationLeft = Vector3Add(gunRotationLeft,angleSway);
     Renderer::GetInstance()->RenderModelWithWires(playerGunModel,weaponLeftPos, gunRotationLeft,Vector3One(),PALETTE_BLUE2, true);
+    Renderer::GetInstance()->RenderModelWithWires(playerGunMuzzleModel,Vector3Add(weaponLeftPos,leftGunShootOffset), gunRotationLeft,Vector3One(),PALETTE_BLUE2, true);
 
 
     //Right Gun
@@ -66,5 +76,19 @@ void HUD::DrawGuns(float deltaTime) {
     gunRotationRight = Vector3Add(gunRotationRight,(Vector3){angleSway.x,-angleSway.y,angleSway.z});
     Vector3 mirroredScale = (Vector3){-1,1,1};
     Renderer::GetInstance()->RenderModelWithWires(playerGunModel,weaponRightPos, gunRotationRight,mirroredScale,PALETTE_BLUE2, true);
+    Renderer::GetInstance()->RenderModelWithWires(playerGunMuzzleModel,Vector3Add(weaponRightPos,rightGunShootOffset), gunRotationRight,mirroredScale,PALETTE_BLUE2, true);
+
+    //Nozzle Offset
+    leftGunShootOffset = Vector3Lerp(leftGunShootOffset,Vector3Zero(),deltaTime * NozzleReturnToNormalSpeed);
+    rightGunShootOffset = Vector3Lerp(rightGunShootOffset,Vector3Zero(),deltaTime * NozzleReturnToNormalSpeed);
+}
+
+void HUD::GunShoot(int cannonID) {
+
+    if(cannonID == 0)
+        rightGunShootOffset = (Vector3){0,0,shootCannonOffsetAmount};
+    else if(cannonID == 1)
+        leftGunShootOffset = (Vector3){0,0,shootCannonOffsetAmount};
 
 }
+

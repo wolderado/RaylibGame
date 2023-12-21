@@ -12,6 +12,8 @@ void Player::Init() {
 
     SetTeam(TEAM_PLAYER);
 
+    Position = Vector3Zero();
+
     playerCamera = { 0 };
     playerCamera.position = (Vector3){ 0.25f, 0.25f, 0.25f };
     playerCamera.target = (Vector3){ 0.0f, 0.0f, 1.0f };
@@ -32,12 +34,10 @@ void Player::Init() {
 
 void Player::Update(float deltaTime) {
 
-    if (IsKeyPressed(KEY_SPACE)) {
-        ShakeCamera(1.0f);
-    }
-
+    ProcessShoot(deltaTime);
     ProcessInput(deltaTime);
     ProcessCamera(deltaTime);
+
     GameObject::Update(deltaTime);
 }
 
@@ -80,61 +80,43 @@ void Player::ProcessRotation(float deltaTime) {
     {
         smoothedInput.x += inputVec.x * rotateAccelerateSpeed * deltaTime;
     }
-    else
-    {
-        smoothedInput.x = Lerp(smoothedInput.x, 0, rotateSettleSpeed * deltaTime);
+    else{
+        if(abs(smoothedInput.x) > 0.01f )
+            smoothedInput.x = Lerp(smoothedInput.x, 0.0f, rotateSettleSpeed * deltaTime);
+        else
+            smoothedInput.x = 0;
     }
 
     if(abs(inputVec.y) > 0.1F)
     {
         smoothedInput.y += inputVec.y * rotateAccelerateSpeed * deltaTime;
     }
-    else
-        smoothedInput.y = Lerp(smoothedInput.y, 0, rotateSettleSpeed * deltaTime);
+    else {
+        if(abs(smoothedInput.y) > 0.01f )
+            smoothedInput.y = Lerp(smoothedInput.y, 0.0f, rotateSettleSpeed * deltaTime);
+        else
+            smoothedInput.y = 0;
+    }
+
 
     if(abs(inputVec.z) > 0.1F)
     {
         smoothedInput.z += inputVec.z * rotateAccelerateSpeed * deltaTime;
     }
-    else
-        smoothedInput.z = Lerp(smoothedInput.z, 0, rotateSettleSpeed * deltaTime);
+    else {
+        if(abs(smoothedInput.z) > 0.01f )
+            smoothedInput.z = Lerp(smoothedInput.z, 0.0f, rotateSettleSpeed * deltaTime);
+        else
+            smoothedInput.z = 0;
+    }
 
 
-    smoothedInput.x = Clamp(smoothedInput.x, -maxRotationSpeed, maxRotationSpeed);
-    smoothedInput.y = Clamp(smoothedInput.y, -maxRotationSpeed, maxRotationSpeed);
-    smoothedInput.z = Clamp(smoothedInput.z, -maxRotationSpeed, maxRotationSpeed);
+    smoothedInput = Vector3ClampValue(smoothedInput,-maxRotationSpeed,maxRotationSpeed);
 
     //Rotate camera methods
     CameraYaw(&playerCamera, smoothedInput.x, false);
     CameraPitch(&playerCamera, smoothedInput.y,false,false, true);
     CameraRoll(&playerCamera, smoothedInput.z );
-
-
-/*
-    Vector3 toTarget = Vector3Subtract(playerCamera.target,playerCamera.position);
-    toTarget = Vector3Normalize(toTarget);
-
-
-    Rotation.x = asinf(-toTarget.y);
-    Rotation.y = atan2f(toTarget.x, toTarget.z);
-    Rotation.z = 0.0f;  // Assuming roll is 0
-
-    float yaw = Rotation.y;
-    float pitch = Rotation.x;
-
-    Vector3 direction = {
-            cosf(pitch) * sinf(yaw),
-            -sinf(pitch),
-            cosf(pitch) * cosf(yaw)
-    };
-
-    DrawLine3D(playerCamera.target, Vector3Add(playerCamera.target,toTarget), PURPLE);
-
-    DrawSphereWires(Vector3Add(playerCamera.target,toTarget), 0.1f, 16, 16, PURPLE);
-
-    DrawSphereWires(Vector3Add(playerCamera.target,direction), 0.2f, 16, 16, RED);
-
-    //DrawSphereWires(playerCamera.target, 0.1f, 16, 16, RED);*/
 }
 
 void Player::ProcessThrust(float deltaTime) {
@@ -145,8 +127,12 @@ void Player::ProcessThrust(float deltaTime) {
 
 
     thrust = 0;
-    if (IsKeyDown(KEY_LEFT_SHIFT))
+    if (IsKeyDown(KEY_LEFT_SHIFT)) {
         thrust += acceleratePower * deltaTime;
+
+        if(trauma < thrustShakeTrauma)
+            trauma = thrustShakeTrauma;
+    }
 
     if (IsKeyDown(KEY_LEFT_CONTROL)) {
         thrust = 0;
@@ -159,16 +145,6 @@ void Player::ProcessThrust(float deltaTime) {
     Vector3 velChange = Vector3Scale(forward, thrust);
     currentVelocity = Vector3Add(currentVelocity, velChange);
     currentVelocity = Vector3ClampValue(currentVelocity, -maxVelocity, maxVelocity);
-
-
-    camPosition = Position;
-    playerCamera.position = Vector3Add(Position,shakeOffset);
-    playerCamera.target = Vector3Add(playerCamera.position, Vector3Normalize(forward));
-    hudCamera.position = shakeOffset;
-    hudCamera.target = Vector3Add(shakeOffset, (Vector3){ 0.0f, 0.0f, 1.0f });
-
-    //playerCamera.target = Vector3Add(playerCamera.target, Position);
-    //playerCamera.target = Vector3Scale(GetCameraForward(&playerCamera),1);
 }
 
 
@@ -218,4 +194,64 @@ void Player::OnCollision(GameObject *otherObject, Vector3 collisionTotalVelocity
     float collisionForce = Vector3Length(collisionTotalVelocity);
     float shakeForce = collisionForce / maxVelocity;
     ShakeCamera(shakeForce);
+}
+
+void Player::ProcessShoot(float deltaTime) {
+
+
+    if(IsKeyDown(KEY_SPACE))
+    {
+        shootTimer+=deltaTime;
+        if(shootTimer > shootCooldown) {
+            //Shoot
+            shootTimer = 0;
+            if (trauma < shootShakeTrauma)
+                trauma = shootShakeTrauma;
+
+            shootCanonIndex++;
+            if(shootCanonIndex > 1)
+                shootCanonIndex = 0;
+
+            //Adjust shoot position to match with guns
+            Vector3 shootPosition = Position;
+            Vector3 right = GetCameraRight(&playerCamera);
+            Vector3 forward = GetCameraForward(&playerCamera);
+            Vector3 up = GetCameraUp(&playerCamera);
+
+            shootPosition = Vector3Add(shootPosition, Vector3Scale(forward, 0.55f));
+            shootPosition = Vector3Add(shootPosition, Vector3Scale(up, -0.2f));
+
+
+            if(shootCanonIndex == 0)
+                shootPosition = Vector3Add(shootPosition,Vector3Scale(right,1.35f));
+            else
+                shootPosition = Vector3Add(shootPosition,Vector3Scale(right,-1.35f));
+
+            Vector3 shootDirection = GetCameraDirection();
+            shootDirection = Vector3Normalize(shootDirection);
+
+            BulletManager::GetInstance()->CreateBullet(shootPosition, shootDirection, 0,TEAM_PLAYER);
+
+            //Push back
+            currentVelocity = Vector3Add(currentVelocity, Vector3Scale(shootDirection, -shootBackwardsPush));
+
+            if (shootDelegate != nullptr)
+                shootDelegate(shootCanonIndex);
+        }
+    }
+}
+
+void Player::SetShootDelegate(const function<void(int)> &delegate) {
+    shootDelegate = delegate;
+}
+
+void Player::LateUpdate(float deltaTime) {
+    GameObject::LateUpdate(deltaTime);
+
+    //Update camera
+    camPosition = Vector3Add(Position,shakeOffset);
+    playerCamera.position = camPosition;
+    playerCamera.target = Vector3Add(playerCamera.target, Vector3Normalize(GetCameraForward(&playerCamera)));
+    hudCamera.position = shakeOffset;
+    hudCamera.target = Vector3Add(hudCamera.position , (Vector3){ 0.0f, 0.0f, 1.0f });
 }

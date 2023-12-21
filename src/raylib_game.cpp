@@ -50,6 +50,7 @@ static void UpdateDrawFrame(void);      // Update and Draw one frame
 shared_ptr<Player> player;
 Renderer* renderer;
 World* world;
+BulletManager* bulletManager;
 HUD hud;
 
 
@@ -65,11 +66,22 @@ int main(void)
     //Divider
     std::cout << "---------------------------------------" << "\n";
 
-    player = shared_ptr<Player>(world->GetInstance()->CreatePlayer());
+    //Collect Instances
+    world = World::GetInstance();
+    bulletManager = BulletManager::GetInstance();
+
+    //Setup Player
+    player = std::make_shared<Player>();
+    player->Init();
+    player->Name = "Player";
+    world->InitObject(player);
+    //world->SetMainCamera(player->GetCamera());
+
+    //Init
     renderer = Renderer::GetInstance();
     renderer->InitRenderer(player->GetCamera());
     hud.Init(player);
-
+    bulletManager->Init();
 
 
     for (int i = 0; i < 100; ++i) {
@@ -78,7 +90,7 @@ int main(void)
     }
 
 
-    
+
     // Render texture to draw full screen, enables screen scaling
     target = LoadRenderTexture(RenderWidth, RenderHeight);
     SetTextureFilter(target.texture, TEXTURE_FILTER_POINT);
@@ -129,7 +141,7 @@ void UpdateDrawFrame(void)
         BeginMode3D(*player->GetCamera());
             renderer->RenderAtmosphere(player->GetVelocityRatioToMaxValue(),player->GetVelocity());
             world->GetInstance()->UpdateAll(deltaTime);
-            //hud.Render3D(deltaTime);
+            bulletManager->UpdateAndRender(deltaTime);
         EndMode3D();
     EndTextureMode();
 
