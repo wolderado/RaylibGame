@@ -3,6 +3,8 @@
 //
 
 
+Player* Player::instance = nullptr;
+
 Player::Player(){
 
 }
@@ -18,14 +20,14 @@ void Player::Init() {
     playerCamera.position = (Vector3){ 0.25f, 0.25f, 0.25f };
     playerCamera.target = (Vector3){ 0.0f, 0.0f, 1.0f };
     playerCamera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
-    playerCamera.fovy = 60.0f;
+    playerCamera.fovy = defaultFOV;
     playerCamera.projection = CAMERA_PERSPECTIVE;
 
     hudCamera = { 0 };
     hudCamera.position = Vector3Zero();
     hudCamera.target = (Vector3){ 0.0f, 0.0f, 1.0f };
     hudCamera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
-    hudCamera.fovy = 60.0f;
+    hudCamera.fovy = defaultFOV;
     hudCamera.projection = CAMERA_PERSPECTIVE;
 
 
@@ -117,6 +119,10 @@ void Player::ProcessRotation(float deltaTime) {
     CameraYaw(&playerCamera, smoothedInput.x, false);
     CameraPitch(&playerCamera, smoothedInput.y,false,false, true);
     CameraRoll(&playerCamera, smoothedInput.z );
+
+    Rotation = Vector3Zero();
+
+
 }
 
 void Player::ProcessThrust(float deltaTime) {
@@ -186,6 +192,19 @@ void Player::ProcessCamera(float deltaTime) {
 
     if(trauma > 0)
         trauma -= traumaDecay * deltaTime;
+
+
+    //FOV changes
+    float newFOV = defaultFOV;
+
+    if(thrust > 0)
+        newFOV += thrustFOVChange;
+
+    if(shotThisFrame)
+        newFOV += shootFOVChange;
+
+    playerCamera.fovy = Lerp(playerCamera.fovy,newFOV,deltaTime * fovChangeSpeed);
+    hudCamera.fovy = playerCamera.fovy;
 }
 
 void Player::OnCollision(GameObject *otherObject, Vector3 collisionTotalVelocity) {
@@ -198,46 +217,53 @@ void Player::OnCollision(GameObject *otherObject, Vector3 collisionTotalVelocity
 
 void Player::ProcessShoot(float deltaTime) {
 
+    shotThisFrame = false;
 
-    if(IsKeyDown(KEY_SPACE))
-    {
-        shootTimer+=deltaTime;
-        if(shootTimer > shootCooldown) {
-            //Shoot
-            shootTimer = 0;
-            if (trauma < shootShakeTrauma)
-                trauma = shootShakeTrauma;
+    if(IsKeyDown(KEY_SPACE)) {
 
-            shootCanonIndex++;
-            if(shootCanonIndex > 1)
-                shootCanonIndex = 0;
+        shootTimer += deltaTime;
+        if (shootTimer < shootCooldown)
+            return;
 
-            //Adjust shoot position to match with guns
-            Vector3 shootPosition = Position;
-            Vector3 right = GetCameraRight(&playerCamera);
-            Vector3 forward = GetCameraForward(&playerCamera);
-            Vector3 up = GetCameraUp(&playerCamera);
-
-            shootPosition = Vector3Add(shootPosition, Vector3Scale(forward, 0.55f));
-            shootPosition = Vector3Add(shootPosition, Vector3Scale(up, -0.2f));
-
-
-            if(shootCanonIndex == 0)
-                shootPosition = Vector3Add(shootPosition,Vector3Scale(right,1.35f));
-            else
-                shootPosition = Vector3Add(shootPosition,Vector3Scale(right,-1.35f));
-
-            Vector3 shootDirection = GetCameraDirection();
-            shootDirection = Vector3Normalize(shootDirection);
-
-            BulletManager::GetInstance()->CreateBullet(shootPosition, shootDirection, 0,TEAM_PLAYER);
-
-            //Push back
-            currentVelocity = Vector3Add(currentVelocity, Vector3Scale(shootDirection, -shootBackwardsPush));
-
-            if (shootDelegate != nullptr)
-                shootDelegate(shootCanonIndex);
+        //Shoot
+        shootTimer = 0;
+        if (trauma < shootShakeTrauma) {
+            trauma = shootShakeTrauma;
+            shakeOffset.z += 0.5f;
         }
+        shootCanonIndex++;
+        if (shootCanonIndex > 1)
+            shootCanonIndex = 0;
+
+        //Adjust shoot position to match with guns
+        Vector3 shootPosition = Vector3Zero();
+        Vector3 right = GetCameraRight(&playerCamera);
+        Vector3 forward = GetCameraForward(&playerCamera);
+        Vector3 up = GetCameraUp(&playerCamera);
+
+        shootPosition = Vector3Add(shootPosition, Vector3Scale(forward, 2.3f));
+        shootPosition = Vector3Add(shootPosition, Vector3Scale(up, -0.2f));
+
+
+        if (shootCanonIndex == 0)
+            shootPosition = Vector3Add(shootPosition, Vector3Scale(right, 1.48f));
+        else
+            shootPosition = Vector3Add(shootPosition, Vector3Scale(right, -1.48f));
+
+        Vector3 shootDirection = GetCameraDirection();
+        shootDirection = Vector3Normalize(shootDirection);
+
+        Vector3 globalShootPosition = Vector3Add(Position, shootPosition);
+        BulletManager::GetInstance()->CreateBullet(globalShootPosition, shootDirection, 0, TEAM_PLAYER);
+
+        //Push back
+        currentVelocity = Vector3Add(currentVelocity, Vector3Scale(shootDirection, -shootBackwardsPush));
+
+        ParticleManager::GetInstance()->CreateShootMuzzle(shootPosition,instance);
+
+        shotThisFrame = true;
+        if (shootDelegate != nullptr)
+            shootDelegate(shootCanonIndex);
     }
 }
 
@@ -254,4 +280,11 @@ void Player::LateUpdate(float deltaTime) {
     playerCamera.target = Vector3Add(playerCamera.target, Vector3Normalize(GetCameraForward(&playerCamera)));
     hudCamera.position = shakeOffset;
     hudCamera.target = Vector3Add(hudCamera.position , (Vector3){ 0.0f, 0.0f, 1.0f });
+}
+
+Player *Player::GetInstance() {
+    if(instance == nullptr)
+        instance = new Player();
+
+    return instance;
 }

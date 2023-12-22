@@ -29,8 +29,8 @@ void GameObject::Render(float deltaTime) {
     if(GetTime() - lastHurtTime < flashDuration) {
         float t = (GetTime() - lastHurtTime) / flashDuration;
         t = pow(t,1.5f);
-        modelColor = Utility::LerpColor(PALETTE_YELLOW1, myColor, t);
-        modelScale = Vector3Lerp((Vector3){Scale.x * 1.3f,Scale.y * 1.1f,Scale.z * 1.3f},modelScale, t);
+        modelColor = Utility::LerpColor(PALETTE_RED1, myColor, t);
+        modelScale = Vector3Lerp((Vector3){Scale.x * 0.9f,Scale.y * 0.9f,Scale.z * 0.9f},modelScale, t);
     }
 
     if(myRenderType == RealMesh)
@@ -61,7 +61,6 @@ void GameObject::Hurt(float damage) {
     if(health <= 0)
     {
         health = 0;
-        Destroy();
     }
 }
 
@@ -128,4 +127,8 @@ void GameObject::LateUpdate(float deltaTime) {
 
     if(!enabled)
         return;
+}
+
+float GameObject::GetHealth() {
+    return health;
 }

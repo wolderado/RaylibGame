@@ -22,7 +22,7 @@
 #include "Color.h"
 #include "World.h"
 #include "HUD.h"
-
+#include "ParticleManager.h"
 
 
 #if defined(PLATFORM_WEB)
@@ -52,6 +52,7 @@ Renderer* renderer;
 World* world;
 BulletManager* bulletManager;
 HUD hud;
+ParticleManager* particleManager;
 
 
 //------------------------------------------------------------------------------------
@@ -61,7 +62,11 @@ int main(void)
 {
     SetTraceLogLevel(LOG_NONE);
 
-    InitWindow(ScreenWidth, ScreenHeight, "Space Battle Game");
+#if defined(PLATFORM_DESKTOP)
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
+#endif
+
+    InitWindow(DefaultScreenWidth, DefaultScreenHeight, "Space Battle Game");
 
     //Divider
     std::cout << "---------------------------------------" << "\n";
@@ -69,9 +74,10 @@ int main(void)
     //Collect Instances
     world = World::GetInstance();
     bulletManager = BulletManager::GetInstance();
+    particleManager = ParticleManager::GetInstance();
 
     //Setup Player
-    player = std::make_shared<Player>();
+    player = shared_ptr<Player>(Player::GetInstance());
     player->Init();
     player->Name = "Player";
     world->InitObject(player);
@@ -141,7 +147,12 @@ void UpdateDrawFrame(void)
         BeginMode3D(*player->GetCamera());
             renderer->RenderAtmosphere(player->GetVelocityRatioToMaxValue(),player->GetVelocity());
             world->GetInstance()->UpdateAll(deltaTime);
-            bulletManager->UpdateAndRender(deltaTime);
+
+            //Billboard Renders
+            renderer->BeginAlphaCutoff();
+                bulletManager->UpdateAndRender(deltaTime);
+                particleManager->UpdateAndRender(deltaTime);
+            renderer->EndAlphaCutoff();
         EndMode3D();
     EndTextureMode();
 
@@ -160,10 +171,10 @@ void UpdateDrawFrame(void)
     // Render to screen (main framebuffer)
     BeginDrawing();
     ClearBackground(PALETTE_WHITE);
-    // Draw render texture to screen
-    DrawTexturePro(target.texture, (Rectangle){ 0, 0, (float)target.texture.width, -(float)target.texture.height }, (Rectangle){ 0, 0, (float)ScreenWidth, (float)ScreenHeight }, (Vector2){ 0, 0 }, 0.0f, WHITE);
-    DrawTexturePro(targetHUD.texture, (Rectangle){ 0, 0, (float)targetHUD.texture.width, -(float)targetHUD.texture.height }, (Rectangle){ 0, 0, (float)ScreenWidth, (float)ScreenHeight }, (Vector2){ 0, 0 }, 0.0f, WHITE);
 
+    // Draw render texture to screen
+    DrawTexturePro(target.texture, (Rectangle){ 0, 0, (float)target.texture.width, -(float)target.texture.height }, (Rectangle){ 0, 0, (float)GetScreenWidth(), (float)GetScreenHeight() }, (Vector2){ 0, 0 }, 0.0f, WHITE);
+    DrawTexturePro(targetHUD.texture, (Rectangle){ 0, 0, (float)targetHUD.texture.width, -(float)targetHUD.texture.height }, (Rectangle){ 0, 0, (float)GetScreenWidth(), (float)GetScreenHeight() }, (Vector2){ 0, 0 }, 0.0f, WHITE);
 
     // Draw UI
     DrawFPS(10, 10);

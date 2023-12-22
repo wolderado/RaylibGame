@@ -31,6 +31,7 @@ public:
     Vector3 GetSwayInput();
     void ShakeCamera(float amount);
     void SetShootDelegate(const function<void(int)> &delegate);
+    static Player* GetInstance();
 
 
 private:
@@ -45,6 +46,10 @@ private:
      float shootShakeTrauma = 0.3f;
      float shootCooldown = 0.05f;
      float shootBackwardsPush = 0.001f;
+     const float thrustFOVChange = 7.0f;
+     const float shootFOVChange = -10.0f;
+     const float defaultFOV = 60.0f;
+     const float fovChangeSpeed = 10.0f;
 
     Camera3D playerCamera;
     Camera3D hudCamera;
@@ -59,7 +64,8 @@ private:
     Vector3 shakeOffset = {0,0,0};
     ShootDelegate shootDelegate;
     int shootCanonIndex = 0;
-
+    bool shotThisFrame = false;
+    static Player* instance;
 
     void ProcessInput(float deltaTime);
     void ProcessRotation(float deltaTime);

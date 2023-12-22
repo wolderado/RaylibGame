@@ -31,8 +31,10 @@ public:
     void RenderModelWire(Model targetModel,Vector3 position, Vector3 rotation, Vector3 scale, Color color);
     void RenderModel(Model targetModel,Vector3 position, Vector3 rotation, Vector3 scale, Color color);
     void RenderModelWithWires(Model targetModel,Vector3 position, Vector3 rotation, Vector3 scale, Color color,bool ignoreOptimizations = false);
-    void RenderBillboard(int spriteIndex,Vector3 position, float size);
+    void RenderBillboard(int spriteRowIndex,int spriteIndex,Vector3 position, float size,float rotation);
     void RenderHealthBar(Vector3 position,Vector3 objectScale,float currentHealth,float maxHealth);
+    void BeginAlphaCutoff();
+    void EndAlphaCutoff();
 
 private:
     static Renderer* instance;
@@ -44,12 +46,13 @@ private:
 
     Texture skyboxTexture;
     Texture billboardTextureSheet;
-/*    Texture healthBarsTextureSheet;*/
     shared_ptr<Camera> camera;
-    //shared_ptr<Player> player;
-    void DrawDots(float cameraVelocityRatio,Vector3 cameraVelocity);
     Model genericLODModel;
     Model skyboxModel;
+    Shader alphaCutoffShader;
+
+    void DrawDots(float cameraVelocityRatio,Vector3 cameraVelocity);
+    void DrawBillboard(Camera camera, Texture2D texture, Rectangle source, Vector3 position, Vector3 up, Vector2 size, Vector2 origin, float rotation, Color tint);
 };
 
 

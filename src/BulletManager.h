@@ -14,6 +14,7 @@
 #include "Globals.h"
 #include "Renderer.h"
 #include "World.h"
+#include "ParticleManager.h"
 
 
 using namespace std;

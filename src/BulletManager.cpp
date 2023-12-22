@@ -8,6 +8,7 @@ BulletManager* BulletManager::instance = nullptr;
 
 void BulletManager::UpdateAndRender(float deltaTime) {
 
+
     //Loop through all active bullets
     for (int i = 0; i < activeBullets.size(); i++) {
 
@@ -25,7 +26,10 @@ void BulletManager::UpdateAndRender(float deltaTime) {
         }
 
         //Render
-        renderer->RenderBillboard(0,activeBullets[i].position,1.0f);
+        renderer->RenderBillboard(0,0,activeBullets[i].position,1.0f,0);
+/*
+        DrawCircle3D(activeBullets[i].position,0.1f,Vector3Zero(),0,PALETTE_YELLOW1);
+*/
 
         shared_ptr<GameObject> bulletHit = World::GetInstance()->CheckBulletCollision(activeBullets[i].position);
         if(bulletHit != nullptr) {
@@ -57,11 +61,12 @@ void BulletManager::CreateBullet(Vector3 position,Vector3 direction,int spriteIn
     newBullet.lifeTime = 0;
     newBullet.maxLifeTime = 2.0f;
     newBullet.spriteIndex = spriteIndex;
-    newBullet.speed = 100.0f;
+    newBullet.speed = 100.0f + GetRandomValue(0,50);
     newBullet.damage = 1.0f;
     newBullet.sourceTeam = sourceTeam;
 
     activeBullets.push_back(newBullet);
+
 
 
 }
@@ -96,4 +101,5 @@ void BulletManager::BulletHit(int bulletID, shared_ptr<GameObject> target) {
     inactiveBullets.push(activeBullets[bulletID]);
     activeBullets.erase(activeBullets.begin() + bulletID);
 
+    ParticleManager::GetInstance()->CreateHitParticle(activeBullets[bulletID].position);
 }

@@ -10,8 +10,8 @@
 #include "../../raylib/src/raymath.h"
 
 
-static const int ScreenWidth = 1280;
-static const int ScreenHeight = 720;
+static const int DefaultScreenWidth = 1280;
+static const int DefaultScreenHeight = 720;
 static const int RenderWidth = 640;
 static const int RenderHeight = 360;
 static float TimeSpeed = 1;

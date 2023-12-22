@@ -69,6 +69,8 @@ void HUD::DrawGuns(float deltaTime) {
     Renderer::GetInstance()->RenderModelWithWires(playerGunMuzzleModel,Vector3Add(weaponLeftPos,leftGunShootOffset), gunRotationLeft,Vector3One(),PALETTE_BLUE2, true);
 
 
+
+
     //Right Gun
     Vector3 weaponRightPos = (Vector3){-5.5f,-1.0f,5.0f};
     weaponRightPos = Vector3Add(weaponRightPos,positionSway);
@@ -89,6 +91,8 @@ void HUD::GunShoot(int cannonID) {
         rightGunShootOffset = (Vector3){0,0,shootCannonOffsetAmount};
     else if(cannonID == 1)
         leftGunShootOffset = (Vector3){0,0,shootCannonOffsetAmount};
+
+
 
 }
 

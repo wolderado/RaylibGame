@@ -27,6 +27,13 @@ void World::UpdateAll(float deltaTime) {
         CheckCollision(pair.second.get());
         pair.second->Render(deltaTime);
         pair.second->LateUpdate(deltaTime);
+
+        //Cleanup objects
+        if(pair.second->GetHealth() <= 0)
+        {
+            activeGameObjects.erase(pair.first);
+            OnGameObjectDestroyed();
+        }
     }
 }
 

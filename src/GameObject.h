@@ -46,7 +46,7 @@ public:
     float Mass = 1;
     uint32_t WorldID;
     float lastHurtTime;
-    float flashDuration = 0.2f;
+    float flashDuration = 0.13f;
 
 
     GameObject();
@@ -54,6 +54,7 @@ public:
     virtual void LateUpdate(float deltaTime);
     virtual void Render(float deltaTime);
     virtual void Hurt(float damage);
+    virtual float GetHealth();
     virtual void SetModel(Model model);
     virtual void Destroy();
     virtual void OnCollision(GameObject* otherObject,Vector3 collisionTotalVelocity);  //Collision event triggered by world interactions
