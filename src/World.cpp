@@ -31,6 +31,7 @@ void World::UpdateAll(float deltaTime) {
         //Cleanup objects
         if(pair.second->GetHealth() <= 0)
         {
+            pair.second->Destroy();
             activeGameObjects.erase(pair.first);
             OnGameObjectDestroyed();
         }
@@ -44,8 +45,12 @@ shared_ptr<GameObject> World::CreateNewObject() {
     return gameObject;
 }
 
-shared_ptr<GameObject> World::CreateNewAsteroid(Vector3 position) {
-    shared_ptr<Asteroid> newAsteroid = make_shared<Asteroid>();
+shared_ptr<GameObject> World::CreateNewAsteroid(Vector3 position,float maxSize) {
+
+
+    float asteroidSize = GetRandomValue(25,maxSize);
+
+    shared_ptr<Asteroid> newAsteroid = make_shared<Asteroid>(asteroidSize);
 
 
     newAsteroid->SetTeam(TEAM_NEUTRAL);
@@ -55,18 +60,19 @@ shared_ptr<GameObject> World::CreateNewAsteroid(Vector3 position) {
     Model asteroidModel = LoadModel(modelPath.c_str());
     newAsteroid->SetModel(asteroidModel);
 
-    float asteroidSize = GetRandomValue(1, 50) * 0.1f;
+
 
     newAsteroid->Position = position;
-    newAsteroid->Scale = Vector3Scale(Vector3One(), asteroidSize);
+    newAsteroid->Scale = Vector3Scale(Vector3One(), asteroidSize * 0.1f);
     newAsteroid->Rotation.x = GetRandomValue(0, 360);
     newAsteroid->Rotation.y = GetRandomValue(0, 360);
     newAsteroid->Rotation.z = GetRandomValue(0, 360);
     newAsteroid->Mass = asteroidSize;
-
     InitObject(newAsteroid);
 
-    return newAsteroid;
+    newAsteroid->SetHealth(asteroidSize);
+
+    return shared_ptr<GameObject>(newAsteroid);
 }
 
 void World::InitObject(shared_ptr<GameObject> target) {
@@ -74,6 +80,7 @@ void World::InitObject(shared_ptr<GameObject> target) {
     target->CollisionSize *= fmax(fmax(target->Scale.x,target->Scale.y),target->Scale.z);
     activeGameObjects[nextObjectId] = target;
     target->WorldID = nextObjectId;
+    target->SetVelocity(Vector3Zero());
     target->SetHealth(100);
     target->Name = target->Name + string(" [ID=") + to_string(nextObjectId) + string("]");
     nextObjectId++;

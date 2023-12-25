@@ -412,3 +412,56 @@ void Renderer::BeginAlphaCutoff() {
 void Renderer::EndAlphaCutoff() {
     EndShaderMode();
 }
+
+void Renderer::RenderTriangle(Vector3 position, float size,float angle, Color color) {
+
+    Vector3 camUp = GetCameraUp(camera.get());
+    Vector3 camRight = GetCameraRight(camera.get());
+
+
+    //TODO: Implement angle
+    Vector3 axis = GetCameraForward(camera.get());
+    camUp = Vector3RotateByAxisAngle(camUp,axis,angle);
+    camRight = Vector3RotateByAxisAngle(camRight,axis,angle);
+
+
+    Vector3 point1 = Vector3Add(position, Vector3Scale(camRight,size));
+    Vector3 point3 = Vector3Add(position, Vector3Scale(camRight,-size));
+    Vector3 point2 = Vector3Add(position, Vector3Scale(camUp,size));
+
+    //Fill shape
+    DrawTriangle3DWithRotation(point1,point2,point3,camRight,angle,FAKE_TRANSPARENT1);
+
+    //Lines
+    DrawLine3D(point1,point2,color);
+    DrawLine3D(point2,point3,color);
+    DrawLine3D(point3,point1,color);
+
+}
+
+void Renderer::DrawTriangle3DWithRotation(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 rotationAxis, float angle, Color color) {
+
+    //rlRotatef(angle,rotationAxis.x,rotationAxis.y,rotationAxis.z);
+
+
+
+    rlPushMatrix();
+        rlBegin(RL_TRIANGLES);
+        rlEnableBackfaceCulling();
+
+            rlColor4ub(color.r, color.g, color.b, color.a);
+            rlVertex3f(v1.x, v1.y, v1.z);
+            rlVertex3f(v2.x, v2.y, v2.z);
+            rlVertex3f(v3.x, v3.y, v3.z);
+        rlEnd();
+    rlPopMatrix();
+
+}
+
+void Renderer::RenderSphere(Vector3 position, float size, Color insideColor,Color lineColor) {
+
+    float cut = 4;
+
+    //DrawSphereWires(position,size,cut,cut,lineColor);
+    DrawSphereEx(position,size,cut,cut,insideColor);
+}

@@ -62,8 +62,10 @@ public:
     TEAM GetTeam();
     void SetTeam(TEAM newTeam);
     Vector3 GetVelocity() { return currentVelocity; }
+    void SetVelocity(Vector3 newVelocity);
     Vector3 GetVelocityNormalized() { return Vector3Normalize(currentVelocity); }
     void SetHealth(float newMaxHealth) { maxHealth = newMaxHealth; health = newMaxHealth; }
+    Model GetModel() { return myModel; }
 
 
 protected:

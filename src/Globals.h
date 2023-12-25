@@ -28,6 +28,14 @@ public:
         result.a = Lerp(color1.a,color2.a,amount);
         return result;
     }
+
+    static Vector3 GetRandomDirection() {
+        Vector3 result;
+        result.x = GetRandomValue(-100,100);
+        result.y = GetRandomValue(-100,100);
+        result.z = GetRandomValue(-100,100);
+        return Vector3Normalize(result);
+    }
 };
 
 #endif //SRC_GLOBALS_H

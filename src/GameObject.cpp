@@ -6,10 +6,16 @@
 
 void GameObject::Update(float deltaTime) {
 
-    if(!enabled)
+    if (!enabled)
         return;
 
-    Position = Vector3Add(Position,currentVelocity);
+
+    Position = Vector3Add(Position, currentVelocity);
+/*
+    if (myTeam == TEAM_NEUTRAL) {
+        if (Vector3Length(currentVelocity) > 0)
+            cout << Vector3Length(currentVelocity) << endl;
+    }*/
 }
 
 
@@ -65,13 +71,17 @@ void GameObject::Hurt(float damage) {
 }
 
 GameObject::GameObject() {
+
+
     Position = {0, 0, 10};
     Rotation = Vector3Zero();
     Scale = Vector3One();
     currentVelocity = Vector3Zero();
+
     health = 1;
     maxHealth = health;
     lastHurtTime = -999;
+    enabled = true;
 
     SetTeam(TEAM_NEUTRAL);
 }
@@ -131,4 +141,9 @@ void GameObject::LateUpdate(float deltaTime) {
 
 float GameObject::GetHealth() {
     return health;
+}
+
+void GameObject::SetVelocity(Vector3 newVelocity) {
+
+    currentVelocity = newVelocity;
 }

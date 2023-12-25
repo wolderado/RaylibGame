@@ -62,7 +62,7 @@ void BulletManager::CreateBullet(Vector3 position,Vector3 direction,int spriteIn
     newBullet.maxLifeTime = 2.0f;
     newBullet.spriteIndex = spriteIndex;
     newBullet.speed = 100.0f + GetRandomValue(0,50);
-    newBullet.damage = 1.0f;
+    newBullet.damage = 4.0f;
     newBullet.sourceTeam = sourceTeam;
 
     activeBullets.push_back(newBullet);

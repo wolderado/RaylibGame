@@ -20,6 +20,14 @@
 using namespace std;
 
 
+enum ParticleType
+{
+    Sprite,
+    Line,
+    Triangle,
+    Sphere,
+};
+
 struct Particle
 {
     bool isActive;
@@ -34,13 +42,18 @@ struct Particle
     float lifeTime;
     float maxLifeTime;
     bool stopOverTime;
-    bool isLineParticle;
+    bool scaleDownOverTime;
+    bool fadeTintDownOverTime;
+    float scaleTargetOverTime;
+    ParticleType particleType;
     bool useLocalSpace;
     GameObject* parentObject;
     Vector3 localPosition;
 
     //default
     float defaultMaxSpeed;
+    float defaultSize;
+    Color defaultTint;
 };
 
 
@@ -53,6 +66,7 @@ public:
     void CreateHitParticle(Vector3 position);
     void InitDefaults(Particle* particle);
     void CreateShootMuzzle(Vector3 localPosition,GameObject* parentObject);
+    void CreateAsteroidExplosion(Vector3 position,float asteroidSize);
 private:
     const int MaxParticles = 1000;
 

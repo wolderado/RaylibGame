@@ -23,7 +23,7 @@ public:
     static World* GetInstance();
     void UpdateAll(float deltaTime);
     shared_ptr<GameObject> CreateNewObject();
-    shared_ptr<GameObject> CreateNewAsteroid(Vector3 position);
+    shared_ptr<GameObject> CreateNewAsteroid(Vector3 position,float maxSize = 100);
     void InitObject(shared_ptr<GameObject> target);
     void CheckCollision(GameObject* object);
     bool CheckCollisionPure(Vector3 position1,float size1, Vector3 position2,float size2);

@@ -32,6 +32,8 @@ public:
     void RenderModel(Model targetModel,Vector3 position, Vector3 rotation, Vector3 scale, Color color);
     void RenderModelWithWires(Model targetModel,Vector3 position, Vector3 rotation, Vector3 scale, Color color,bool ignoreOptimizations = false);
     void RenderBillboard(int spriteRowIndex,int spriteIndex,Vector3 position, float size,float rotation);
+    void RenderTriangle(Vector3 position,float size,float angle,Color color);
+    void RenderSphere(Vector3 position,float size, Color insideColor,Color lineColor);
     void RenderHealthBar(Vector3 position,Vector3 objectScale,float currentHealth,float maxHealth);
     void BeginAlphaCutoff();
     void EndAlphaCutoff();
@@ -53,6 +55,7 @@ private:
 
     void DrawDots(float cameraVelocityRatio,Vector3 cameraVelocity);
     void DrawBillboard(Camera camera, Texture2D texture, Rectangle source, Vector3 position, Vector3 up, Vector2 size, Vector2 origin, float rotation, Color tint);
+    void DrawTriangle3DWithRotation(Vector3 v1,Vector3 v2,Vector3 v3,Vector3 rotationAxis,float angle,Color color);
 };
 
 

@@ -43,9 +43,9 @@ private:
      float thrustShakeTrauma = 0.2f;
      float stopInertiaSpeed = 4.0f;
      float maxVelocity = 0.3f;
-     float shootShakeTrauma = 0.3f;
+     float shootShakeTrauma = 0.2f;
      float shootCooldown = 0.05f;
-     float shootBackwardsPush = 0.001f;
+     float shootBackwardsPush = 0.00035f;
      const float thrustFOVChange = 7.0f;
      const float shootFOVChange = -10.0f;
      const float defaultFOV = 60.0f;

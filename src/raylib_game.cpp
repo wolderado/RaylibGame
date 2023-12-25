@@ -81,7 +81,6 @@ int main(void)
     player->Init();
     player->Name = "Player";
     world->InitObject(player);
-    //world->SetMainCamera(player->GetCamera());
 
     //Init
     renderer = Renderer::GetInstance();
@@ -90,6 +89,7 @@ int main(void)
     bulletManager->Init();
 
 
+    //Generate Asteroids
     for (int i = 0; i < 100; ++i) {
         Vector3 rndPos = { (float)GetRandomValue(-100, 100), (float)GetRandomValue(-100, 100), (float)GetRandomValue(-100, 100) };
         world->GetInstance()->CreateNewAsteroid(rndPos);
