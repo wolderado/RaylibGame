@@ -193,7 +193,6 @@ void Renderer::RenderModel(Model targetModel,Vector3 position, Vector3 rotation,
 
     //Draw
     DrawModel(targetModel, position, 1.0f, color);
-
 }
 
 

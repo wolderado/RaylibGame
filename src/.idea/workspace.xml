@@ -20,22 +20,25 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="23813626-e860-407e-add6-72449def8d1e" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/BattleManager.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BattleManager.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Fighter.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Fighter.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/Ship.glb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Asteroid.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Asteroid.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Asteroid.h" beforeDir="false" afterPath="$PROJECT_DIR$/Asteroid.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BulletManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/BulletManager.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Color.h" beforeDir="false" afterPath="$PROJECT_DIR$/Color.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/GameObject.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/GameObject.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/GameObject.h" beforeDir="false" afterPath="$PROJECT_DIR$/GameObject.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Globals.h" beforeDir="false" afterPath="$PROJECT_DIR$/Globals.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ParticleManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/ParticleManager.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ParticleManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/ParticleManager.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Player.h" beforeDir="false" afterPath="$PROJECT_DIR$/Player.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Player.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Player.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Renderer.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Renderer.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Renderer.h" beforeDir="false" afterPath="$PROJECT_DIR$/Renderer.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/World.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/World.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/World.h" beforeDir="false" afterPath="$PROJECT_DIR$/World.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/raylib_game.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/raylib_game.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/BillboardSheet.png" beforeDir="false" afterPath="$PROJECT_DIR$/resources/BillboardSheet.png" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -115,11 +118,6 @@
   }
 }</component>
   <component name="RunManager" selected="Makefile Application.all">
-    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="Commands" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="src" TARGET_NAME="Commands" CONFIG_NAME="Commands" version="1">
       <method v="2">
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
@@ -208,6 +206,11 @@
     <configuration name="run" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="src" TARGET_NAME="run" CONFIG_NAME="run" version="1">
       <method v="2">
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
     <list>
@@ -253,6 +256,10 @@
       <workItem from="1703184899647" duration="10177000" />
       <workItem from="1703249338469" duration="19162000" />
       <workItem from="1703526323451" duration="11998000" />
+      <workItem from="1703609648836" duration="8494000" />
+      <workItem from="1704199269494" duration="675000" />
+      <workItem from="1704199980794" duration="10213000" />
+      <workItem from="1704300210972" duration="11790000" />
     </task>
     <servers />
   </component>

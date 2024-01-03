@@ -315,7 +315,7 @@ endif
 
 # Define source code files required
 #------------------------------------------------------------------------------------------------
-PROJECT_SOURCE_FILES ?= raylib_game.cpp Renderer.cpp GameObject.cpp World.cpp Asteroid.cpp HUD.cpp BulletManager.cpp Player.cpp ParticleManager.cpp
+PROJECT_SOURCE_FILES ?= raylib_game.cpp Renderer.cpp GameObject.cpp World.cpp Asteroid.cpp HUD.cpp BulletManager.cpp Player.cpp ParticleManager.cpp Fighter.cpp BattleManager.cpp
 
 
 

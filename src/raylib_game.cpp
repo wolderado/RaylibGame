@@ -23,6 +23,7 @@
 #include "World.h"
 #include "HUD.h"
 #include "ParticleManager.h"
+#include "BattleManager.h"
 
 
 #if defined(PLATFORM_WEB)
@@ -53,11 +54,17 @@ World* world;
 BulletManager* bulletManager;
 HUD hud;
 ParticleManager* particleManager;
+BattleManager battleManager;
 
 
-//------------------------------------------------------------------------------------
-// Program main entry point
-//------------------------------------------------------------------------------------
+//TODO Optimizations:
+//Grid based collision detection for both game objects and bullets
+//Cache all required models and don't load models within game object
+//Implement camera to angles conversion for Player.cpp rotation
+//Fix muzzle particle misaligning with camera (fix local space particles)
+
+
+
 int main(void)
 {
     SetTraceLogLevel(LOG_NONE);
@@ -75,6 +82,8 @@ int main(void)
     world = World::GetInstance();
     bulletManager = BulletManager::GetInstance();
     particleManager = ParticleManager::GetInstance();
+    renderer = Renderer::GetInstance();
+
 
     //Setup Player
     player = shared_ptr<Player>(Player::GetInstance());
@@ -83,16 +92,27 @@ int main(void)
     world->InitObject(player);
 
     //Init
-    renderer = Renderer::GetInstance();
     renderer->InitRenderer(player->GetCamera());
     hud.Init(player);
     bulletManager->Init();
+    battleManager.Init();
 
 
     //Generate Asteroids
     for (int i = 0; i < 100; ++i) {
         Vector3 rndPos = { (float)GetRandomValue(-100, 100), (float)GetRandomValue(-100, 100), (float)GetRandomValue(-100, 100) };
         world->GetInstance()->CreateNewAsteroid(rndPos);
+    }
+
+    //Generate ships
+    for (int i = 0; i < 10; ++i) {
+        Vector3 rndPos = { (float)GetRandomValue(-100, 100), (float)GetRandomValue(-100, 100), (float)GetRandomValue(-100, 100) };
+        world->GetInstance()->CreateNewFighter(TEAM_ENEMY,rndPos);
+    }
+
+    for (int i = 0; i < 10; ++i) {
+        Vector3 rndPos = { (float)GetRandomValue(-100, 100), (float)GetRandomValue(-100, 100), (float)GetRandomValue(-100, 100) };
+        world->GetInstance()->CreateNewFighter(TEAM_ALLY,rndPos);
     }
 
 
@@ -147,6 +167,7 @@ void UpdateDrawFrame(void)
         BeginMode3D(*player->GetCamera());
             renderer->RenderAtmosphere(player->GetVelocityRatioToMaxValue(),player->GetVelocity());
             world->GetInstance()->UpdateAll(deltaTime);
+            battleManager.UpdateAI(deltaTime);
 
             //Billboard Renders
             renderer->BeginAlphaCutoff();

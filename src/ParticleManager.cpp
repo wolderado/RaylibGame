@@ -31,15 +31,16 @@ void ParticleManager::UpdateAndRender(float deltaTime) {
 
         if(particle->useLocalSpace)
         {
-            Matrix worldMatrix = MatrixTranslate(particle->parentObject->Position.x, particle->parentObject->Position.y, particle->parentObject->Position.z);
-            worldMatrix = MatrixMultiply(worldMatrix, MatrixRotateXYZ((Vector3){particle->parentObject->Rotation.x ,particle->parentObject->Rotation.y,particle->parentObject->Rotation.z}));
+            Vector3 pos = particle->localPosition;
 
-            Matrix localMatrix = MatrixTranslate(particle->localPosition.x, particle->localPosition.y, particle->localPosition.z);
-            //localMatrix = MatrixMultiply(localMatrix, MatrixRotateXYZ((Vector3){0,0,particle->angle}));
+            pos = Vector3RotateByAxisAngle(pos,(Vector3){0,1,0},particle->parentObject->Rotation.y);
+            pos = Vector3RotateByAxisAngle(pos,(Vector3){1,0,0},particle->parentObject->Rotation.x);
+            pos = Vector3RotateByAxisAngle(pos,(Vector3){0,0,1},particle->parentObject->Rotation.z);
 
-            Matrix finalMatrix = MatrixMultiply(worldMatrix,localMatrix);
+            pos = Vector3Add(pos,particle->parentObject->Position);
 
-            particle->position = Vector3Transform(Vector3Zero(),finalMatrix);
+            particle->position = pos;
+
         }
 
         Vector3 newPos = Vector3Add(particle->position, velocity);
@@ -189,7 +190,7 @@ void ParticleManager::CreateShootMuzzle(Vector3 localPosition, GameObject* paren
     boomParticle->particleIndex = GetRandomValue(0,2);
     boomParticle->position = localPosition;
     boomParticle->localPosition = localPosition;
-    boomParticle->useLocalSpace = true;
+    boomParticle->useLocalSpace = false;
     boomParticle->parentObject = parentObject;
     boomParticle->speed = 0;
     boomParticle->maxLifeTime = 0.15f;
@@ -213,7 +214,7 @@ void ParticleManager::CreateAsteroidExplosion(Vector3 position,float asteroidSiz
         InitDefaults(newParticle);
     }
 
-    //Particles
+    //Triangles
     for (int i = 0; i < asteroidSize / 2; ++i) {
         Particle* newParticle = CreateParticle();
         newParticle->particleRowIndex = 1;
@@ -222,7 +223,7 @@ void ParticleManager::CreateAsteroidExplosion(Vector3 position,float asteroidSiz
         newParticle->speed = GetRandomValue(0,20);
         newParticle->direction = Vector3Normalize(Vector3{(float)GetRandomValue(-100,100),(float)GetRandomValue(-100,100),(float)GetRandomValue(-100,100)});
         newParticle->maxLifeTime = GetRandomValue(100,300) * 0.01f;
-        newParticle->size = asteroidSize * 0.02f;
+        newParticle->size = asteroidSize * 0.025f;
         newParticle->angle = GetRandomValue(0,360);
         newParticle->scaleDownOverTime = true;
         newParticle->stopOverTime = true;

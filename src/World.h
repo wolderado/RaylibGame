@@ -12,6 +12,8 @@
 #include <map>
 #include "GameObject.h"
 #include "Asteroid.h"
+#include "Fighter.h"
+
 
 
 
@@ -24,10 +26,16 @@ public:
     void UpdateAll(float deltaTime);
     shared_ptr<GameObject> CreateNewObject();
     shared_ptr<GameObject> CreateNewAsteroid(Vector3 position,float maxSize = 100);
+    shared_ptr<GameObject> CreateNewFighter(TEAM team, Vector3 position);
     void InitObject(shared_ptr<GameObject> target);
     void CheckCollision(GameObject* object);
     bool CheckCollisionPure(Vector3 position1,float size1, Vector3 position2,float size2);
     shared_ptr<GameObject> CheckBulletCollision(Vector3 bulletPosition);
+
+    using newObjectCreation = function<void(shared_ptr<GameObject>)>;
+    newObjectCreation OnNewObjectCreated;
+
+
     map<uint32_t, shared_ptr<GameObject>> activeGameObjects;
 private:
     uint32_t nextObjectId = 0;
@@ -35,7 +43,7 @@ private:
 
 
 
-    void OnGameObjectDestroyed();
+    void OnGameObjectDestroyed(shared_ptr<GameObject>& destroyedObject);
 };
 
 

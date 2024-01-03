@@ -41,7 +41,7 @@ void GameObject::Render(float deltaTime) {
 
     if(myRenderType == RealMesh)
     {
-        Renderer::GetInstance()->RenderModelWithWires(myModel,Position,Rotation, Vector3Scale(modelScale,1.01f),modelColor);
+        Renderer::GetInstance()->RenderModelWithWires(myModel,Position, QuaternionToEuler(Rotation), Vector3Scale(modelScale,1.01f),modelColor);
 
         if(DEBUG_SHOW_COLLISION_AREA) {
             if (CanCollide) {
@@ -74,7 +74,7 @@ GameObject::GameObject() {
 
 
     Position = {0, 0, 10};
-    Rotation = Vector3Zero();
+    Rotation = QuaternionIdentity();
     Scale = Vector3One();
     currentVelocity = Vector3Zero();
 
@@ -119,6 +119,8 @@ void GameObject::SetTeam(TEAM newTeam) {
         myColor = PALETTE_BLUE2;
     else if(myTeam == TEAM_ENEMY)
         myColor = PALETTE_RED2;
+    else if(myTeam == TEAM_ALLY)
+        myColor = PALETTE_GREEN2;
 }
 
 void GameObject::OnCollision(GameObject *otherObject,Vector3 collisionTotalVelocity) {
@@ -146,4 +148,26 @@ float GameObject::GetHealth() {
 void GameObject::SetVelocity(Vector3 newVelocity) {
 
     currentVelocity = newVelocity;
+}
+
+void GameObject::OnInit() {
+
+}
+
+Vector3 GameObject::GetForward() {
+    Matrix mat = QuaternionToMatrix(Rotation);
+    Vector3 forward = { mat.m8, mat.m9, mat.m10 };
+    return forward;
+}
+
+Vector3 GameObject::GetRight() {
+    Matrix mat = QuaternionToMatrix(Rotation);
+    Vector3 right = { mat.m0, mat.m1, mat.m2 };
+    return right;
+}
+
+Vector3 GameObject::GetUp() {
+    Matrix mat = QuaternionToMatrix(Rotation);
+    Vector3 up = { mat.m4, mat.m5, mat.m6 };
+    return up;
 }

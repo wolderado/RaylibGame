@@ -9,6 +9,7 @@
 #include <iostream>
 #include <vector>
 #include <functional>
+#include <unordered_set>
 
 #include "../../raylib/src/raylib.h"
 #include "../../raylib/src/raymath.h"
@@ -38,7 +39,7 @@ class GameObject {
 public:
     std::string Name = "UNIDENTIFIED OBJECT";
     Vector3 Position = {0,0,0};
-    Vector3 Rotation = {0,0,0};
+    Quaternion Rotation;
     Vector3 Scale = {1,1,1};
     bool CanCollide = true;
     bool ShowHealthBar = false;
@@ -58,6 +59,7 @@ public:
     virtual void SetModel(Model model);
     virtual void Destroy();
     virtual void OnCollision(GameObject* otherObject,Vector3 collisionTotalVelocity);  //Collision event triggered by world interactions
+    virtual void OnInit();
 
     TEAM GetTeam();
     void SetTeam(TEAM newTeam);
@@ -66,6 +68,11 @@ public:
     Vector3 GetVelocityNormalized() { return Vector3Normalize(currentVelocity); }
     void SetHealth(float newMaxHealth) { maxHealth = newMaxHealth; health = newMaxHealth; }
     Model GetModel() { return myModel; }
+    void AddTag(const string tag) { tags.insert(tag); }
+    bool HasTag(const string tag) { return tags.find(tag) != tags.end(); }
+    Vector3 GetForward();
+    Vector3 GetRight();
+    Vector3 GetUp();
 
 
 protected:
@@ -77,6 +84,7 @@ protected:
     Color myColor;
     Vector3 currentVelocity;
     bool enabled = true;
+    unordered_set<string> tags;
 };
 
 

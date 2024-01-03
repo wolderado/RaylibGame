@@ -5,7 +5,7 @@
 
 Player* Player::instance = nullptr;
 
-Player::Player(){
+Player::Player() : GameObject(){
 
 }
 
@@ -15,6 +15,7 @@ void Player::Init() {
     SetTeam(TEAM_PLAYER);
 
     Position = Vector3Zero();
+    Rotation = QuaternionIdentity();
 
     playerCamera = { 0 };
     playerCamera.position = (Vector3){ 0.25f, 0.25f, 0.25f };
@@ -29,6 +30,8 @@ void Player::Init() {
     hudCamera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
     hudCamera.fovy = defaultFOV;
     hudCamera.projection = CAMERA_PERSPECTIVE;
+
+    AddTag("Player");
 
 
     std::cout << "Initialized Player" << "\n";
@@ -53,6 +56,22 @@ void Player::ProcessInput(float deltaTime){
 }
 
 
+Vector3 EulerAnglesToDirectionVector(const Vector3& angles)
+{
+    float cosX = cos(angles.x);
+    float sinX = sin(angles.x);
+    float cosY = cos(angles.y);
+    float sinY = sin(angles.y);
+    float cosZ = cos(angles.z);
+    float sinZ = sin(angles.z);
+
+    Vector3 directionVector;
+    directionVector.x = cosY * cosZ;
+    directionVector.y = sinX * sinY * cosZ + cosX * sinZ;
+    directionVector.z = -cosX * sinY * cosZ + sinX * sinZ;
+
+    return directionVector;
+}
 
 void Player::ProcessRotation(float deltaTime) {
     Vector3 inputVec = {0,0,0};
@@ -120,9 +139,14 @@ void Player::ProcessRotation(float deltaTime) {
     CameraPitch(&playerCamera, smoothedInput.y,false,false, true);
     CameraRoll(&playerCamera, smoothedInput.z );
 
-    Rotation = Vector3Zero();
+    //Rotation = Vector3Zero();
+
+    Vector3 target = GetCameraDirection();
 
 
+/*    Rotation.x += -smoothedInput.y;
+    Rotation.y += smoothedInput.x;
+    Rotation.z += smoothedInput.z;*/
 }
 
 void Player::ProcessThrust(float deltaTime) {
@@ -237,6 +261,7 @@ void Player::ProcessShoot(float deltaTime) {
 
         //Adjust shoot position to match with guns
         Vector3 shootPosition = Vector3Zero();
+        Vector3 rotationBasedShootPosition = Vector3Zero();
         Vector3 right = GetCameraRight(&playerCamera);
         Vector3 forward = GetCameraForward(&playerCamera);
         Vector3 up = GetCameraUp(&playerCamera);
@@ -244,22 +269,29 @@ void Player::ProcessShoot(float deltaTime) {
         shootPosition = Vector3Add(shootPosition, Vector3Scale(forward, 2.3f));
         shootPosition = Vector3Add(shootPosition, Vector3Scale(up, -0.2f));
 
+        rotationBasedShootPosition = (Vector3){0,-0.2f,2.3f};
 
-        if (shootCanonIndex == 0)
+        if (shootCanonIndex == 0) {
+            rotationBasedShootPosition.x = 1.48f;
             shootPosition = Vector3Add(shootPosition, Vector3Scale(right, 1.48f));
-        else
+        }else {
+            rotationBasedShootPosition.x = -1.48f;
             shootPosition = Vector3Add(shootPosition, Vector3Scale(right, -1.48f));
+        }
 
-        Vector3 shootDirection = GetCameraDirection();
+        Vector3 shootDirection = GetCameraForward(&playerCamera);
+        shootDirection = Vector3Add(shootDirection, Vector3Scale(GetVelocityNormalized(),0.1f));
         shootDirection = Vector3Normalize(shootDirection);
 
         Vector3 globalShootPosition = Vector3Add(Position, shootPosition);
         BulletManager::GetInstance()->CreateBullet(globalShootPosition, shootDirection, 0, TEAM_PLAYER);
 
         //Push back
-        currentVelocity = Vector3Add(currentVelocity, Vector3Scale(shootDirection, -shootBackwardsPush));
+        //currentVelocity = Vector3Add(currentVelocity, Vector3Scale(shootDirection, -shootBackwardsPush));
 
-        ParticleManager::GetInstance()->CreateShootMuzzle(shootPosition,instance);
+        //Particle
+        //cout << shootPosition.x << " " << shootPosition.y << " " << shootPosition.z << endl;
+        ParticleManager::GetInstance()->CreateShootMuzzle(globalShootPosition,instance);
 
         shotThisFrame = true;
         if (shootDelegate != nullptr)

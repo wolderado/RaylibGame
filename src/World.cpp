@@ -32,8 +32,8 @@ void World::UpdateAll(float deltaTime) {
         if(pair.second->GetHealth() <= 0)
         {
             pair.second->Destroy();
+            OnGameObjectDestroyed(pair.second);
             activeGameObjects.erase(pair.first);
-            OnGameObjectDestroyed();
         }
     }
 }
@@ -55,6 +55,7 @@ shared_ptr<GameObject> World::CreateNewAsteroid(Vector3 position,float maxSize) 
 
     newAsteroid->SetTeam(TEAM_NEUTRAL);
     newAsteroid->Name = "Asteroid";
+    newAsteroid->AddTag("Asteroid");
 
     string modelPath = "resources/Asteroid" + to_string(GetRandomValue(1, 3)) + ".glb";
     Model asteroidModel = LoadModel(modelPath.c_str());
@@ -83,7 +84,11 @@ void World::InitObject(shared_ptr<GameObject> target) {
     target->SetVelocity(Vector3Zero());
     target->SetHealth(100);
     target->Name = target->Name + string(" [ID=") + to_string(nextObjectId) + string("]");
+    target->OnInit();
     nextObjectId++;
+
+    if(OnNewObjectCreated != nullptr)
+        OnNewObjectCreated(target);
 }
 
 void World::CheckCollision(GameObject* object) {
@@ -122,10 +127,59 @@ shared_ptr<GameObject> World::CheckBulletCollision(Vector3 bulletPosition) {
     return nullptr;
 }
 
-void World::OnGameObjectDestroyed() {
+void World::OnGameObjectDestroyed(shared_ptr<GameObject>& destroyedObject) {
+
+    if(destroyedObject->HasTag("Asteroid"))
+    {
+        Asteroid* destroyedAsteroid = dynamic_cast<Asteroid*>(destroyedObject.get());
+
+        if(destroyedAsteroid->AsteroidSize < 25)
+            return;
+
+        //cout << destroyedAsteroid->AsteroidSize << " sized asteroid destroyed, creating 2 new ones" << endl;
+
+
+        float newAsteroidSize = destroyedAsteroid->AsteroidSize/2.0f;
+        int minForceMagnitude = 60;
+        int maxForceMagnitude = 60;
+        float finalForce = GetRandomValue(minForceMagnitude,maxForceMagnitude) * 0.01f;
+
+        Vector3 rndDirection = Utility::GetRandomDirection();
+
+        for (int i = 0; i < 2; ++i) {
+            shared_ptr<GameObject> asteroid = World::GetInstance()->CreateNewAsteroid(destroyedAsteroid->Position,newAsteroidSize);
+            asteroid->SetVelocity(Vector3Scale(rndDirection, finalForce));
+        }
+    }
 
 }
 
 bool World::CheckCollisionPure(Vector3 position1, float size1, Vector3 position2, float size2) {
     return CheckCollisionSpheres(position1, size1, position2,size2);
 }
+
+shared_ptr<GameObject> World::CreateNewFighter(TEAM team, Vector3 position) {
+    shared_ptr<Fighter> newFighter = make_shared<Fighter>(team,position);
+    newFighter->SetTeam(team);
+    newFighter->Name = "Fighter";
+    newFighter->AddTag("Fighter");
+
+    string modelPath = "resources/Ship.glb";
+    Model fighterModel = LoadModel(modelPath.c_str());
+    newFighter->SetModel(fighterModel);
+
+    newFighter->Position = position;
+    newFighter->Scale = Vector3Scale(Vector3One(), 0.5f);
+/*    newFighter->Rotation.x = GetRandomValue(0, 360);
+    newFighter->Rotation.y = GetRandomValue(0, 360);
+    newFighter->Rotation.z = GetRandomValue(0, 360);*/
+    newFighter->Mass = 1;
+    newFighter->CollisionSize = 2;
+    newFighter->SetVelocity(Utility::GetRandomDirection());
+    newFighter->SetHealth(100);
+
+    InitObject(newFighter);
+
+    return shared_ptr<GameObject>(newFighter);
+}
+

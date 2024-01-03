@@ -6,47 +6,37 @@
 
 void Asteroid::Update(float deltaTime) {
 
-    Rotation = Vector3Add(Rotation, Vector3Scale(rndAngularMomentum,deltaTime));
+    rndAngle += deltaTime * rotateSpeed;
+    Rotation = QuaternionFromEuler(rndAxis.x,rndAxis.y + rndAngle,rndAxis.z);
 
+    if(rndAngle * RAD2DEG > 360 || rndAngle * RAD2DEG < -360)
+        rndAngle = 0;
+
+
+
+    //ParticleManager::GetInstance()->CreateShootMuzzle((Vector3){0,1.0f,0}, this);
 
     GameObject::Update(deltaTime);
 }
 
-Asteroid::Asteroid(float size){
+Asteroid::Asteroid(float size) : GameObject() {
 
     float rotateSpeed= 0.005f;
-    asteroidSize = size;
+    AsteroidSize = size;
     Name = "Asteroid";
     //cout << "Creating asteroid with size " << asteroidSize << endl;
 
-    rndAngularMomentum =
-            {GetRandomValue(-100, 100) * rotateSpeed,
-             GetRandomValue(-100, 100) * rotateSpeed,
-             GetRandomValue(-100, 100) * rotateSpeed};
+
+    rndAngle = 0;
+    rotateSpeed = GetRandomValue(-100,100) * 0.005f;
+
+    rndAxis = {GetRandomValue(0, 360) * DEG2RAD,
+                          GetRandomValue(0, 360) * DEG2RAD,
+                          GetRandomValue(0, 360) * DEG2RAD};
 }
 
 void Asteroid::Destroy() {
     GameObject::Destroy();
 
-    ParticleManager::GetInstance()->CreateAsteroidExplosion(Position,asteroidSize);
-
-    if(asteroidSize < 25)
-        return;
-
-    //cout << asteroidSize << " sized asteroid destroyed, creating 2 new ones" << endl;
-
-
-    float newAsteroidSize = asteroidSize/2.0f;
-    int minForceMagnitude = 60;
-    int maxForceMagnitude = 60;
-    float finalForce = GetRandomValue(minForceMagnitude,maxForceMagnitude) * 0.01f;
-
-    Vector3 rndDirection = Utility::GetRandomDirection();
-
-    for (int i = 0; i < 2; ++i) {
-        shared_ptr<GameObject> asteroid = World::GetInstance()->CreateNewAsteroid(Position,newAsteroidSize);
-        asteroid->SetVelocity(Vector3Scale(rndDirection, finalForce));
-    }
-
-
+    ParticleManager::GetInstance()->CreateAsteroidExplosion(Position,AsteroidSize);
 }
