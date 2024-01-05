@@ -18,8 +18,6 @@
 #include "Color.h"
 #include "Renderer.h"
 
-const bool DEBUG_SHOW_COLLISION_AREA = false;
-
 
 enum ObjectRenderType{
     Invisible,
@@ -37,6 +35,8 @@ enum TEAM{
 
 class GameObject {
 public:
+    const float FlashDuration = 0.13f;
+
     std::string Name = "UNIDENTIFIED OBJECT";
     Vector3 Position = {0,0,0};
     Quaternion Rotation;
@@ -46,8 +46,9 @@ public:
     float CollisionSize = 1.0f;
     float Mass = 1;
     uint32_t WorldID;
-    float lastHurtTime;
-    float flashDuration = 0.13f;
+    float LastHurtTime;
+    tuple<int,int,int> GridIndex;
+
 
 
     GameObject();
@@ -66,7 +67,7 @@ public:
     Vector3 GetVelocity() { return currentVelocity; }
     void SetVelocity(Vector3 newVelocity);
     Vector3 GetVelocityNormalized() { return Vector3Normalize(currentVelocity); }
-    void SetHealth(float newMaxHealth) { maxHealth = newMaxHealth; health = newMaxHealth; }
+    void SetHealth(float newMaxHealth);
     Model GetModel() { return myModel; }
     void AddTag(const string tag) { tags.insert(tag); }
     bool HasTag(const string tag) { return tags.find(tag) != tags.end(); }
@@ -85,6 +86,7 @@ protected:
     Vector3 currentVelocity;
     bool enabled = true;
     unordered_set<string> tags;
+    Color hurtFlashColor = PALETTE_RED1;
 };
 
 

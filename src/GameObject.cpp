@@ -10,7 +10,8 @@ void GameObject::Update(float deltaTime) {
         return;
 
 
-    Position = Vector3Add(Position, currentVelocity);
+    Vector3 frameVelocity = Vector3Scale(currentVelocity, deltaTime * 100);
+    Position = Vector3Add(Position, frameVelocity);
 /*
     if (myTeam == TEAM_NEUTRAL) {
         if (Vector3Length(currentVelocity) > 0)
@@ -32,10 +33,10 @@ void GameObject::Render(float deltaTime) {
     Color modelColor = myColor;
     Vector3 modelScale = Scale;
 
-    if(GetTime() - lastHurtTime < flashDuration) {
-        float t = (GetTime() - lastHurtTime) / flashDuration;
+    if(GetTime() - LastHurtTime < FlashDuration) {
+        float t = (GetTime() - LastHurtTime) / FlashDuration;
         t = pow(t,1.5f);
-        modelColor = Utility::LerpColor(PALETTE_RED1, myColor, t);
+        modelColor = Utility::LerpColor(hurtFlashColor, myColor, t);
         modelScale = Vector3Lerp((Vector3){Scale.x * 0.9f,Scale.y * 0.9f,Scale.z * 0.9f},modelScale, t);
     }
 
@@ -63,7 +64,7 @@ void GameObject::Hurt(float damage) {
         return;
 
     health -= damage;
-    lastHurtTime = GetTime();
+    LastHurtTime = GetTime();
     if(health <= 0)
     {
         health = 0;
@@ -80,8 +81,9 @@ GameObject::GameObject() {
 
     health = 1;
     maxHealth = health;
-    lastHurtTime = -999;
+    LastHurtTime = -999;
     enabled = true;
+    GridIndex = make_tuple(0,0,0);
 
     SetTeam(TEAM_NEUTRAL);
 }
@@ -152,6 +154,8 @@ void GameObject::SetVelocity(Vector3 newVelocity) {
 
 void GameObject::OnInit() {
 
+    if(myTeam == TEAM_ENEMY)
+        hurtFlashColor = PALETTE_YELLOW1;
 }
 
 Vector3 GameObject::GetForward() {
@@ -170,4 +174,9 @@ Vector3 GameObject::GetUp() {
     Matrix mat = QuaternionToMatrix(Rotation);
     Vector3 up = { mat.m4, mat.m5, mat.m6 };
     return up;
+}
+
+void GameObject::SetHealth(float newMaxHealth) {
+    maxHealth = newMaxHealth;
+    health = maxHealth;
 }

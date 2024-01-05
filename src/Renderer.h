@@ -31,7 +31,7 @@ public:
     void RenderModelWire(Model targetModel,Vector3 position, Vector3 rotation, Vector3 scale, Color color);
     void RenderModel(Model targetModel,Vector3 position, Vector3 rotation, Vector3 scale, Color color);
     void RenderModelWithWires(Model targetModel,Vector3 position, Vector3 rotation, Vector3 scale, Color color,bool ignoreOptimizations = false);
-    void RenderBillboard(int spriteRowIndex,int spriteIndex,Vector3 position, float size,float rotation);
+    void RenderBillboard(int spriteRowIndex,int spriteIndex,Vector3 position, float size,float rotation,Color simplifiedColor);
     void RenderTriangle(Vector3 position,float size,float angle,Color color);
     void RenderSphere(Vector3 position,float size, Color insideColor,Color lineColor);
     void RenderHealthBar(Vector3 position,Vector3 objectScale,float currentHealth,float maxHealth);

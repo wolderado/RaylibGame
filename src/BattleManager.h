@@ -15,6 +15,8 @@ public:
     void Init();
     void UpdateAI(float deltaTime);
     void ProcessAI(shared_ptr<Fighter> object);
+    shared_ptr<GameObject> GetRandomShip(TEAM myTeam);
+    shared_ptr<GameObject> GetClosestShip(TEAM myTeam,Vector3 position);
 
 private:
     World* worldInstance;

@@ -40,7 +40,9 @@ public:
     static BulletManager* GetInstance();
     void UpdateAndRender(float deltaTime);
     void CreateBullet(Vector3 position,Vector3 direction,int spriteIndex,TEAM sourceTeam);
-    void BulletHit(int bulletID, shared_ptr<GameObject> target);
+    void BulletHit(int index,GameObject* target);
+
+
 
 private:
     static BulletManager* instance;
@@ -50,6 +52,7 @@ private:
     //Pooling bullets
     vector<Bullet> activeBullets;
     stack<Bullet> inactiveBullets;
+    void EraseBulletAt(int index);
 
 };
 

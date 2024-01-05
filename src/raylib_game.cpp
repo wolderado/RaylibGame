@@ -48,6 +48,7 @@
 static RenderTexture2D target = { 0 };  // Render texture to render our game
 static RenderTexture2D targetHUD = { 0 };  // Render texture to render our game
 static void UpdateDrawFrame(void);      // Update and Draw one frame
+static float TimeSpeed = 1;
 shared_ptr<Player> player;
 Renderer* renderer;
 World* world;
@@ -55,6 +56,7 @@ BulletManager* bulletManager;
 HUD hud;
 ParticleManager* particleManager;
 BattleManager battleManager;
+
 
 
 //TODO Optimizations:
@@ -84,6 +86,8 @@ int main(void)
     particleManager = ParticleManager::GetInstance();
     renderer = Renderer::GetInstance();
 
+    //Init world first
+    world->GenerateWorld();
 
     //Setup Player
     player = shared_ptr<Player>(Player::GetInstance());
@@ -97,23 +101,6 @@ int main(void)
     bulletManager->Init();
     battleManager.Init();
 
-
-    //Generate Asteroids
-    for (int i = 0; i < 100; ++i) {
-        Vector3 rndPos = { (float)GetRandomValue(-100, 100), (float)GetRandomValue(-100, 100), (float)GetRandomValue(-100, 100) };
-        world->GetInstance()->CreateNewAsteroid(rndPos);
-    }
-
-    //Generate ships
-    for (int i = 0; i < 10; ++i) {
-        Vector3 rndPos = { (float)GetRandomValue(-100, 100), (float)GetRandomValue(-100, 100), (float)GetRandomValue(-100, 100) };
-        world->GetInstance()->CreateNewFighter(TEAM_ENEMY,rndPos);
-    }
-
-    for (int i = 0; i < 10; ++i) {
-        Vector3 rndPos = { (float)GetRandomValue(-100, 100), (float)GetRandomValue(-100, 100), (float)GetRandomValue(-100, 100) };
-        world->GetInstance()->CreateNewFighter(TEAM_ALLY,rndPos);
-    }
 
 
 

@@ -80,11 +80,10 @@ void Renderer::RenderBackground() {
 
 void Renderer::RenderAtmosphere(float cameraVelocityRatio,Vector3 cameraVelocity) {
 
-    //DrawModel(skyboxModel, camera->position, 100.0f, WHITE);
-
     DrawDots(cameraVelocityRatio,cameraVelocity);
 
-    //DrawBillboard(*camera,skyboxTexture,Vector3Add(camera->position,(Vector3){0,0,1}),1.0f,WHITE);
+
+
 }
 
 
@@ -281,11 +280,24 @@ bool Renderer::IsVisible(Vector3 position, float customDotValue) {
     return Vector3DotProduct(Vector3Normalize(toTarget), Vector3Normalize(GetCameraForward(camera.get()))) > customDotValue;
 }
 
-void Renderer::RenderBillboard(int spriteRowIndex,int spriteIndex, Vector3 position, float size,float rotation) {
-
+void Renderer::RenderBillboard(int spriteRowIndex,int spriteIndex, Vector3 position, float size,float rotation,Color simplifiedColor) {
 
     Vector3 cameraUp = GetCameraUp(camera.get());
-    DrawBillboard(*camera,billboardTextureSheet,(Rectangle){(float)spriteIndex * 16,(float)spriteRowIndex * 16,16,16},position,cameraUp,(Vector2){size,size},(Vector2){0,0},rotation,WHITE);
+    DrawBillboard(*camera, billboardTextureSheet,
+                  (Rectangle) {(float) spriteIndex * 16, (float) spriteRowIndex * 16, 16, 16}, position, cameraUp,
+                  (Vector2) {size, size}, (Vector2) {0, 0}, rotation, WHITE);
+
+/*    float distSq = Vector3DistanceSqr(position, camera->position);
+
+    if (distSq < 100 * 100) {
+        Vector3 cameraUp = GetCameraUp(camera.get());
+        DrawBillboard(*camera, billboardTextureSheet,
+                      (Rectangle) {(float) spriteIndex * 16, (float) spriteRowIndex * 16, 16, 16}, position, cameraUp,
+                      (Vector2) {size, size}, (Vector2) {0, 0}, rotation, WHITE);
+    } else {
+        Vector2 screenPos = GetWorldToScreenEx(position, *camera,RenderWidth,RenderHeight);
+        DrawPixelV(screenPos, simplifiedColor);
+    }*/
 }
 
 void Renderer::RenderHealthBar(Vector3 position,Vector3 scale,float currentHealth,float maxHealth) {

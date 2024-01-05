@@ -20,25 +20,29 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="23813626-e860-407e-add6-72449def8d1e" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/BattleManager.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BattleManager.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Fighter.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Fighter.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/Ship.glb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CollisionGrid.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CollisionGrid.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Asteroid.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Asteroid.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Asteroid.h" beforeDir="false" afterPath="$PROJECT_DIR$/Asteroid.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Color.h" beforeDir="false" afterPath="$PROJECT_DIR$/Color.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BattleManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/BattleManager.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BattleManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/BattleManager.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BulletManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/BulletManager.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BulletManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/BulletManager.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Compile Commands.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Compile Commands.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Fighter.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Fighter.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Fighter.h" beforeDir="false" afterPath="$PROJECT_DIR$/Fighter.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/GameObject.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/GameObject.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/GameObject.h" beforeDir="false" afterPath="$PROJECT_DIR$/GameObject.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Globals.h" beforeDir="false" afterPath="$PROJECT_DIR$/Globals.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ParticleManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/ParticleManager.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ParticleManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/ParticleManager.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Player.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Player.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Renderer.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Renderer.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Renderer.h" beforeDir="false" afterPath="$PROJECT_DIR$/Renderer.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/World.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/World.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/World.h" beforeDir="false" afterPath="$PROJECT_DIR$/World.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/raylib_game.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/raylib_game.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/Ship.glb" beforeDir="false" afterPath="$PROJECT_DIR$/resources/Ship.glb" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -82,6 +86,9 @@
         <entry key="$PROJECT_DIR$" value="RE_IMPORT" />
       </map>
     </option>
+  </component>
+  <component name="OCResolveContextSettings">
+    <option name="configuration" value="$PROJECT_DIR$/Fighter.cpp" />
   </component>
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="CurrentFile" />
@@ -208,11 +215,6 @@
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
     <list>
       <item itemvalue="Makefile Application.all" />
       <item itemvalue="Makefile Application.run" />
@@ -260,6 +262,7 @@
       <workItem from="1704199269494" duration="675000" />
       <workItem from="1704199980794" duration="10213000" />
       <workItem from="1704300210972" duration="11790000" />
+      <workItem from="1704370497029" duration="25332000" />
     </task>
     <servers />
   </component>

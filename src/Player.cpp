@@ -31,6 +31,8 @@ void Player::Init() {
     hudCamera.fovy = defaultFOV;
     hudCamera.projection = CAMERA_PERSPECTIVE;
 
+    SetHealth(STAT_HEALTH_PLAYER);
+
     AddTag("Player");
 
 
@@ -191,9 +193,10 @@ Camera *Player::GetHUDCamera() {
 }
 
 Vector3 Player::GetCameraDirection() {
-    Vector3 toTarget = Vector3Subtract(playerCamera.target,playerCamera.position);
+/*    Vector3 toTarget = Vector3Subtract(playerCamera.target,playerCamera.position);
     toTarget = Vector3Normalize(toTarget);
-    return toTarget;
+    return toTarget;*/
+    return GetCameraForward(&playerCamera);
 }
 
 Vector3 Player::GetSwayInput() {
@@ -280,8 +283,8 @@ void Player::ProcessShoot(float deltaTime) {
         }
 
         Vector3 shootDirection = GetCameraForward(&playerCamera);
-        shootDirection = Vector3Add(shootDirection, Vector3Scale(GetVelocityNormalized(),0.1f));
-        shootDirection = Vector3Normalize(shootDirection);
+        shootDirection = Vector3Add(shootDirection, Vector3Scale(GetVelocityNormalized(), 0.5f * Vector3Length(GetVelocity())));
+        //shootDirection = Vector3Normalize(shootDirection);
 
         Vector3 globalShootPosition = Vector3Add(Position, shootPosition);
         BulletManager::GetInstance()->CreateBullet(globalShootPosition, shootDirection, 0, TEAM_PLAYER);

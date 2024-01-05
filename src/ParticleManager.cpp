@@ -23,6 +23,16 @@ void ParticleManager::UpdateAndRender(float deltaTime) {
     cout << activeParticles.size() << endl;
 */
 
+/*    //Stress test billboard
+    for (int x = -MapSizeX; x < MapSizeX; x+=10) {
+        for(int y = -MapSizeY; y< MapSizeY; y+=10){
+            for(int z = -MapSizeZ; z < MapSizeZ; z+=10){
+
+                renderer->RenderBillboard(0,0,(Vector3){(float)x,(float)y,(float)z},1.0f,0,PALETTE_GRAY2);
+            }
+        }
+    }*/
+
     for (int i = 0; i < activeParticles.size(); i++) {
         Particle *particle = &activeParticles[i];
 
@@ -96,7 +106,8 @@ void ParticleManager::UpdateAndRender(float deltaTime) {
                                       particle->particleIndex,
                                       particle->position,
                                       particle->size,
-                                      particle->angle);
+                                      particle->angle,
+                                      particle->distantColor);
         }
     }
 }
@@ -141,6 +152,7 @@ Particle *ParticleManager::CreateParticle() {
     newParticle.scaleTargetOverTime = 0.0f;
     newParticle.parentObject = nullptr;
     newParticle.localPosition = Vector3Zero();
+    newParticle.distantColor = PALETTE_GRAY2;
     activeParticles.push_back(newParticle);
 
     return &activeParticles[activeParticles.size() - 1];

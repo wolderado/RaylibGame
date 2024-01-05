@@ -28,6 +28,7 @@ enum ParticleType
     Sphere,
 };
 
+//TODO: Convert this struct to class and process particles individually
 struct Particle
 {
     bool isActive;
@@ -37,6 +38,7 @@ struct Particle
     float speed;
     float size;
     Color tint;
+    Color distantColor;
     int particleIndex;
     int particleRowIndex;
     float lifeTime;
@@ -49,6 +51,7 @@ struct Particle
     bool useLocalSpace;
     GameObject* parentObject;
     Vector3 localPosition;
+
 
     //default
     float defaultMaxSpeed;

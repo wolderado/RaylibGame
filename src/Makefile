@@ -157,7 +157,7 @@ endif
 #  -Wno-missing-braces  ignore invalid warning (GCC bug 53119)
 #  -Wno-unused-value    ignore unused return values of some functions (i.e. fread())
 #  -D_DEFAULT_SOURCE    use with -std=c99 on Linux and PLATFORM_WEB, required for timespec
-CFLAGS = -Wall -std=c++14 -D_DEFAULT_SOURCE -Wno-missing-braces -Wunused-result -g -Wall
+CFLAGS = -Wall -std=c++17 -D_DEFAULT_SOURCE -Wno-missing-braces -Wunused-result -g -Wall
 
 ifeq ($(BUILD_MODE),DEBUG)
     CFLAGS += -g -D_DEBUG
@@ -315,7 +315,7 @@ endif
 
 # Define source code files required
 #------------------------------------------------------------------------------------------------
-PROJECT_SOURCE_FILES ?= raylib_game.cpp Renderer.cpp GameObject.cpp World.cpp Asteroid.cpp HUD.cpp BulletManager.cpp Player.cpp ParticleManager.cpp Fighter.cpp BattleManager.cpp
+PROJECT_SOURCE_FILES ?= raylib_game.cpp Renderer.cpp GameObject.cpp World.cpp Asteroid.cpp HUD.cpp BulletManager.cpp Player.cpp ParticleManager.cpp Fighter.cpp BattleManager.cpp CollisionGrid.cpp
 
 
 

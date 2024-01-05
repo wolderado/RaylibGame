@@ -16,12 +16,25 @@
 #define VECTOR3_FORWARD (Vector3){0,0,1}
 #define VECTOR3_BACKWARD (Vector3){0,0,-1}
 
+#define STAT_HEALTH_FIGHTER 99999
+#define STAT_HEALTH_PLAYER 99999
+
 
 static const int DefaultScreenWidth = 1280;
 static const int DefaultScreenHeight = 720;
 static const int RenderWidth = 640;
 static const int RenderHeight = 360;
-static float TimeSpeed = 1;
+static const float MapSizeX = 300;
+static const float MapSizeY = 300;
+static const float MapSizeZ = 300;
+
+const bool DEBUG_SHOW_COLLISION_AREA = false;
+const bool DEBUG_SHOW_SHOOT_RANGE = false;
+
+
+
+
+
 
 
 class Utility
@@ -79,6 +92,20 @@ public:
         Vector3 rotAxis = Vector3CrossProduct(VECTOR3_FORWARD, forwardVector);
         rotAxis = Vector3Normalize(rotAxis);
         return QuaternionFromAxisAngle(rotAxis, rotAngle);
+    }
+
+    static Vector3 GetRandomPosInsideMap()
+    {
+        Vector3 result;
+        result.x = GetRandomValue(-MapSizeX,MapSizeX);
+        result.y = GetRandomValue(-MapSizeY,MapSizeY);
+        result.z = GetRandomValue(-MapSizeZ,MapSizeZ);
+        return result;
+    }
+
+    static bool IsInsideMapArea(Vector3 position)
+    {
+        return (position.x < MapSizeX && position.x > -MapSizeX && position.y < MapSizeY && position.y > -MapSizeY && position.z < MapSizeZ && position.z > -MapSizeZ);
     }
 
 };
