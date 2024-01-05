@@ -54,7 +54,7 @@ float CalculateDistanceToDotCenter(float x,float y,float z, float maxDistance)
 
 void Renderer::RenderBackground() {
 
-    ClearBackground(PALETTE_GRAY1);
+
     //Draw skybox
     //DrawModel(skyboxModel, camera->position, 100.0f, WHITE);
 /*
@@ -64,7 +64,7 @@ void Renderer::RenderBackground() {
                    (Rectangle){ 0, 0, RenderWidth, RenderHeight }, (Vector2){ 0, 0 }, 0.0f, WHITE);*//*
 
 
-   // DrawText(TextFormat("FPS: %3.1f", (1.0f/GetFrameTime())), 10, 10, 10, PALETTE_GRAY2);*/
+   // DrawText(TextFormat("FPS: %3.1f", (1.0f/GetFrameTime())), 10, 10, 10, PALETTE_GRAY4);*/
 
 
 
@@ -129,7 +129,7 @@ void Renderer::DrawDots(float cameraVelocityRatio,Vector3 cameraVelocity) {
                 ratio = ratio * ratio;
                 ratio = Clamp(ratio, 0.0f, 1.0f);
 
-                Color dotColor = PALETTE_GRAY2;
+                Color dotColor = PALETTE_GRAY4;
                 dotColor = ColorAlpha(dotColor,ratio);
 
                 DrawLine3D(pos, lineEndPos, dotColor);
@@ -213,6 +213,7 @@ void Renderer::RenderModelWithWires(Model targetModel, Vector3 position, Vector3
 
     if(targetModel.meshCount > 1)
     {
+        //If model has multiple meshes, render them recursively
         for (int i = 0; i < targetModel.meshCount; ++i) {
             RenderModelWithWires(LoadModelFromMesh(targetModel.meshes[i]),position,rotation,scale,color,ignoreOptimizations);
         }

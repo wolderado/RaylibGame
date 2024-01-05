@@ -18,10 +18,10 @@ ParticleManager* ParticleManager::GetInstance() {
 void ParticleManager::UpdateAndRender(float deltaTime) {
 
     Renderer* renderer = Renderer::GetInstance();
-/*
 
-    cout << activeParticles.size() << endl;
-*/
+
+    //cout << activeParticles.size() << endl;
+
 
 /*    //Stress test billboard
     for (int x = -MapSizeX; x < MapSizeX; x+=10) {
@@ -66,11 +66,14 @@ void ParticleManager::UpdateAndRender(float deltaTime) {
         }
 
         if(particle->fadeTintDownOverTime) {
-            particle->tint = Utility::LerpColor(particle->defaultTint,(Color){particle->defaultTint.r,particle->defaultTint.g,particle->defaultTint.b,0},lifeRatio);
+            Color defTint = particle->defaultTint;
+            particle->tint = Utility::LerpColor(defTint,(Color){defTint.r,defTint.g,defTint.b,0},lifeRatio);
         }
 
         if(particle->scaleTargetOverTime > 0.0001f) {
-            particle->size = Lerp(particle->defaultSize, particle->scaleTargetOverTime, lifeRatio);
+            //Ease Out Cubic
+            float curvedT = 1 - pow(1 - lifeRatio, 3);
+            particle->size = Lerp(particle->defaultSize, particle->scaleTargetOverTime, curvedT);
         }
 
         particle->lifeTime += deltaTime;
@@ -80,7 +83,6 @@ void ParticleManager::UpdateAndRender(float deltaTime) {
             activeParticles.erase(activeParticles.begin() + i);
             continue;
         }
-
 
 
 
@@ -113,6 +115,8 @@ void ParticleManager::UpdateAndRender(float deltaTime) {
 }
 
 
+
+#pragma region Ready Particle Spawns
 
 Particle *ParticleManager::CreateParticle() {
 
@@ -152,7 +156,7 @@ Particle *ParticleManager::CreateParticle() {
     newParticle.scaleTargetOverTime = 0.0f;
     newParticle.parentObject = nullptr;
     newParticle.localPosition = Vector3Zero();
-    newParticle.distantColor = PALETTE_GRAY2;
+    newParticle.distantColor = PALETTE_GRAY4;
     activeParticles.push_back(newParticle);
 
     return &activeParticles[activeParticles.size() - 1];
@@ -222,7 +226,7 @@ void ParticleManager::CreateAsteroidExplosion(Vector3 position,float asteroidSiz
         newParticle->size = 60;
         newParticle->stopOverTime = true;
         newParticle->particleType = ParticleType::Line;
-        newParticle->tint = Utility::LerpColor(PALETTE_GRAY2,PALETTE_GRAY5,GetRandomValue(0,100) * 0.01f);
+        newParticle->tint = Utility::LerpColor(PALETTE_GRAY5,PALETTE_GRAY2,GetRandomValue(0,100) * 0.01f);
         InitDefaults(newParticle);
     }
 
@@ -252,7 +256,71 @@ void ParticleManager::CreateAsteroidExplosion(Vector3 position,float asteroidSiz
     boomParticle->size = asteroidSize * 0.1f;
     boomParticle->particleType = ParticleType::Sphere;
     boomParticle->scaleTargetOverTime = asteroidSize * 0.07f;
-    boomParticle->tint = RED;
+    boomParticle->tint = PALETTE_YELLOW1;
     boomParticle->fadeTintDownOverTime = true;
     InitDefaults(boomParticle);
 }
+
+
+
+void ParticleManager::CreateShipExplosion(Vector3 position,TEAM team) {
+
+    //Lines
+    for (int i = 0; i < 30; ++i) {
+        Particle* newParticle = CreateParticle();
+        newParticle->position = position;
+        newParticle->speed = GetRandomValue(30,90);
+        newParticle->direction = Vector3Normalize(Vector3{(float)GetRandomValue(-100,100),(float)GetRandomValue(-100,100),(float)GetRandomValue(-100,100)});
+        newParticle->maxLifeTime = GetRandomValue(40,110) * 0.01f;
+        newParticle->size = 60;
+        newParticle->stopOverTime = true;
+        newParticle->particleType = ParticleType::Line;
+        Color targetTint = team == TEAM_ALLY ? PALETTE_GREEN2 : PALETTE_RED2;
+        newParticle->tint = Utility::LerpColor(PALETTE_YELLOW2,targetTint,GetRandomValue(0,100) * 0.01f);
+        InitDefaults(newParticle);
+    }
+
+    //Triangles
+    for (int i = 0; i < 30; ++i) {
+        Particle* newParticle = CreateParticle();
+        newParticle->particleRowIndex = 1;
+        newParticle->particleIndex = GetRandomValue(0,7);
+        newParticle->position = position;
+        newParticle->speed = GetRandomValue(0,20);
+        newParticle->direction = Vector3Normalize(Vector3{(float)GetRandomValue(-100,100),(float)GetRandomValue(-100,100),(float)GetRandomValue(-100,100)});
+        newParticle->maxLifeTime = GetRandomValue(200,600) * 0.01f;
+        newParticle->size = 1.25f;
+        newParticle->angle = GetRandomValue(0,360);
+        newParticle->scaleDownOverTime = true;
+        newParticle->stopOverTime = true;
+        newParticle->tint = team == TEAM_ALLY ? PALETTE_GREEN2 : PALETTE_RED2;;
+        newParticle->particleType = ParticleType::Triangle;
+        InitDefaults(newParticle);
+    }
+
+    //Flash Particle
+    Particle* boomParticle = CreateParticle();
+    boomParticle->position = position;
+    boomParticle->speed = 0;
+    boomParticle->maxLifeTime = 0.075f;
+    boomParticle->size = 5;
+    boomParticle->particleType = ParticleType::Sphere;
+    boomParticle->scaleTargetOverTime = 3.5f;
+    boomParticle->tint = PALETTE_YELLOW1;
+    boomParticle->fadeTintDownOverTime = true;
+    InitDefaults(boomParticle);
+
+    //Smoke Sphere Particle
+    Particle* sphereParticle = CreateParticle();
+    sphereParticle->position = position;
+    sphereParticle->speed = 0;
+    sphereParticle->maxLifeTime = 1.0f;
+    sphereParticle->size = 2;
+    sphereParticle->particleType = ParticleType::Sphere;
+    sphereParticle->scaleTargetOverTime = 10.5f;
+    sphereParticle->tint = PALETTE_YELLOW2;
+    sphereParticle->fadeTintDownOverTime = true;
+    InitDefaults(sphereParticle);
+}
+
+#pragma endregion

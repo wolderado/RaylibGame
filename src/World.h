@@ -14,6 +14,7 @@
 #include "GameObject.h"
 #include "Asteroid.h"
 #include "Fighter.h"
+#include "Player.h"
 #include "CollisionGrid.h"
 
 
@@ -47,6 +48,7 @@ public:
     bool IsWorldReady = false;
     int DEBUG_BulletCount = 0;
 
+
     map<tuple<int,int,int>,CollisionGrid> Grid;
     map<uint32_t, shared_ptr<GameObject>> activeGameObjects;
 private:
@@ -54,7 +56,7 @@ private:
     static World* instance;
 
 
-
+    void DebugHurtClosestObject();
     void UpdateGridForObject(shared_ptr<GameObject> object);
     void OnGameObjectDestroyed(shared_ptr<GameObject>& destroyedObject);
 

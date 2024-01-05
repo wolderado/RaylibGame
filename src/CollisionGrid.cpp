@@ -4,7 +4,7 @@
 
 #include "CollisionGrid.h"
 
-const float CollisionGrid::CellSize = 100;
+const float CollisionGrid::CellSize = 300;
 
 CollisionGrid::CollisionGrid(int x, int y, int z) : x(x), y(y), z(z) {
 

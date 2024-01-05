@@ -116,7 +116,7 @@ void GameObject::SetTeam(TEAM newTeam) {
     myTeam = newTeam;
 
     if(myTeam == TEAM_NEUTRAL)
-        myColor = PALETTE_GRAY2;
+        myColor = PALETTE_GRAY4;
     else if(myTeam == TEAM_PLAYER)
         myColor = PALETTE_BLUE2;
     else if(myTeam == TEAM_ENEMY)
@@ -126,13 +126,18 @@ void GameObject::SetTeam(TEAM newTeam) {
 }
 
 void GameObject::OnCollision(GameObject *otherObject,Vector3 collisionTotalVelocity) {
+/*
+    cout << Name << " collided with " << otherObject->Name << endl;*/
 
-    if(!enabled)
+    if(!enabled || GetTime()-lastCollisionTime < 0.5f )
         return;
+
+    lastCollisionTime = GetTime();
 
     Vector3 awayDir = Vector3Subtract(Position,otherObject->Position);
     float totalVel = (Vector3Length(collisionTotalVelocity)) / Mass;
-    const float bounciness =  0.5f;
+    const float bounciness =  1.0f;
+    totalVel = fmin(totalVel, 0.1f);
     currentVelocity = Vector3Scale(Vector3Normalize(awayDir),totalVel * bounciness);
 
 }
@@ -158,6 +163,8 @@ void GameObject::OnInit() {
         hurtFlashColor = PALETTE_YELLOW1;
 }
 
+
+//TODO: Implement a more accurate calculation for calculating forward, right and up vectors
 Vector3 GameObject::GetForward() {
     Matrix mat = QuaternionToMatrix(Rotation);
     Vector3 forward = { mat.m8, mat.m9, mat.m10 };
@@ -165,12 +172,19 @@ Vector3 GameObject::GetForward() {
 }
 
 Vector3 GameObject::GetRight() {
+/*    Vector3 right = Vector3CrossProduct(VECTOR3_UP, GetForward());
+    return right;*/
+
     Matrix mat = QuaternionToMatrix(Rotation);
     Vector3 right = { mat.m0, mat.m1, mat.m2 };
     return right;
 }
 
 Vector3 GameObject::GetUp() {
+/*    Vector3 up = Vector3CrossProduct(GetForward() , GetRight());
+    return up;*/
+
+
     Matrix mat = QuaternionToMatrix(Rotation);
     Vector3 up = { mat.m4, mat.m5, mat.m6 };
     return up;
@@ -179,4 +193,8 @@ Vector3 GameObject::GetUp() {
 void GameObject::SetHealth(float newMaxHealth) {
     maxHealth = newMaxHealth;
     health = maxHealth;
+}
+
+bool GameObject::IsEnabled() {
+    return enabled;
 }

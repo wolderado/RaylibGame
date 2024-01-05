@@ -10,6 +10,19 @@ void Fighter::Update(float deltaTime) {
 
     GameObject::Update(deltaTime);
 
+/*
+    Vector3 forward = GetForward();
+    Vector3 right = GetRight();
+    Vector3 up = GetUp();
+
+    DrawLine3D(Position, Vector3Add(Position,Vector3Scale(forward,10)), BLUE);
+    DrawLine3D(Position, Vector3Add(Position,Vector3Scale(right,10)), RED);
+    DrawLine3D(Position, Vector3Add(Position,Vector3Scale(up,10)), YELLOW);
+*/
+
+
+    if(DEBUG_DISABLE_AI)
+        return;
 
     Vector3 targetPos = Vector3Zero();
 
@@ -58,8 +71,6 @@ void Fighter::Update(float deltaTime) {
     {
         //Fix for orbiting behaviour. Gradually increase rotate speed when chasing the same target
         sameTargetRotateSpeedBonus = 1.0f + ((changeTargetTimerRatio * changeTargetTimerRatio) * 2.0f);
-
-
         ProcessMoveTarget(deltaTime,targetPos);
     }
     else
@@ -71,16 +82,15 @@ void Fighter::Update(float deltaTime) {
     Rotation = smoothRot;
 
 
-
-
-    //DrawLine3D(Position, Vector3Add(Position,Vector3Scale(forward,10)), PURPLE);
+    if(DEBUG_SHOW_FIGHTER_TARGETS)
+        DrawLine3D(Position, targetPos, RED);
 }
 
 
 void Fighter::Destroy() {
     GameObject::Destroy();
 
-    ParticleManager::GetInstance()->CreateAsteroidExplosion(Position,50);
+    ParticleManager::GetInstance()->CreateShipExplosion(Position,myTeam);
 }
 
 Fighter::Fighter(TEAM team, Vector3 position) : GameObject() {
@@ -109,9 +119,7 @@ void Fighter::Render(float deltaTime) {
     DrawLine3D(Position, Vector3Add(Position, Vector3Scale(Vector3Normalize(currentVelocity), 10)), GREEN);*/
 
     if(DEBUG_SHOW_SHOOT_RANGE)
-    {
         DrawSphereWires(Position,ShootRange,6,6,GRAY);
-    }
 }
 
 void Fighter::OnInit() {
@@ -149,33 +157,14 @@ void Fighter::SetMoveTarget(Vector3 position) {
 
 void Fighter::ProcessMoveTarget(float deltaTime,Vector3 targetPos) {
 
-    //DrawLine3D(Position, target->Position, RED);
 
-
-    Vector3 toTarget = Vector3Subtract(targetPos, Position);
-    float distToTarget = Vector3Length(toTarget);
 
     //Shoot System
     if (CurrentAIState == AttackTarget) {
-        if (distToTarget < ShootRange) {
-            shootTimer += deltaTime;
-            if (shootTimer > ShootCooldown) {
-                shootTimer = 0;
-                Vector3 shootDirection = GetForward();
-                float dot = Vector3DotProduct(Vector3Normalize(toTarget), shootDirection);
-                if (Vector3DotProduct(shootDirection, Vector3Normalize(toTarget)) > ShootCone) {
-                    BulletManager::GetInstance()->CreateBullet(Position, shootDirection, 0, myTeam);
-                }
-            }
-        }
+        ProcessShoot(deltaTime, targetPos);
     }
 
-/*
-    DrawLine3D(Position, Vector3Add(Position, Vector3Scale(GetForward(),10)), GREEN);
-    DrawLine3D(Position, Vector3Add(Vector3Add(Position,(Vector3){0,2,0}), Vector3Add(Vector3Add(Position,(Vector3){0,2,0}),Vector3Scale(Vector3Normalize(toTarget),10))), YELLOW);
-*/
-
-
+    //Making sure the action is happening inside the map
     if(Utility::IsInsideMapArea(Position) == false)
     {
         if(CurrentAIState == AttackTarget)
@@ -184,13 +173,45 @@ void Fighter::ProcessMoveTarget(float deltaTime,Vector3 targetPos) {
         }
 
         SetMoveTarget((Vector3){0,100,0});
-
-
     }
-
-    //DrawLine3D(Position, targetPos, PURPLE);
 
     lookRot = Utility::LookAt(Position, targetPos);
     Vector3 thrust = Vector3Scale(GetForward(), ThrustSpeed * deltaTime);
     currentVelocity = Vector3Add(currentVelocity, thrust);
+}
+
+
+void Fighter::ProcessShoot(float deltaTime, Vector3 targetPos) {
+
+    Vector3 toTarget = Vector3Subtract(targetPos, Position);
+    float distToTarget = Vector3LengthSqr(toTarget);
+    if (distToTarget < ShootRange * ShootRange) {
+        shootTimer += deltaTime;
+        if (shootTimer > ShootCooldown) {
+            shootTimer = 0;
+            Vector3 shootDirection = GetForward();
+            float dot = Vector3DotProduct(Vector3Normalize(toTarget), shootDirection);
+            if (Vector3DotProduct(shootDirection, Vector3Normalize(toTarget)) > ShootCone) {
+
+                shootCanonIndex++;
+                if(shootCanonIndex > 1)
+                    shootCanonIndex = 0;
+
+                Vector3 forward = GetForward();
+                Vector3 right = GetRight();
+                Vector3 up = GetUp();
+
+                Vector3 shootPosition = Position;
+                shootPosition = Vector3Add(shootPosition, Vector3Scale(forward, 0.3f));
+                shootPosition = Vector3Add(shootPosition, Vector3Scale(up, -0.5f));
+                if (shootCanonIndex == 0)
+                    shootPosition = Vector3Add(shootPosition, Vector3Scale(right, 1.55f));
+                else
+                    shootPosition = Vector3Add(shootPosition, Vector3Scale(right, -1.55f));
+
+                BulletManager::GetInstance()->CreateBullet(shootPosition, GetForward(), 0, myTeam);
+                ParticleManager::GetInstance()->CreateShootMuzzle(shootPosition, this);
+            }
+        }
+    }
 }

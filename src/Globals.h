@@ -16,7 +16,7 @@
 #define VECTOR3_FORWARD (Vector3){0,0,1}
 #define VECTOR3_BACKWARD (Vector3){0,0,-1}
 
-#define STAT_HEALTH_FIGHTER 99999
+#define STAT_HEALTH_FIGHTER 25
 #define STAT_HEALTH_PLAYER 99999
 
 
@@ -30,8 +30,8 @@ static const float MapSizeZ = 300;
 
 const bool DEBUG_SHOW_COLLISION_AREA = false;
 const bool DEBUG_SHOW_SHOOT_RANGE = false;
-
-
+const bool DEBUG_DISABLE_AI = false;
+const bool DEBUG_SHOW_FIGHTER_TARGETS = false;
 
 
 

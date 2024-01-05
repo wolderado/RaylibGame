@@ -18,6 +18,7 @@ private:
     Vector3 rndAxis;
     float rndAngle;
     float rotateSpeed;
+    float disableCollisionTimer = 2.0f;
 
 };
 

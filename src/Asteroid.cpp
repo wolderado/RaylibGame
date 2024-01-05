@@ -6,6 +6,15 @@
 
 void Asteroid::Update(float deltaTime) {
 
+
+    //Disable collision at the first few seconds
+    if(disableCollisionTimer > 0) {
+        disableCollisionTimer -= deltaTime;
+        CanCollide = false;
+        if(disableCollisionTimer <= 0)
+            CanCollide = true;
+    }
+
     rndAngle += deltaTime * rotateSpeed;
     Rotation = QuaternionFromEuler(rndAxis.x,rndAxis.y + rndAngle,rndAxis.z);
 
@@ -24,6 +33,8 @@ Asteroid::Asteroid(float size) : GameObject() {
     float rotateSpeed= 0.005f;
     AsteroidSize = size;
     Name = "Asteroid";
+    disableCollisionTimer = 2.0f;
+    CanCollide = false;
     //cout << "Creating asteroid with size " << asteroidSize << endl;
 
 

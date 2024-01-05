@@ -19,37 +19,77 @@ World* World::GetInstance() {
 }
 
 
+void World::DebugHurtClosestObject()
+{
+    if(IsKeyPressed(KEY_P))
+    {
+        Vector3 playerPos = Player::GetInstance()->Position;
+        float closestDist = 999999;
+        GameObject* closestObject = nullptr;
+        for (auto const& x : activeGameObjects)
+        {
+            if(x.second->GetTeam() == TEAM_PLAYER)
+                continue;
+
+            float dist = Vector3Distance(playerPos,x.second->Position);
+            if(dist < closestDist)
+            {
+                closestDist = dist;
+                closestObject = x.second.get();
+            }
+        }
+
+        if(closestObject != nullptr)
+            closestObject->Hurt(99999);
+    }
+
+}
+
+
 float debugPrintTimer = 0;
 void World::UpdateAll(float deltaTime) {
 
-    debugPrintTimer += deltaTime;
 
-    for (auto& pair : activeGameObjects) {
-/*        cout << "Updating game object " << pair.second->Name << endl;*/
-        pair.second->Update(deltaTime);
-        UpdateGridForObject(shared_ptr<GameObject>(pair.second));
-        CheckCollision(pair.second.get());
-        pair.second->Render(deltaTime);
-        pair.second->LateUpdate(deltaTime);
+    DebugHurtClosestObject();
+
+    debugPrintTimer += deltaTime;
+    for (auto gameObjectIterator = activeGameObjects.begin(); gameObjectIterator != activeGameObjects.end();) {
+/*        cout << "Updating game object " << gameObjectIterator.second->Name << endl;*/
+
+        if(gameObjectIterator->second->IsEnabled() == false) {
+            ++gameObjectIterator;
+            continue;
+        }
+
+
+        gameObjectIterator->second->Update(deltaTime);
+        UpdateGridForObject(shared_ptr<GameObject>(gameObjectIterator->second));
+        CheckCollision(gameObjectIterator->second.get());
+        gameObjectIterator->second->Render(deltaTime);
+        gameObjectIterator->second->LateUpdate(deltaTime);
+
 
         //Cleanup objects
-        if(pair.second->GetHealth() <= 0)
+        if(gameObjectIterator->second->GetHealth() <= 0)
         {
-            pair.second->Destroy();
-            OnGameObjectDestroyed(pair.second);
-            activeGameObjects.erase(pair.first);
-        }
+            gameObjectIterator->second->Destroy();
+            OnGameObjectDestroyed(gameObjectIterator->second);
+            auto eraseIterator = gameObjectIterator;
+            ++gameObjectIterator;
+            activeGameObjects.erase(eraseIterator);
+        }else
+            ++gameObjectIterator;
+
 
         if(debugPrintTimer > 1)
         {
             debugPrintTimer = 0;
-            cout << "Ally Fighters: " << AllyFighterCount
-            << " Enemy Fighters: " << EnemyFighterCount
-            << " GridCount:" << Grid.size()
-            << " BulletCount: " << DEBUG_BulletCount << endl;
+            cout << "DEBUG: Object Count: "    << activeGameObjects.size()
+            << " Ally Fighters: "        << AllyFighterCount
+            << " Enemy Fighters: "      << EnemyFighterCount
+            << " GridCount:"            << Grid.size()
+            << " BulletCount: "         << DEBUG_BulletCount << endl;
         }
-
-
     }
 }
 
@@ -65,13 +105,13 @@ void World::GenerateWorld() {
     }
 
     //Generate Enemy ships
-    for (int i = 0; i < 100; ++i) {
+    for (int i = 0; i < 50; ++i) {
         Vector3 rndPos = Utility::GetRandomPosInsideMap();
         CreateNewFighter(TEAM_ENEMY,rndPos);
     }
 
     //Genereate Ally ships
-    for (int i = 0; i < 100; ++i) {
+    for (int i = 0; i < 50; ++i) {
         Vector3 rndPos = Utility::GetRandomPosInsideMap();
         CreateNewFighter(TEAM_ALLY,rndPos);
     }
@@ -102,10 +142,12 @@ void World::InitObject(shared_ptr<GameObject> target) {
     target->OnInit();
     nextObjectId++;
 
-    //Save To Grid Update
-    auto [xPos, yPos,zPos] = GetGridPosFromRealPos(target->Position);
-    CollisionGrid* newGrid = GetGrid(xPos,yPos,zPos);
-    newGrid->AddObject(shared_ptr<GameObject>(target));
+    //Save To Grid
+    if(target->IgnoresAllCollisions == false) {
+        auto [xPos, yPos, zPos] = GetGridPosFromRealPos(target->Position);
+        CollisionGrid *newGrid = GetGrid(xPos, yPos, zPos);
+        newGrid->AddObject(shared_ptr<GameObject>(target));
+    }
 
     //cout << "Total Grids: " << Grid.size() << " Grid Objects " << newGrid->myObjects.size() << endl;
 
@@ -188,16 +230,18 @@ void World::OnGameObjectDestroyed(shared_ptr<GameObject>& destroyedObject) {
 
 
         float newAsteroidSize = destroyedAsteroid->AsteroidSize/2.0f;
-        int minForceMagnitude = 60;
-        int maxForceMagnitude = 80;
+        int minForceMagnitude = 5;
+        int maxForceMagnitude = 10;
         float finalForce = GetRandomValue(minForceMagnitude,maxForceMagnitude) * 0.01f;
 
         Vector3 rndDirection = Utility::GetRandomDirection();
 
-        for (int i = 0; i < 2; ++i) {
-            shared_ptr<GameObject> asteroid = World::GetInstance()->CreateNewAsteroid(destroyedAsteroid->Position,newAsteroidSize);
-            asteroid->SetVelocity(Vector3Scale(rndDirection, finalForce));
-        }
+        shared_ptr<GameObject> asteroid = World::GetInstance()->CreateNewAsteroid(destroyedAsteroid->Position,newAsteroidSize);
+        asteroid->SetVelocity(Vector3Scale(rndDirection, finalForce));
+
+        shared_ptr<GameObject> asteroid2 = World::GetInstance()->CreateNewAsteroid(destroyedAsteroid->Position,newAsteroidSize);
+        asteroid2->SetVelocity(Vector3Scale(Vector3Scale(rndDirection,-1), finalForce));
+
     }
 
     if(destroyedObject->HasTag("Fighter"))
@@ -223,9 +267,10 @@ void World::OnGameObjectDestroyed(shared_ptr<GameObject>& destroyedObject) {
 #pragma region Collision
 void World::CheckCollision(GameObject* object) {
 
-    //TODO: Optimize this function further by using Spatial partitioning or grid based collision detection
+    if(object == nullptr)
+        return;
 
-    if (object->CanCollide == false)
+    if (object->CanCollide == false || object->IgnoresAllCollisions)
         return;
 
     if (Vector3LengthSqr(object->GetVelocity()) < 0.001f)
@@ -233,19 +278,26 @@ void World::CheckCollision(GameObject* object) {
 
     CollisionGrid* objectGrid = GetGridFromRealPos(object->Position);
 
-    for (const auto &gmPair: objectGrid->myObjects) {
-        if (object->CanCollide == false || gmPair == object)
+    for (int i = 0; i < objectGrid->myObjects.size(); ++i) {
+
+        GameObject* otherObject = objectGrid->myObjects[i];
+
+        if (object->CanCollide == false || otherObject == object)
             continue;
 
-        if (CheckCollisionSingle(object->Position, object->CollisionSize, gmPair->Position,gmPair->CollisionSize)) {
 
-            Vector3 totalVel = Vector3Add(object->GetVelocity(), gmPair->GetVelocity());
-            object->OnCollision(gmPair, totalVel);
-            gmPair->OnCollision(object, totalVel);
+
+        if (CheckCollisionSingle(object->Position, object->CollisionSize, otherObject->Position,otherObject->CollisionSize)) {
+
+            Vector3 totalVel = Vector3Add(object->GetVelocity(), otherObject->GetVelocity());
+            object->OnCollision(otherObject, totalVel);
+
+            if(otherObject == nullptr)
+                cout << "NULL POINTER!!" << endl;
+
+            otherObject->OnCollision(object, totalVel);
             break;
         }
-
-
     }
 }
 
@@ -261,7 +313,7 @@ tuple<bool,GameObject*> World::CheckBulletCollision(Vector3 bulletPosition,TEAM 
         //DrawLine3D(bulletPosition,  target->Position, PALETTE_RED1);
         //DrawSphereWires(gmPair->Position,50,6,6,PALETTE_GREEN1);
 
-        if(target->GetTeam() == bulletTeam)
+        if(target->GetTeam() == bulletTeam || target->IgnoresAllCollisions)
             continue;
 
         if(target->GetTeam() == TEAM_PLAYER && bulletTeam == TEAM_ALLY)
@@ -288,6 +340,9 @@ void World::UpdateGridForObject(shared_ptr<GameObject> object) {
     //DrawLine3D(object->Position,ConvertGridPosToRealPos(object->GridIndex),PALETTE_GREEN1);
 
     if(Vector3LengthSqr(object->GetVelocity()) < 0.01f)
+        return;
+
+    if(object->IgnoresAllCollisions)
         return;
 
     if(Utility::IsInsideMapArea(object->Position) == false)

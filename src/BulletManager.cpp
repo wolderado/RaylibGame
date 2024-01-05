@@ -43,6 +43,7 @@ void BulletManager::UpdateAndRender(float deltaTime) {
     }
 
 
+
     //cout << (*cam).position.x << endl;
 
 }
@@ -104,7 +105,7 @@ void BulletManager::BulletHit(int index, GameObject*  target) {
         target->ShowHealthBar = true;
 
     ParticleManager::GetInstance()->CreateHitParticle(activeBullets[index].position);
-    //activeBullets[index].lifeTime = activeBullets[index].maxLifeTime + 1;
+    activeBullets[index].lifeTime = activeBullets[index].maxLifeTime + 1;
 }
 
 void BulletManager::EraseBulletAt(int i) {

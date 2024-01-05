@@ -58,9 +58,11 @@ private:
     float selectTargetTimer;
     float currentRotateSpeed;
     float sameTargetRotateSpeedBonus;
+    int shootCanonIndex = 0;
 
 
     void ProcessMoveTarget(float deltaTime,Vector3 targetPos);
+    void ProcessShoot(float deltaTime,Vector3 targetPos);
 
 };
 

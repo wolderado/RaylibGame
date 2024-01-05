@@ -149,6 +149,7 @@ void UpdateDrawFrame(void)
     // Draw
     //----------------------------------------------------------------------------------
     BeginTextureMode(target);
+        ClearBackground(PALETTE_GRAY5);
         renderer->RenderBackground();
 
         BeginMode3D(*player->GetCamera());
@@ -178,7 +179,7 @@ void UpdateDrawFrame(void)
     
     // Render to screen (main framebuffer)
     BeginDrawing();
-    ClearBackground(PALETTE_WHITE);
+    ClearBackground(PALETTE_GRAY5);
 
     // Draw render texture to screen
     DrawTexturePro(target.texture, (Rectangle){ 0, 0, (float)target.texture.width, -(float)target.texture.height }, (Rectangle){ 0, 0, (float)GetScreenWidth(), (float)GetScreenHeight() }, (Vector2){ 0, 0 }, 0.0f, WHITE);
@@ -186,6 +187,7 @@ void UpdateDrawFrame(void)
 
     // Draw UI
     DrawFPS(10, 10);
+    DrawText("Version 24",10, 40, 20, PALETTE_YELLOW1);
     hud.Render(deltaTime);
 
 

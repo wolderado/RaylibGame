@@ -42,6 +42,7 @@ public:
     Quaternion Rotation;
     Vector3 Scale = {1,1,1};
     bool CanCollide = true;
+    bool IgnoresAllCollisions = false;
     bool ShowHealthBar = false;
     float CollisionSize = 1.0f;
     float Mass = 1;
@@ -74,6 +75,7 @@ public:
     Vector3 GetForward();
     Vector3 GetRight();
     Vector3 GetUp();
+    bool IsEnabled();
 
 
 protected:
@@ -87,6 +89,7 @@ protected:
     bool enabled = true;
     unordered_set<string> tags;
     Color hurtFlashColor = PALETTE_RED1;
+    float lastCollisionTime;
 };
 
 
