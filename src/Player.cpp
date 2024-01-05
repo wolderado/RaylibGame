@@ -41,9 +41,12 @@ void Player::Init() {
 
 void Player::Update(float deltaTime) {
 
-    ProcessShoot(deltaTime);
     ProcessInput(deltaTime);
+    ProcessShoot(deltaTime);
     ProcessCamera(deltaTime);
+
+
+
 
     GameObject::Update(deltaTime);
 }
@@ -141,7 +144,12 @@ void Player::ProcessRotation(float deltaTime) {
     CameraPitch(&playerCamera, smoothedInput.y,false,false, true);
     CameraRoll(&playerCamera, smoothedInput.z );
 
-    //Rotation = Vector3Zero();
+/*    Rotation = QuaternionIdentity();*/
+
+/*    Matrix lookMatrix = GetCameraViewMatrix(&playerCamera);
+    Rotation = QuaternionFromMatrix(lookMatrix);*/
+
+    Rotation = Utility::LookAt(playerCamera.position,playerCamera.target);
 
     Vector3 target = GetCameraDirection();
 
@@ -294,7 +302,7 @@ void Player::ProcessShoot(float deltaTime) {
 
         //Particle
         //cout << shootPosition.x << " " << shootPosition.y << " " << shootPosition.z << endl;
-        ParticleManager::GetInstance()->CreateShootMuzzle(globalShootPosition,instance);
+        ParticleManager::GetInstance()->CreateShootMuzzle(shootPosition,instance);
 
         shotThisFrame = true;
         if (shootDelegate != nullptr)

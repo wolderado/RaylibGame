@@ -23,6 +23,20 @@ void HUD::Render(float deltaTime)
                    (Rectangle){0,0,ScreenWidth,ScreenHeight}, (Vector2){0,0}, 0, WHITE);*/
 
 
+    if(BattleManager::GetInstance()->GetBattleState() == BattleState::Waiting) {
+
+        DrawTextInMiddle(STR_WAVE_STARTING.c_str(),20,PALETTE_GRAY1,GetScreenWidth(),GetScreenHeight(),0.5f,0.1f);
+
+        stringstream stream;
+        stream << std::fixed << std::setprecision(1) << BattleManager::GetInstance()->GetWaitTimer() << "s";
+        DrawTextInMiddle(stream.str().c_str(),20,PALETTE_GRAY1,GetScreenWidth(),GetScreenHeight(),0.5f,0.15f);
+    }
+    else if(BattleManager::GetInstance()->GetBattleState() == BattleState::BattleStarted) {
+        stringstream stream;
+        stream << STR_ENEMY_COUNT << World::GetInstance()->EnemyFighterCount;
+        DrawTextInMiddle(stream.str().c_str(),20,PALETTE_RED2,GetScreenWidth(),GetScreenHeight(),0.5f,0.1f);
+    }
+
 }
 
 
@@ -96,3 +110,19 @@ void HUD::GunShoot(int cannonID) {
 
 }
 
+tuple<int, int> HUD::GetMiddleAlignedTextPosition(string text, int fontSize) {
+    int textWidth = MeasureText(text.c_str(), fontSize);
+    int textHeight = fontSize;
+    return make_tuple(textWidth / 2,textHeight / 2);
+}
+
+void HUD::DrawTextInMiddle(string text,int fontSize,Color textColor,int areaWidth,int areaHeight,float xPosRatio,float yPosRatio) {
+    int middlePosX = areaWidth / 2;
+    int middlePosY = areaHeight / 2;
+    auto [offsetX, offsetY] = GetMiddleAlignedTextPosition(text,fontSize);
+
+    int xPos = (int)((float)areaWidth * xPosRatio) - offsetX;
+    int yPos = (int)((float)areaHeight * yPosRatio) - offsetY;
+
+    DrawText(text.c_str(), xPos, yPos, fontSize, textColor);
+}

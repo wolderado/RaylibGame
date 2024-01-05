@@ -10,17 +10,32 @@
 
 
 
+enum BattleState
+{
+    Waiting,
+    BattleStarted
+};
+
 class BattleManager {
 public:
+    static BattleManager* GetInstance();
     void Init();
     void UpdateAI(float deltaTime);
     void ProcessAI(shared_ptr<Fighter> object);
-    shared_ptr<GameObject> GetRandomShip(TEAM myTeam);
-    shared_ptr<GameObject> GetClosestShip(TEAM myTeam,Vector3 position);
+    BattleState GetBattleState(){ return currentBattleState; }
+    float GetWaitTimer(){ return waitTimer; }
+
 
 private:
     World* worldInstance;
+    static BattleManager* instance;
+    BattleState currentBattleState = BattleState::Waiting;
+    float waitTimer = 0;
 
+    void ProcessWait(float deltaTime);
+    void ProcessBattle(float deltaTime);
+    void StartBattle();
+    void EndBattle();
 };
 
 

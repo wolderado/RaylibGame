@@ -41,7 +41,24 @@ void ParticleManager::UpdateAndRender(float deltaTime) {
 
         if(particle->useLocalSpace)
         {
-            Vector3 pos = particle->localPosition;
+/*            Matrix worldMatrix = MatrixTranslate(particle->parentObject->Position.x, particle->parentObject->Position.y, particle->parentObject->Position.z);
+            worldMatrix = MatrixMultiply(worldMatrix, QuaternionToMatrix(particle->parentObject->Rotation));
+
+            Matrix localMatrix = MatrixTranslate(particle->localPosition.x, particle->localPosition.y, particle->localPosition.z);
+            //localMatrix = MatrixMultiply(localMatrix, MatrixRotateXYZ((Vector3){0,0,particle->angle}));
+
+            Matrix finalMatrix = MatrixMultiply(worldMatrix,localMatrix);
+
+            particle->position = Vector3Transform(Vector3Zero(),finalMatrix);*/
+
+/*            Vector3 pos = Vector3RotateByQuaternion( particle->localPosition,particle->parentObject->Rotation);
+            pos = Vector3Add(pos,particle->position);
+            particle->position = pos;*/
+
+            particle->position = Vector3Add(particle->localPosition,particle->parentObject->Position);
+
+
+/*            Vector3 pos = particle->localPosition;
 
             pos = Vector3RotateByAxisAngle(pos,(Vector3){0,1,0},particle->parentObject->Rotation.y);
             pos = Vector3RotateByAxisAngle(pos,(Vector3){1,0,0},particle->parentObject->Rotation.x);
@@ -49,7 +66,7 @@ void ParticleManager::UpdateAndRender(float deltaTime) {
 
             pos = Vector3Add(pos,particle->parentObject->Position);
 
-            particle->position = pos;
+            particle->position = pos;*/
 
         }
 
@@ -204,13 +221,13 @@ void ParticleManager::CreateShootMuzzle(Vector3 localPosition, GameObject* paren
     Particle* boomParticle = CreateParticle();
     boomParticle->particleRowIndex = 2;
     boomParticle->particleIndex = GetRandomValue(0,2);
-    boomParticle->position = localPosition;
+    boomParticle->position = Vector3Zero();
     boomParticle->localPosition = localPosition;
-    boomParticle->useLocalSpace = false;
+    boomParticle->useLocalSpace = true;
     boomParticle->parentObject = parentObject;
     boomParticle->speed = 0;
     boomParticle->maxLifeTime = 0.15f;
-    boomParticle->size = 0.75f;
+    boomParticle->size = 1.0f;
     InitDefaults(boomParticle);
 }
 

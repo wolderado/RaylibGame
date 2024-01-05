@@ -4,8 +4,19 @@
 
 #include "BattleManager.h"
 
+BattleManager* BattleManager::instance = nullptr;
+
+BattleManager* BattleManager::GetInstance() {
+    if(instance == nullptr)
+        instance = new BattleManager();
+
+    return instance;
+}
+
 void BattleManager::Init() {
     worldInstance = World::GetInstance();
+
+    waitTimer = GAME_SHOP_WAIT_TIME;
 }
 
 void BattleManager::UpdateAI(float deltaTime) {
@@ -15,7 +26,36 @@ void BattleManager::UpdateAI(float deltaTime) {
         return;
     }
 
+    if(currentBattleState == BattleState::Waiting) {
+        ProcessWait(deltaTime);
+    }
+    else if(currentBattleState == BattleState::BattleStarted) {
+        ProcessBattle(deltaTime);
+    }
+}
 
+
+void BattleManager::ProcessWait(float deltaTime) {
+
+    waitTimer -= deltaTime;
+
+    if(waitTimer < 0) {
+        StartBattle();
+        waitTimer = 0;
+    }
+}
+
+
+void BattleManager::ProcessBattle(float deltaTime) {
+
+    //End the battle and start shop timer
+    if(worldInstance->EnemyFighterCount <= 0) {
+        EndBattle();
+        return;
+    }
+
+
+    //Update AI
     for (auto& pair : worldInstance->activeGameObjects) {
 
         if(pair.second->GetHealth() > 0 && pair.second->HasTag("Fighter"))
@@ -25,12 +65,16 @@ void BattleManager::UpdateAI(float deltaTime) {
     }
 }
 
+
+
 void BattleManager::ProcessAI(shared_ptr<Fighter> fighter) {
 
+    //Process FSM here because we need to access the world objects
     if(fighter->CurrentAIState == AIState::FindTarget)
     {
         //%50 chance to target the nearest enemy for semi-arcade behaviour
         if(GetRandomValue(0,100) < 50) {
+
             //Search for closest target
             float closestDist = 99999999;
             shared_ptr<GameObject> closestTarget = nullptr;
@@ -88,6 +132,23 @@ void BattleManager::ProcessAI(shared_ptr<Fighter> fighter) {
     }
 }
 
-shared_ptr<GameObject> BattleManager::GetRandomShip(TEAM myTeam) {
-    return shared_ptr<GameObject>();
+void BattleManager::StartBattle() {
+    currentBattleState = BattleState::BattleStarted;
+
+    //Generate Enemy ships
+    for (int i = 0; i < 50; ++i) {
+        Vector3 rndPos = Utility::GetRandomPosInsideMap();
+        worldInstance->CreateNewFighter(TEAM_ENEMY,rndPos);
+    }
+
+    //Generate Enemy ships
+    for (int i = 0; i < 50; ++i) {
+        Vector3 rndPos = Utility::GetRandomPosInsideMap();
+        worldInstance->CreateNewFighter(TEAM_ALLY,rndPos);
+    }
+}
+
+void BattleManager::EndBattle() {
+    currentBattleState = BattleState::Waiting;
+    waitTimer = GAME_SHOP_WAIT_TIME;
 }

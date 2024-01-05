@@ -105,13 +105,13 @@ void World::GenerateWorld() {
     }
 
     //Generate Enemy ships
-    for (int i = 0; i < 50; ++i) {
+    for (int i = 0; i < 0; ++i) {
         Vector3 rndPos = Utility::GetRandomPosInsideMap();
         CreateNewFighter(TEAM_ENEMY,rndPos);
     }
 
     //Genereate Ally ships
-    for (int i = 0; i < 50; ++i) {
+    for (int i = 0; i < 0; ++i) {
         Vector3 rndPos = Utility::GetRandomPosInsideMap();
         CreateNewFighter(TEAM_ALLY,rndPos);
     }

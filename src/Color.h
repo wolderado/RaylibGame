@@ -36,4 +36,6 @@
 
 #define FAKE_TRANSPARENT1   CLITERAL(Color){ 59,61,63,255}
 
+#define SKY_COLOR PALETTE_GRAY5
+
 #endif //COLOR_H

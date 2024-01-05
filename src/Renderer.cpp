@@ -98,8 +98,8 @@ void Renderer::Unload() {
 
 void Renderer::DrawDots(float cameraVelocityRatio,Vector3 cameraVelocity) {
     //O(n^3) complexity
-    float scale = 1.5f;
-    float dotDistance = 6.0f;
+    float scale = 3.0f;
+    float dotDistance = 12.0f;
     float lineLength = cameraVelocityRatio * maxLineLength;
     lineLength = fmax(lineLength, 0.02f);
     Vector3 playerVelocity = Vector3Normalize(cameraVelocity);
@@ -129,8 +129,8 @@ void Renderer::DrawDots(float cameraVelocityRatio,Vector3 cameraVelocity) {
                 ratio = ratio * ratio;
                 ratio = Clamp(ratio, 0.0f, 1.0f);
 
-                Color dotColor = PALETTE_GRAY4;
-                dotColor = ColorAlpha(dotColor,ratio);
+                Color dotColor = Utility::LerpColor(PALETTE_GRAY3, SKY_COLOR, ratio);
+                //dotColor.a = (unsigned char) (ratio * 255.0f);
 
                 DrawLine3D(pos, lineEndPos, dotColor);
             }

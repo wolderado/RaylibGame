@@ -5,7 +5,9 @@
 #ifndef SRC_HUD_H
 #define SRC_HUD_H
 #include <iostream>
+#include <iomanip>
 #include <cmath>
+#include <sstream>
 
 #include "../../raylib/src/raylib.h"
 #include "../../raylib/src/raymath.h"
@@ -15,6 +17,7 @@
 #include "Renderer.h"
 #include "Player.h"
 #include "World.h"
+#include "BattleManager.h"
 
 
 const bool DEBUG_SHOW_GIZMO = false;
@@ -45,7 +48,13 @@ private:
     Vector3 rightGunShootOffset = {0,0,0};
 
     void DrawGuns(float deltaTime);
+    tuple<int,int> GetMiddleAlignedTextPosition(string text, int fontSize);
+    void DrawTextInMiddle(string text,int fontSize,Color textColor,int areaWidth,int areaHeight,float xPosRatio,float yPosRatio);
 
+
+    //STRING KEYS
+    string STR_WAVE_STARTING = "Next Wave is coming in: ";
+    string STR_ENEMY_COUNT = "Enemy left: ";
 };
 
 

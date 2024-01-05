@@ -16,8 +16,12 @@
 #define VECTOR3_FORWARD (Vector3){0,0,1}
 #define VECTOR3_BACKWARD (Vector3){0,0,-1}
 
+
+
 #define STAT_HEALTH_FIGHTER 25
 #define STAT_HEALTH_PLAYER 99999
+
+#define GAME_SHOP_WAIT_TIME 30.0f
 
 
 static const int DefaultScreenWidth = 1280;

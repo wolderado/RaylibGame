@@ -55,7 +55,7 @@ World* world;
 BulletManager* bulletManager;
 HUD hud;
 ParticleManager* particleManager;
-BattleManager battleManager;
+BattleManager* battleManager;
 
 
 
@@ -85,6 +85,7 @@ int main(void)
     bulletManager = BulletManager::GetInstance();
     particleManager = ParticleManager::GetInstance();
     renderer = Renderer::GetInstance();
+    battleManager = BattleManager::GetInstance();
 
     //Init world first
     world->GenerateWorld();
@@ -99,7 +100,7 @@ int main(void)
     renderer->InitRenderer(player->GetCamera());
     hud.Init(player);
     bulletManager->Init();
-    battleManager.Init();
+    battleManager->Init();
 
 
 
@@ -149,13 +150,14 @@ void UpdateDrawFrame(void)
     // Draw
     //----------------------------------------------------------------------------------
     BeginTextureMode(target);
-        ClearBackground(PALETTE_GRAY5);
+        ClearBackground(SKY_COLOR);
         renderer->RenderBackground();
 
         BeginMode3D(*player->GetCamera());
+
             renderer->RenderAtmosphere(player->GetVelocityRatioToMaxValue(),player->GetVelocity());
             world->GetInstance()->UpdateAll(deltaTime);
-            battleManager.UpdateAI(deltaTime);
+            battleManager->UpdateAI(deltaTime);
 
             //Billboard Renders
             renderer->BeginAlphaCutoff();
@@ -179,7 +181,7 @@ void UpdateDrawFrame(void)
     
     // Render to screen (main framebuffer)
     BeginDrawing();
-    ClearBackground(PALETTE_GRAY5);
+    ClearBackground(SKY_COLOR);
 
     // Draw render texture to screen
     DrawTexturePro(target.texture, (Rectangle){ 0, 0, (float)target.texture.width, -(float)target.texture.height }, (Rectangle){ 0, 0, (float)GetScreenWidth(), (float)GetScreenHeight() }, (Vector2){ 0, 0 }, 0.0f, WHITE);
