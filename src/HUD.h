@@ -26,19 +26,27 @@ const bool DEBUG_SHOW_GIZMO = false;
 
 class HUD {
 public:
-    const float swayAngleAmount = 5.0f;
-    const float swayPositionAmount = 30.0f;
-    const float swaySpeed = 5.0f;
-    const float NozzleReturnToNormalSpeed = 10.0f;
-    const float shootCannonOffsetAmount = -2.0f;
+    //Positions
+    const float circlePosX = 0.5f;
+    const float circlePosY = 0.8f;
 
     void Init(shared_ptr<Player> targetPlayer);
     void Render(float deltaTime);
     void Render3D(float deltaTime);
     void Unload();
     void GunShoot(int cannonID);
+    void PlayScrapGainAnim(int scrapAmount);
 
 private:
+    const float swayAngleAmount = 5.0f;
+    const float swayPositionAmount = 30.0f;
+    const float swaySpeed = 5.0f;
+    const float NozzleReturnToNormalSpeed = 10.0f;
+    const float shootCannonOffsetAmount = -2.0f;
+    const float scrapDisappearDuration = 3.0f;
+    const unsigned char hurtTintAlpha = 50;
+    const float hurtAnimTime = 1.0f;
+
     shared_ptr<Player> player;
     Texture cockpitTexture;
     Model playerGunModel;
@@ -46,14 +54,28 @@ private:
     Vector3 smoothSway;
     Vector3 leftGunShootOffset = {0,0,0};
     Vector3 rightGunShootOffset = {0,0,0};
+    float animScrapScale = 1;
+    float animEaseTimer = 0.0f;
+    float animEaseTimer2 = 0.0f;
+    float scrapDisappearTimer = 999;
+    float scrapActiveScale = 0.0f;
+    bool scrapPanelActive = false;
 
     void DrawGuns(float deltaTime);
+    void DrawScrapPanel(float deltaTime);
+    void DrawPlayerHealthBar(float deltaTime);
     tuple<int,int> GetMiddleAlignedTextPosition(string text, int fontSize);
-    void DrawTextInMiddle(string text,int fontSize,Color textColor,int areaWidth,int areaHeight,float xPosRatio,float yPosRatio);
+    tuple<int,int> GetAlignPosition(int areaWidth,int areaHeight,float xPosRatio,float yPosRatio);
+    tuple<int,int> GetAlignPositionScreen(float xPosRatio,float yPosRatio);
+    tuple<int,int,int,int> GetAlignPositionRectangle(int areaWidth,int areaHeight,float xStart,float yStart,float xEnd,float yEnd);
+    tuple<int,int,int,int> GetAlignPositionRectangleScreen(float xStart,float yStart,float xEnd,float yEnd);
+    void DrawTextMiddleAligned(string text,int fontSize,Color textColor,float xPosRatio,float yPosRatio);
+    void DrawTextMiddleAlignedInArea(string text,int fontSize,Color textColor,int areaWidth,int areaHeight,float xPosRatio,float yPosRatio);
+
 
 
     //STRING KEYS
-    string STR_WAVE_STARTING = "Next Wave is coming in: ";
+    string STR_WAVE_STARTING = "Next wave is coming in: ";
     string STR_ENEMY_COUNT = "Enemy left: ";
 };
 

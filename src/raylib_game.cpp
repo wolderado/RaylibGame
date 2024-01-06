@@ -158,6 +158,7 @@ void UpdateDrawFrame(void)
             renderer->RenderAtmosphere(player->GetVelocityRatioToMaxValue(),player->GetVelocity());
             world->GetInstance()->UpdateAll(deltaTime);
             battleManager->UpdateAI(deltaTime);
+            renderer->Update(deltaTime);
 
             //Billboard Renders
             renderer->BeginAlphaCutoff();

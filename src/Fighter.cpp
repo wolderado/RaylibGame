@@ -185,6 +185,7 @@ void Fighter::ProcessMoveTarget(float deltaTime,Vector3 targetPos) {
 
     lookRot = Utility::LookAt(Position, targetPos);
 
+    //NAN detection for debugging cause it breaks the whole game if rotation is nan
     if(lookRot.x == NAN) {
         cout << "ERROR: NAN ROTATION DETECTED! " << endl;
         cout << " RAW OBJECT DATA: " << lookRot.x << " " << lookRot.y << " " << lookRot.z << " " << lookRot.w << endl;

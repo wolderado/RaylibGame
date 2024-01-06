@@ -36,6 +36,14 @@ void Renderer::InitRenderer(Camera* cam) {
     alphaCutoffShader = LoadShader(NULL, "resources/AlphaCutoff.fs");
 
 
+    //Init scrap mesh
+    int arrSize = sizeof(scrapPoints) / sizeof(scrapPoints[0]);
+    for (int i = 0; i < arrSize; ++i) {
+
+        scrapPoints[i].position = Utility::GetRandomDirection();
+        scrapPoints[i].direction = Utility::GetRandomDirection();
+        scrapPoints[i].speed = GetRandomValue(scrapVertexMoveSpeed,scrapVertexMoveSpeedMax);
+    }
 }
 
 
@@ -55,25 +63,6 @@ float CalculateDistanceToDotCenter(float x,float y,float z, float maxDistance)
 void Renderer::RenderBackground() {
 
 
-    //Draw skybox
-    //DrawModel(skyboxModel, camera->position, 100.0f, WHITE);
-/*
-    float scale = 64;
-    Vector3 dirVector = Vector3Normalize(GetCameraForward(camera.get()));
-*//*    DrawTexturePro(skyboxTexture, (Rectangle){ dirVector.x * skyboxTexture.width, dirVector.y * skyboxTexture.width, scale, scale },
-                   (Rectangle){ 0, 0, RenderWidth, RenderHeight }, (Vector2){ 0, 0 }, 0.0f, WHITE);*//*
-
-
-   // DrawText(TextFormat("FPS: %3.1f", (1.0f/GetFrameTime())), 10, 10, 10, PALETTE_GRAY4);*/
-
-
-
-/*    float scale = 0.25f;
-    Vector3 forward = Vector3Add(camera->position,(Vector3){0,0,1});
-    Vector2 screenPoint = GetWorldToScreen(forward,*camera);
-
-    DrawTexturePro(skyboxTexture, (Rectangle){-screenPoint.x * scale, -screenPoint.y * scale, (float)skyboxTexture.width, (float)skyboxTexture.height },
-                   (Rectangle){ 0, 0, RenderWidth, RenderHeight }, (Vector2){ 0.5f,  0.5f }, 0.0f, WHITE);*/
 }
 
 
@@ -81,10 +70,16 @@ void Renderer::RenderBackground() {
 void Renderer::RenderAtmosphere(float cameraVelocityRatio,Vector3 cameraVelocity) {
 
     DrawDots(cameraVelocityRatio,cameraVelocity);
-
-
-
 }
+
+
+void Renderer::Update(float deltaTime) {
+
+    UpdateScrapMesh(deltaTime);
+
+    //RenderScrap((Vector3){0,0,20},1.0f);
+}
+
 
 
 
@@ -301,11 +296,6 @@ void Renderer::RenderBillboard(int spriteRowIndex,int spriteIndex, Vector3 posit
     }*/
 }
 
-void Renderer::RenderHealthBar(Vector3 position,Vector3 scale,float currentHealth,float maxHealth) {
-
-}
-
-
 //Modified function from rlgl.c DrawBillboardPro
 void Renderer::DrawBillboard(Camera camera, Texture2D texture, Rectangle source, Vector3 position, Vector3 up, Vector2 size,
                         Vector2 origin, float rotation, Color tint) {
@@ -477,3 +467,64 @@ void Renderer::RenderSphere(Vector3 position, float size, Color insideColor,Colo
     //DrawSphereWires(position,size,cut,cut,lineColor);
     DrawSphereEx(position,size,cut,cut,insideColor);
 }
+
+void RenderSingleLine(Vector3 pos1, Vector3 pos2, Color color, bool is2D) {
+    if (is2D == false) {
+        DrawLine3D(pos1, pos2, color);
+    }else
+    {
+        pos1.z = pos2.z = 0;
+        DrawLine(pos1.x,pos1.y,pos2.x,pos2.y,color);
+    }
+}
+
+void Renderer::RenderScrap(Vector3 position, float size, bool is2D) {
+
+    //Render
+    int arrSize = sizeof(scrapPoints) / sizeof(scrapPoints[0]);
+    for (int i = 0; i < arrSize-1; ++i) {
+
+        Vector3 vertexPos = scrapPoints[i].position;
+
+        for (int j = i; j < i+6; ++j) {
+
+            if(i == j || j >= arrSize-1)
+                continue;
+
+            //Local pos
+            Vector3 targetVertexPos = scrapPoints[j].position;
+
+            //World pos
+            Vector3 realPos = Vector3Add(position, Vector3Scale(vertexPos, size));
+            Vector3 realTargetPos = Vector3Add(position, Vector3Scale(targetVertexPos, size));
+
+            //Render
+            RenderSingleLine(realPos, realTargetPos, scrapPoints[i].lineColor,is2D);
+
+        }
+
+        Vector3 realTargetPos = Vector3Add(position, Vector3Scale(vertexPos, size));
+        RenderSingleLine(position, realTargetPos, PALETTE_PURPLE4,is2D);
+    }
+
+}
+
+
+void Renderer::UpdateScrapMesh(float deltaTime) {
+
+    //Process scrap mesh
+    int arrSize = sizeof(scrapPoints) / sizeof(scrapPoints[0]);
+    for (int i = 0; i < arrSize; ++i) {
+        ScrapVertexPoint* vertex = &scrapPoints[i];
+        vertex->position = Vector3Add(vertex->position,Vector3Scale(vertex->direction,deltaTime * scrapVertexMoveSpeed));
+        if(Vector3LengthSqr(vertex->position) > 1.0f){
+            Vector3 invertDirection = Vector3Subtract(Vector3Zero(),vertex->position);
+            Vector3 rndDirection = Utility::GetRandomDirection();
+            vertex->direction = Vector3Lerp(invertDirection,rndDirection,0.5f);
+            vertex->position = Vector3Normalize(vertex->position);
+            vertex->lineColor = GetRandomValue(0,100) > 50 ? PALETTE_PURPLE2 : PALETTE_PURPLE3;
+        }
+    }
+
+}
+

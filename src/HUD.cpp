@@ -11,9 +11,8 @@ void HUD::Init(shared_ptr<Player> targetPlayer)
     playerGunMuzzleModel = LoadModel("resources/PlayerGunMuzzle.glb");
 
 
-    auto shootFunction = std::bind(&HUD::GunShoot, this, std::placeholders::_1);
-    player->SetShootDelegate(shootFunction);
-
+    player->OnShoot.AddListener(std::bind(&HUD::GunShoot, this, std::placeholders::_1));
+    player->OnScrapGain.AddListener(std::bind(&HUD::PlayScrapGainAnim, this, std::placeholders::_1));
 }
 
 
@@ -22,21 +21,29 @@ void HUD::Render(float deltaTime)
 /*    DrawTexturePro(cockpitTexture, (Rectangle){0,0,(float)cockpitTexture.width,(float)cockpitTexture.height},
                    (Rectangle){0,0,ScreenWidth,ScreenHeight}, (Vector2){0,0}, 0, WHITE);*/
 
+    int middleX = GetScreenWidth() / 2;
+    int middleY = GetScreenHeight() / 2;
 
+    //Wave Timers
     if(BattleManager::GetInstance()->GetBattleState() == BattleState::Waiting) {
 
-        DrawTextInMiddle(STR_WAVE_STARTING.c_str(),20,PALETTE_GRAY1,GetScreenWidth(),GetScreenHeight(),0.5f,0.1f);
+        DrawTextMiddleAligned(STR_WAVE_STARTING.c_str(),20,PALETTE_GRAY1,0.5f,0.1f);
 
         stringstream stream;
         stream << std::fixed << std::setprecision(1) << BattleManager::GetInstance()->GetWaitTimer() << "s";
-        DrawTextInMiddle(stream.str().c_str(),20,PALETTE_GRAY1,GetScreenWidth(),GetScreenHeight(),0.5f,0.15f);
+        DrawTextMiddleAligned(stream.str().c_str(),20,PALETTE_GRAY1,0.5f,0.15f);
     }
     else if(BattleManager::GetInstance()->GetBattleState() == BattleState::BattleStarted) {
         stringstream stream;
         stream << STR_ENEMY_COUNT << World::GetInstance()->EnemyFighterCount;
-        DrawTextInMiddle(stream.str().c_str(),20,PALETTE_RED2,GetScreenWidth(),GetScreenHeight(),0.5f,0.1f);
+        DrawTextMiddleAligned(stream.str().c_str(),20,PALETTE_RED2,0.5f,0.1f);
     }
 
+
+    //Draw Scrap Circle
+    DrawScrapPanel(deltaTime);
+
+    DrawPlayerHealthBar(deltaTime);
 }
 
 
@@ -44,8 +51,6 @@ void HUD::Render(float deltaTime)
 void HUD::Render3D(float deltaTime)
 {
     DrawGuns(deltaTime);
-
-
 
     if(DEBUG_SHOW_GIZMO) {
         //forward = Vector3Scale(forward,10.0f);
@@ -116,13 +121,122 @@ tuple<int, int> HUD::GetMiddleAlignedTextPosition(string text, int fontSize) {
     return make_tuple(textWidth / 2,textHeight / 2);
 }
 
-void HUD::DrawTextInMiddle(string text,int fontSize,Color textColor,int areaWidth,int areaHeight,float xPosRatio,float yPosRatio) {
+void HUD::DrawTextMiddleAlignedInArea(string text,int fontSize,Color textColor,int areaWidth,int areaHeight,float xPosRatio,float yPosRatio) {
     int middlePosX = areaWidth / 2;
     int middlePosY = areaHeight / 2;
     auto [offsetX, offsetY] = GetMiddleAlignedTextPosition(text,fontSize);
 
-    int xPos = (int)((float)areaWidth * xPosRatio) - offsetX;
-    int yPos = (int)((float)areaHeight * yPosRatio) - offsetY;
+    auto[xPos,yPos] = GetAlignPosition(areaWidth,areaHeight,xPosRatio,yPosRatio);
+    xPos -= offsetX;
+    yPos -= offsetY;
 
     DrawText(text.c_str(), xPos, yPos, fontSize, textColor);
 }
+
+
+void HUD::DrawTextMiddleAligned(string text, int fontSize, Color textColor, float xPosRatio, float yPosRatio) {
+    DrawTextMiddleAlignedInArea(text,fontSize,textColor,GetScreenWidth(),GetScreenHeight(),xPosRatio,yPosRatio);
+}
+
+tuple<int,int> HUD::GetAlignPosition(int areaWidth, int areaHeight, float xPosRatio, float yPosRatio) {
+
+    int xPos = (int)((float)areaWidth * xPosRatio);
+    int yPos = (int)((float)areaHeight * yPosRatio);
+
+    return make_tuple(xPos,yPos);
+}
+
+tuple<int, int> HUD::GetAlignPositionScreen(float xPosRatio, float yPosRatio) {
+    return GetAlignPosition(GetScreenWidth(),GetScreenHeight(),xPosRatio,yPosRatio);
+}
+
+tuple<int, int, int, int>
+HUD::GetAlignPositionRectangle(int areaWidth, int areaHeight, float xStart, float yStart, float xEnd, float yEnd) {
+
+    int xPos = (int) ((float) areaWidth * xStart);
+    int yPos = (int) ((float) areaHeight * yStart);
+    int width = (int) ((float) areaWidth * xEnd) - xPos;
+    int height = (int) ((float) areaHeight * yEnd) - yPos;
+
+    return make_tuple(xPos, yPos, width, height);
+}
+
+
+tuple<int, int, int, int> HUD::GetAlignPositionRectangleScreen(float xStart, float yStart, float xEnd, float yEnd) {
+    return GetAlignPositionRectangle(GetScreenWidth(),GetScreenHeight(),xStart,yStart,xEnd,yEnd);
+}
+
+
+void HUD::PlayScrapGainAnim(int scrapAmount) {
+    animEaseTimer = 0;
+    scrapDisappearTimer = 0;
+}
+
+void HUD::DrawScrapPanel(float deltaTime) {
+
+    scrapPanelActive = false;
+    if(scrapDisappearTimer < scrapDisappearDuration) {
+        //Scrap Panel active timer
+        scrapDisappearTimer += deltaTime;
+        scrapActiveScale = 1.0f;
+        animEaseTimer2 = 0;
+        scrapPanelActive = true;
+    }
+    else {
+        //Disappear anim
+        if (animEaseTimer2 < 1.0f) {
+            animEaseTimer2 += deltaTime;
+            scrapActiveScale = (1.0f - Utility::EaseOutElastic(animEaseTimer2));
+            scrapPanelActive = true;
+        }
+    }
+
+    if(scrapPanelActive == true) {
+        auto [circleX, circleY] = GetAlignPositionScreen(circlePosX, circlePosY);
+        DrawCircle(circleX, circleY, 30 * animScrapScale, PALETTE_GRAY5);
+        DrawCircleLines(circleX, circleY, 30 * animScrapScale, PALETTE_PURPLE3);
+        Renderer::GetInstance()->RenderScrap((Vector3) {(float) circleX, (float) circleY, 0}, 20.0f * animScrapScale,
+                                             true);
+
+        if(animScrapScale > 0.5f) {
+            int playerScrapCount = player->GetScrap();
+            DrawTextMiddleAligned(to_string(playerScrapCount), 20 * animScrapScale, PALETTE_PURPLE1, circlePosX,
+                                  circlePosY);
+        }
+
+        if (animEaseTimer < 1.0f)
+            animEaseTimer += deltaTime;
+
+        animScrapScale = scrapActiveScale * 2.0f + ((1.0f - Utility::EaseOutElastic(animEaseTimer)));
+    }
+}
+
+void HUD::DrawPlayerHealthBar(float deltaTime) {
+
+
+    auto [x, y,w,h] = GetAlignPositionRectangleScreen(0.2f,0.93f,0.8f,0.97f);
+    float healthRatio = player->GetHealthRatio();
+
+    Color barColor = PALETTE_BLUE5;
+    Color tintColor = Utility::GetZeroAlphaColor(PALETTE_RED1);
+    if((GetTime() - player->LastHurtTime) < hurtAnimTime)
+    {
+        float t = (GetTime() - player->LastHurtTime) / hurtAnimTime;
+        barColor = Utility::LerpColor(PALETTE_RED1,barColor,t);
+        DrawRectangleLines(x,y,w,h, PALETTE_RED1);
+
+        tintColor = Utility::LerpColor(Utility::GetColorWithCustomAlpha(PALETTE_RED1,hurtTintAlpha),tintColor,t);
+        DrawRectangle(0,0,GetScreenWidth(),GetScreenHeight(), tintColor);
+    }
+
+
+    DrawRectangle(x,y,((float) w),h, PALETTE_BROWN5);
+    DrawRectangle(x,y,((float) w * healthRatio),h, barColor);
+    DrawRectangleLines(x,y,((float) w * healthRatio),h, barColor);
+    DrawRectangleLines(x,y,w,h, PALETTE_BLUE2);
+
+    int health = player->GetHealth();
+    DrawTextMiddleAligned(to_string(health),20,PALETTE_BLUE2,0.5f,0.95f);
+
+}
+

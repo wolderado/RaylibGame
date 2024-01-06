@@ -19,11 +19,12 @@
 
 
 #define STAT_HEALTH_FIGHTER 25
-#define STAT_HEALTH_PLAYER 99999
+#define STAT_HEALTH_PLAYER 200
+#define STAT_HEALTH_PLAYER_DAMAGE_REDUCTION 0.25f
 #define STAT_SHOOT_COOLDOWN_FIGHTER 0.15
 #define STAT_SHOOT_COOLDOWN_PLAYER 0.05
 
-#define GAME_SHOP_WAIT_TIME 10.0f
+#define GAME_SHOP_WAIT_TIME 1.0f
 #define MAP_ASTEROID_COUNT 100
 
 
@@ -42,21 +43,31 @@ const bool DEBUG_SHOW_COLLISION_AREA = false;
 const bool DEBUG_SHOW_SHOOT_RANGE = false;
 const bool DEBUG_DISABLE_AI = false;
 const bool DEBUG_SHOW_FIGHTER_TARGETS = false;
-
-
-
+const bool DEBUG_DISABLE_SCRAP_DROP = false;
 
 
 class Utility
 {
 public:
     static Color LerpColor(Color color1,Color color2,float amount){
+        amount = fmin(1.0f,fmax(0.0f,amount));
+
         Color result;
         result.r = Lerp(color1.r,color2.r,amount);
         result.g = Lerp(color1.g,color2.g,amount);
         result.b = Lerp(color1.b,color2.b,amount);
         result.a = Lerp(color1.a,color2.a,amount);
         return result;
+    }
+
+    static Color GetZeroAlphaColor(Color color)
+    {
+        return (Color){color.r,color.g,color.b,0};
+    }
+
+    static Color GetColorWithCustomAlpha(Color color,unsigned char alpha)
+    {
+        return (Color){color.r,color.g,color.b,alpha};
     }
 
     static Vector3 GetRandomDirection() {
@@ -126,6 +137,15 @@ public:
         return (position.x > AbsoluteMapLimitX || position.x < -AbsoluteMapLimitX || position.y > AbsoluteMapLimitY || position.y < -AbsoluteMapLimitY || position.z > AbsoluteMapLimitZ || position.z < -AbsoluteMapLimitZ);
     }
 
+    static float EaseOutElastic(float t)
+    {
+        t = fmin(1.0f, fmax(0.0f, t));
+        float t2 = (t - 1) * (t - 1);
+        float result = 1.0f - t2 * t2 * cos( t * PI * 4.5f );
+        result = fmin(2.0f, fmax(0.0f, result));
+        return result;
+    }
 };
+
 
 #endif //SRC_GLOBALS_H

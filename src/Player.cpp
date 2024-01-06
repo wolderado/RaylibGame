@@ -30,6 +30,10 @@ void Player::Init() {
     hudCamera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
     hudCamera.fovy = defaultFOV;
     hudCamera.projection = CAMERA_PERSPECTIVE;
+    CollisionSize = 2.0f;
+
+    IgnoresAllCollisions = false;
+    CanCollide = true;
 
     SetHealth(STAT_HEALTH_PLAYER);
 
@@ -303,14 +307,10 @@ void Player::ProcessShoot(float deltaTime) {
         ParticleManager::GetInstance()->CreateShootMuzzle(shootPosition,instance);
 
         shotThisFrame = true;
-        if (shootDelegate != nullptr)
-            shootDelegate(shootCanonIndex);
+        OnShoot.Invoke(shootCanonIndex);
     }
 }
 
-void Player::SetShootDelegate(const function<void(int)> &delegate) {
-    shootDelegate = delegate;
-}
 
 void Player::LateUpdate(float deltaTime) {
     GameObject::LateUpdate(deltaTime);
@@ -329,3 +329,32 @@ Player *Player::GetInstance() {
 
     return instance;
 }
+
+void Player::AddScrap(int amount) {
+    totalScrap += amount;
+
+    Vector3 particlePos = Vector3Add(GetCollectPosition(),Vector3Scale(GetCameraForward(&playerCamera),5.0f));
+    particlePos = Vector3Add(particlePos,Vector3Scale(GetCameraUp(&playerCamera),1.0f));
+    ParticleManager::GetInstance()->CreateCollectFX(particlePos, GetCameraForward(&playerCamera),PALETTE_PURPLE2);
+
+    OnScrapGain.Invoke(amount);
+}
+
+Vector3 Player::GetCollectPosition() {
+
+    return Vector3Add(Position,Vector3Scale(GetCameraUp(&playerCamera),-3.0f));
+}
+
+void Player::Hurt(float damage) {
+
+    damage = damage * STAT_HEALTH_PLAYER_DAMAGE_REDUCTION;
+
+
+    if(trauma < 0.4f)
+        ShakeCamera(0.2f);
+
+    GameObject::Hurt(damage);
+
+
+}
+

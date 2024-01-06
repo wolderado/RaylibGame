@@ -21,6 +21,8 @@ void CollisionGrid::AddObject(shared_ptr<GameObject> gameObject) {
     //cout << "Is Initialized: " << to_string(Initialized) << endl;
 /*    cout << "Added "<< gameObject->Name <<" to grid: " << x << " " << y << " " << z << endl;*/
 
+    if(gameObject->IgnoresAllCollisions)
+        return;
 
     gameObject->GridIndex = make_tuple(x,y,z);
     myObjects.push_back(gameObject.get());

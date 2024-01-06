@@ -388,4 +388,40 @@ void ParticleManager::CreateShipSpawnFX(Vector3 position,TEAM team) {
     InitDefaults(sphereParticle);
 }
 
+void ParticleManager::CreateScrapGlitter(Vector3 position,Color color) {
+
+    //Lines
+    for (int i = 0; i < 1; ++i) {
+        Particle* newParticle = CreateParticle();
+        newParticle->position = position;
+        newParticle->speed = GetRandomValue(5,15);
+        newParticle->direction = Utility::GetRandomDirection();
+        newParticle->maxLifeTime = GetRandomValue(40,120) * 0.01f;
+        newParticle->size = 5;
+        newParticle->particleType = ParticleType::Line;
+        Color targetTint = color;
+        newParticle->tint = targetTint;
+        newParticle->stopOverTime = true;
+        InitDefaults(newParticle);
+    }
+}
+
 #pragma endregion
+
+void ParticleManager::CreateCollectFX(Vector3 position,Vector3 forwardDirection, Color color) {
+
+    //Lines
+    for (int i = 0; i < 50; ++i) {
+        Particle* newParticle = CreateParticle();
+        newParticle->position = position;
+        newParticle->speed = GetRandomValue(10,30);
+        newParticle->direction = Vector3Lerp(forwardDirection,Utility::GetRandomDirection(),0.6f);
+        newParticle->maxLifeTime = GetRandomValue(30,100) * 0.01f;
+        newParticle->size = 10;
+        newParticle->particleType = ParticleType::Line;
+        Color targetTint = color;
+        newParticle->tint = targetTint;
+        newParticle->stopOverTime = true;
+        InitDefaults(newParticle);
+    }
+}

@@ -49,17 +49,28 @@ void World::DebugHurtClosestObject()
 float debugPrintTimer = 0;
 void World::UpdateAll(float deltaTime) {
 
+/*    for (const auto& entry : Grid)
+    {
+        const tuple<int, int, int>& key = entry.first;
+        CollisionGrid& grid = Grid[key];
 
-    DebugHurtClosestObject();
+        for (const auto &target: grid.myObjects)
+        {
+            DrawSphereWires(target->Position, target->CollisionSize, 16, 16, PALETTE_GREEN1);
+        }
+    }*/
+
+    //DebugHurtClosestObject();
 
     debugPrintTimer += deltaTime;
-    for (const auto& key : activeGameObjects){
+    for (auto it = activeGameObjects.begin(); it != activeGameObjects.end();) {
 
-        shared_ptr<GameObject> gameObject = activeGameObjects[key.first];
+        shared_ptr<GameObject> gameObject = it->second;
 
-        if(gameObject == nullptr)
-        {
+        //Just in case
+        if(gameObject == nullptr) {
             cout << "ERROR: NULL OBJECT IN ACTIVE OBJECTS LIST!" << endl;
+            continue;
         }
 
         //Skip disabled objects
@@ -87,9 +98,12 @@ void World::UpdateAll(float deltaTime) {
         //Cleanup destroyed objects
         if(gameObject->GetHealth() <= 0)
         {
+            //cout << "Object destroyed " << key.second->Name << endl;
             gameObject->Destroy();
             OnGameObjectDestroyed(gameObject);
-            activeGameObjects.erase(key.first);
+            it = activeGameObjects.erase(it);
+        } else {
+            ++it;
         }
     }
 
@@ -188,7 +202,7 @@ shared_ptr<GameObject> World::CreateNewFighter(TEAM team, Vector3 position) {
     else if(team == TEAM_ENEMY)
         EnemyFighterCount++;
 
-    return shared_ptr<GameObject>(newFighter);
+    return newFighter;
 }
 
 shared_ptr<GameObject> World::CreateNewAsteroid(Vector3 position,float maxSize) {
@@ -220,7 +234,24 @@ shared_ptr<GameObject> World::CreateNewAsteroid(Vector3 position,float maxSize) 
 
     AsteroidCount++;
 
-    return shared_ptr<GameObject>(newAsteroid);
+    return newAsteroid;
+}
+
+
+shared_ptr<GameObject> World::CreateNewScrap(Vector3 position, float amount) {
+    shared_ptr<Scrap> newScrap = make_shared<Scrap>(Player::GetInstance());
+
+    //cout << "Creating new scrap with amount " << amount << endl;
+
+    newScrap->SetTeam(TEAM_NEUTRAL);
+    newScrap->Name = "Scrap Piece";
+    newScrap->AddTag("Scrap");
+
+    newScrap->SetHealth(100);
+    newScrap->Position = position;
+    newScrap->Scale = Vector3One();
+    InitObject(newScrap);
+    return newScrap;
 }
 
 void World::OnGameObjectDestroyed(shared_ptr<GameObject> destroyedObject) {
@@ -232,25 +263,26 @@ void World::OnGameObjectDestroyed(shared_ptr<GameObject> destroyedObject) {
         AsteroidCount--;
         Asteroid* destroyedAsteroid = dynamic_cast<Asteroid*>(destroyedObject.get());
 
-        if(destroyedAsteroid->AsteroidSize < 25)
-            return;
+        //Create scrap
+        if(DEBUG_DISABLE_SCRAP_DROP == false) {
+            float scrapAmount = destroyedAsteroid->AsteroidSize;
+            CreateNewScrap(destroyedAsteroid->Position, scrapAmount);
+        }
 
-        //cout << destroyedAsteroid->AsteroidSize << " sized asteroid destroyed, creating 2 new ones" << endl;
+        if(destroyedAsteroid->AsteroidSize > 25) {
 
+            float newAsteroidSize = destroyedAsteroid->AsteroidSize / 2.0f;
+            int minForceMagnitude = 2;
+            int maxForceMagnitude = 5;
+            float finalForce = GetRandomValue(minForceMagnitude, maxForceMagnitude) * 0.01f;
+            Vector3 rndDirection = Utility::GetRandomDirection();
 
-        float newAsteroidSize = destroyedAsteroid->AsteroidSize/2.0f;
-        int minForceMagnitude = 5;
-        int maxForceMagnitude = 10;
-        float finalForce = GetRandomValue(minForceMagnitude,maxForceMagnitude) * 0.01f;
+            shared_ptr<GameObject> asteroid = CreateNewAsteroid(destroyedAsteroid->Position, newAsteroidSize);
+            asteroid->SetVelocity(Vector3Scale(rndDirection, finalForce));
 
-        Vector3 rndDirection = Utility::GetRandomDirection();
-
-        shared_ptr<GameObject> asteroid = CreateNewAsteroid(destroyedAsteroid->Position,newAsteroidSize);
-        asteroid->SetVelocity(Vector3Scale(rndDirection, finalForce));
-
-        shared_ptr<GameObject> asteroid2 = CreateNewAsteroid(destroyedAsteroid->Position,newAsteroidSize);
-        asteroid2->SetVelocity(Vector3Scale(Vector3Scale(rndDirection,-1), finalForce));
-
+            shared_ptr<GameObject> asteroid2 = CreateNewAsteroid(destroyedAsteroid->Position, newAsteroidSize);
+            asteroid2->SetVelocity(Vector3Scale(Vector3Scale(rndDirection, -1), finalForce));
+        }
     }
 
     if(destroyedObject->HasTag("Fighter"))
@@ -264,8 +296,6 @@ void World::OnGameObjectDestroyed(shared_ptr<GameObject> destroyedObject) {
     }
 
     //Update grid
-
-
     CollisionGrid* grid = GetGrid(get<0>(destroyedObject->GridIndex),get<1>(destroyedObject->GridIndex),get<2>(destroyedObject->GridIndex));
     grid->RemoveObject(destroyedObject);
 }
@@ -294,10 +324,8 @@ void World::CheckCollision(GameObject* object) {
 
         GameObject* otherObject = objectGrid->myObjects[i];
 
-        if (object->CanCollide == false || otherObject == object)
+        if (otherObject->CanCollide == false || otherObject == object || otherObject->IgnoresAllCollisions)
             continue;
-
-
 
         if (CheckCollisionSingle(object->Position, object->CollisionSize, otherObject->Position,otherObject->CollisionSize)) {
 
@@ -353,7 +381,7 @@ void World::UpdateGridForObject(shared_ptr<GameObject> object) {
 
     //DrawLine3D(object->Position,ConvertGridPosToRealPos(object->GridIndex),PALETTE_GREEN1);
 
-    if(Vector3LengthSqr(object->GetVelocity()) < 0.01f)
+    if(Vector3LengthSqr(object->GetVelocity()) < 0.001f)
         return;
 
     if(object->IgnoresAllCollisions)
@@ -415,6 +443,7 @@ tuple<int, int, int> World::GetGridPosFromRealPos(Vector3 realPos) {
     int zPos = (int)(realPos.z / CollisionGrid::CellSize);
     return make_tuple(xPos,yPos,zPos);
 }
+
 
 #pragma endregion
 

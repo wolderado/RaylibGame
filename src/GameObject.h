@@ -40,16 +40,16 @@ public:
 
     std::string Name = "UNIDENTIFIED OBJECT";
     Vector3 Position = {0,0,0};
-    Quaternion Rotation;
+    Quaternion Rotation = QuaternionIdentity();
     Vector3 Scale = {1,1,1};
     bool CanCollide = true;
     bool IgnoresAllCollisions = false;
     bool ShowHealthBar = false;
     float CollisionSize = 1.0f;
     float Mass = 1;
-    uint32_t WorldID;
-    float LastHurtTime;
-    tuple<int,int,int> GridIndex;
+    uint32_t WorldID = 0;
+    float LastHurtTime = 0;
+    tuple<int,int,int> GridIndex = {0,0,0};
 
 
 
@@ -64,6 +64,7 @@ public:
     virtual void OnCollision(GameObject* otherObject,Vector3 collisionTotalVelocity);  //Collision event triggered by world interactions
     virtual void OnInit();
 
+
     TEAM GetTeam();
     void SetTeam(TEAM newTeam);
     Vector3 GetVelocity() { return currentVelocity; }
@@ -77,20 +78,21 @@ public:
     Vector3 GetRight();
     Vector3 GetUp();
     bool IsEnabled();
+    float GetHealthRatio() { return health / maxHealth; };
 
 
 protected:
     TEAM myTeam = TEAM_NEUTRAL;
     float health = 1;
     float maxHealth = 1;
-    Model myModel;
+    Model myModel = {0};
     ObjectRenderType myRenderType = Invisible;
-    Color myColor;
-    Vector3 currentVelocity;
+    Color myColor = WHITE;
+    Vector3 currentVelocity = {0,0,0};
     bool enabled = true;
-    unordered_set<string> tags;
+    unordered_set<string> tags = {};
     Color hurtFlashColor = PALETTE_RED1;
-    float lastCollisionTime;
+    float lastCollisionTime = 0;
 };
 
 

@@ -160,4 +160,12 @@ void BattleManager::StartBattle() {
 void BattleManager::EndBattle() {
     currentBattleState = BattleState::Waiting;
     waitTimer = GAME_SHOP_WAIT_TIME;
+
+    //Destroy all ally ships
+    for (auto& pair : worldInstance->activeGameObjects) {
+        if(pair.second->GetHealth() > 0 && pair.second->HasTag("Fighter") && pair.second->GetTeam() == TEAM_ALLY)
+        {
+            pair.second->Destroy();
+        }
+    }
 }

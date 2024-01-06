@@ -17,6 +17,7 @@
 #include "Player.h"
 #include "CollisionGrid.h"
 #include "ParticleManager.h"
+#include "Scrap.h"
 
 
 
@@ -31,6 +32,7 @@ public:
     shared_ptr<GameObject> CreateNewObject();
     shared_ptr<GameObject> CreateNewAsteroid(Vector3 position,float maxSize = 100);
     shared_ptr<GameObject> CreateNewFighter(TEAM team, Vector3 position);
+    shared_ptr<GameObject> CreateNewScrap(Vector3 position,float amount);
     void InitObject(shared_ptr<GameObject> target);
     void CheckCollision(GameObject* object);
     bool CheckCollisionSingle(Vector3 position1, float size1, Vector3 position2, float size2);

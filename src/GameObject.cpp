@@ -51,18 +51,13 @@ void GameObject::Render(float deltaTime) {
     if(myRenderType == RealMesh)
     {
         Renderer::GetInstance()->RenderModelWithWires(myModel,Position, QuaternionToEuler(Rotation), Vector3Scale(modelScale,1.01f),modelColor);
-
-        if(DEBUG_SHOW_COLLISION_AREA) {
-            if (CanCollide) {
-                DrawSphereWires(Position, CollisionSize, 16, 16, PURPLE);
-            }
-        }
     }
 
-    if(ShowHealthBar)
-    {
 
-        Renderer::GetInstance()->RenderHealthBar(Position,Scale,health,maxHealth);
+    if(DEBUG_SHOW_COLLISION_AREA) {
+        if (CanCollide && IgnoresAllCollisions == false) {
+            DrawSphereWires(Position, CollisionSize, 16, 16, PURPLE);
+        }
     }
 }
 
@@ -86,6 +81,8 @@ GameObject::GameObject() {
     Rotation = QuaternionIdentity();
     Scale = Vector3One();
     currentVelocity = Vector3Zero();
+    CanCollide = true;
+    IgnoresAllCollisions = false;
 
     health = 1;
     maxHealth = health;
