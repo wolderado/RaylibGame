@@ -20,29 +20,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="23813626-e860-407e-add6-72449def8d1e" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/CollisionGrid.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/CollisionGrid.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/BattleManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/BattleManager.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BattleManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/BattleManager.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BulletManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/BulletManager.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BulletManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/BulletManager.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Compile Commands.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Compile Commands.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Fighter.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Fighter.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fighter.h" beforeDir="false" afterPath="$PROJECT_DIR$/Fighter.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/GameObject.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/GameObject.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/GameObject.h" beforeDir="false" afterPath="$PROJECT_DIR$/GameObject.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Globals.h" beforeDir="false" afterPath="$PROJECT_DIR$/Globals.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ParticleManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/ParticleManager.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ParticleManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/ParticleManager.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Player.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Player.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Renderer.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Renderer.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Renderer.h" beforeDir="false" afterPath="$PROJECT_DIR$/Renderer.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Player.h" beforeDir="false" afterPath="$PROJECT_DIR$/Player.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/World.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/World.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/World.h" beforeDir="false" afterPath="$PROJECT_DIR$/World.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/raylib_game.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/raylib_game.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/Ship.glb" beforeDir="false" afterPath="$PROJECT_DIR$/resources/Ship.glb" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -104,26 +93,27 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
-    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;terminal&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "OCFindUsagesOptions.isSearchForTextOccurrences": "true",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "terminal",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager" selected="Makefile Application.all">
     <configuration name="Commands" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="src" TARGET_NAME="Commands" CONFIG_NAME="Commands" version="1">
       <method v="2">
@@ -215,6 +205,11 @@
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
       </method>
     </configuration>
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
     <list>
       <item itemvalue="Makefile Application.all" />
       <item itemvalue="Makefile Application.run" />
@@ -263,6 +258,8 @@
       <workItem from="1704199980794" duration="10213000" />
       <workItem from="1704300210972" duration="11790000" />
       <workItem from="1704370497029" duration="25332000" />
+      <workItem from="1704455021010" duration="28405000" />
+      <workItem from="1704543328576" duration="8727000" />
     </task>
     <servers />
   </component>

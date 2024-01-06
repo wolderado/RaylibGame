@@ -71,6 +71,7 @@ public:
     void CreateShootMuzzle(Vector3 localPosition,GameObject* parentObject);
     void CreateAsteroidExplosion(Vector3 position,float asteroidSize);
     void CreateShipExplosion(Vector3 position,TEAM team);
+    void CreateShipSpawnFX(Vector3 position,TEAM team);
 private:
     const int MaxParticles = 1000;
 

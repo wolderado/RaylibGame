@@ -46,8 +46,6 @@ void Player::Update(float deltaTime) {
     ProcessCamera(deltaTime);
 
 
-
-
     GameObject::Update(deltaTime);
 }
 
@@ -149,7 +147,7 @@ void Player::ProcessRotation(float deltaTime) {
 /*    Matrix lookMatrix = GetCameraViewMatrix(&playerCamera);
     Rotation = QuaternionFromMatrix(lookMatrix);*/
 
-    Rotation = Utility::LookAt(playerCamera.position,playerCamera.target);
+    //Rotation = Utility::LookAt(playerCamera.position,playerCamera.target);
 
     Vector3 target = GetCameraDirection();
 

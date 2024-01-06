@@ -332,10 +332,58 @@ void ParticleManager::CreateShipExplosion(Vector3 position,TEAM team) {
     sphereParticle->position = position;
     sphereParticle->speed = 0;
     sphereParticle->maxLifeTime = 1.0f;
-    sphereParticle->size = 2;
+    sphereParticle->size = 3;
     sphereParticle->particleType = ParticleType::Sphere;
     sphereParticle->scaleTargetOverTime = 10.5f;
     sphereParticle->tint = PALETTE_YELLOW2;
+    sphereParticle->fadeTintDownOverTime = true;
+    InitDefaults(sphereParticle);
+}
+
+
+void ParticleManager::CreateShipSpawnFX(Vector3 position,TEAM team) {
+
+    //Team based color
+    Color tint = PALETTE_GRAY4;
+    switch (team) {
+        case TEAM_ALLY:
+            tint = PALETTE_GREEN2;
+            break;
+        case TEAM_ENEMY:
+            tint = PALETTE_RED2;
+            break;
+        case TEAM_PLAYER:
+            tint = PALETTE_BLUE2;
+            break;
+        default:
+            tint = PALETTE_GRAY4;
+            break;
+    }
+
+    //Lines
+    for (int i = 0; i < 30; ++i) {
+        Particle* newParticle = CreateParticle();
+        newParticle->position = Vector3Add(position, Vector3Scale(Utility::GetRandomDirection(),10.0f));
+        newParticle->speed = GetRandomValue(30,90);
+        newParticle->direction = Vector3Normalize(Vector3Subtract(position,newParticle->position));
+        newParticle->maxLifeTime = GetRandomValue(40,110) * 0.01f;
+        newParticle->size = 60;
+        newParticle->stopOverTime = true;
+        newParticle->particleType = ParticleType::Line;
+        Color targetTint = tint;
+        newParticle->tint = targetTint;
+        InitDefaults(newParticle);
+    }
+
+    //Sphere Particle
+    Particle* sphereParticle = CreateParticle();
+    sphereParticle->position = position;
+    sphereParticle->speed = 0;
+    sphereParticle->maxLifeTime = 1.0f;
+    sphereParticle->size = 10;
+    sphereParticle->particleType = ParticleType::Sphere;
+    sphereParticle->scaleTargetOverTime = 3.0f;
+    sphereParticle->tint = tint;
     sphereParticle->fadeTintDownOverTime = true;
     InitDefaults(sphereParticle);
 }

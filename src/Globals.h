@@ -20,8 +20,11 @@
 
 #define STAT_HEALTH_FIGHTER 25
 #define STAT_HEALTH_PLAYER 99999
+#define STAT_SHOOT_COOLDOWN_FIGHTER 0.15
+#define STAT_SHOOT_COOLDOWN_PLAYER 0.05
 
-#define GAME_SHOP_WAIT_TIME 30.0f
+#define GAME_SHOP_WAIT_TIME 10.0f
+#define MAP_ASTEROID_COUNT 100
 
 
 static const int DefaultScreenWidth = 1280;
@@ -31,6 +34,9 @@ static const int RenderHeight = 360;
 static const float MapSizeX = 300;
 static const float MapSizeY = 300;
 static const float MapSizeZ = 300;
+static const float AbsoluteMapLimitX = 500;
+static const float AbsoluteMapLimitY = 500;
+static const float AbsoluteMapLimitZ = 500;
 
 const bool DEBUG_SHOW_COLLISION_AREA = false;
 const bool DEBUG_SHOW_SHOOT_RANGE = false;
@@ -79,6 +85,9 @@ public:
     //TODO: Implement a function that takes UP vector so it doesn't cause unnecessary rolls
     static Quaternion LookAt(Vector3 sourcePoint, Vector3 destPoint)
     {
+        if(Vector3Equals(sourcePoint,destPoint))
+            return QuaternionIdentity();
+
         Vector3 forwardVector = Vector3Normalize(Vector3Subtract(destPoint , sourcePoint));
 
         float dot = Vector3DotProduct(VECTOR3_FORWARD, forwardVector);
@@ -110,6 +119,11 @@ public:
     static bool IsInsideMapArea(Vector3 position)
     {
         return (position.x < MapSizeX && position.x > -MapSizeX && position.y < MapSizeY && position.y > -MapSizeY && position.z < MapSizeZ && position.z > -MapSizeZ);
+    }
+
+    static bool IsOutOfAbsoluteMapArea(Vector3 position)
+    {
+        return (position.x > AbsoluteMapLimitX || position.x < -AbsoluteMapLimitX || position.y > AbsoluteMapLimitY || position.y < -AbsoluteMapLimitY || position.z > AbsoluteMapLimitZ || position.z < -AbsoluteMapLimitZ);
     }
 
 };

@@ -8,6 +8,9 @@ void GameObject::Update(float deltaTime) {
 
     if (!enabled)
         return;
+/*
+    if(myTeam == TEAM_ENEMY)
+        DrawLine3D(Position,Vector3Zero(),RED);*/
 
 
     Vector3 frameVelocity = Vector3Scale(currentVelocity, deltaTime * 100);
@@ -27,8 +30,13 @@ void ConvertMeshToWires(Mesh targetMesh,Vector3 centerPos, float radius, Color c
 
 void GameObject::Render(float deltaTime) {
 
-    if(!enabled)
+
+
+    if(!enabled) {
+        cout << "DISABLED" << endl;
         return;
+    }
+
 
     Color modelColor = myColor;
     Vector3 modelScale = Scale;
@@ -84,6 +92,7 @@ GameObject::GameObject() {
     LastHurtTime = -999;
     enabled = true;
     GridIndex = make_tuple(0,0,0);
+    tags = unordered_set<string>();
 
     SetTeam(TEAM_NEUTRAL);
 }
@@ -103,9 +112,10 @@ void GameObject::Destroy() {
         return;
 
     enabled = false;
+    health = 0;
 
-    if(myRenderType == RealMesh)
-        UnloadModel(myModel);
+/*    if(myRenderType == RealMesh)
+        UnloadModel(myModel);*/
 }
 
 TEAM GameObject::GetTeam() {
@@ -168,6 +178,10 @@ void GameObject::OnInit() {
 Vector3 GameObject::GetForward() {
     Matrix mat = QuaternionToMatrix(Rotation);
     Vector3 forward = { mat.m8, mat.m9, mat.m10 };
+
+    if(forward.x == NAN || forward.y == NAN || forward.z == NAN)
+        return VECTOR3_FORWARD;
+
     return forward;
 }
 
@@ -177,6 +191,10 @@ Vector3 GameObject::GetRight() {
 
     Matrix mat = QuaternionToMatrix(Rotation);
     Vector3 right = { mat.m0, mat.m1, mat.m2 };
+
+    if(right.x == NAN || right.y == NAN || right.z == NAN)
+        return VECTOR3_RIGHT;
+
     return right;
 }
 
@@ -187,6 +205,10 @@ Vector3 GameObject::GetUp() {
 
     Matrix mat = QuaternionToMatrix(Rotation);
     Vector3 up = { mat.m4, mat.m5, mat.m6 };
+
+    if(up.x == NAN || up.y == NAN || up.z == NAN)
+        return VECTOR3_UP;
+
     return up;
 }
 

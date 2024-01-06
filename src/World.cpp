@@ -53,43 +53,57 @@ void World::UpdateAll(float deltaTime) {
     DebugHurtClosestObject();
 
     debugPrintTimer += deltaTime;
-    for (auto gameObjectIterator = activeGameObjects.begin(); gameObjectIterator != activeGameObjects.end();) {
-/*        cout << "Updating game object " << gameObjectIterator.second->Name << endl;*/
+    for (const auto& key : activeGameObjects){
 
-        if(gameObjectIterator->second->IsEnabled() == false) {
-            ++gameObjectIterator;
+        shared_ptr<GameObject> gameObject = activeGameObjects[key.first];
+
+        if(gameObject == nullptr)
+        {
+            cout << "ERROR: NULL OBJECT IN ACTIVE OBJECTS LIST!" << endl;
+        }
+
+        //Skip disabled objects
+        if(gameObject->IsEnabled() == false) {
+            cout << "ERROR: OBJECT IS DESTROYED BUT STILL IN ACTIVE OBJECTS LIST!" << endl;
             continue;
         }
 
 
-        gameObjectIterator->second->Update(deltaTime);
-        UpdateGridForObject(shared_ptr<GameObject>(gameObjectIterator->second));
-        CheckCollision(gameObjectIterator->second.get());
-        gameObjectIterator->second->Render(deltaTime);
-        gameObjectIterator->second->LateUpdate(deltaTime);
+        gameObject->Update(deltaTime);
+        UpdateGridForObject(gameObject);
+        CheckCollision(gameObject.get());
+        gameObject->Render(deltaTime);
+        gameObject->LateUpdate(deltaTime);
 
 
-        //Cleanup objects
-        if(gameObjectIterator->second->GetHealth() <= 0)
+        //Out of bounds check
+        if(Utility::IsOutOfAbsoluteMapArea(gameObject->Position))
         {
-            gameObjectIterator->second->Destroy();
-            OnGameObjectDestroyed(gameObjectIterator->second);
-            auto eraseIterator = gameObjectIterator;
-            ++gameObjectIterator;
-            activeGameObjects.erase(eraseIterator);
-        }else
-            ++gameObjectIterator;
-
-
-        if(debugPrintTimer > 1)
-        {
-            debugPrintTimer = 0;
-            cout << "DEBUG: Object Count: "    << activeGameObjects.size()
-            << " Ally Fighters: "        << AllyFighterCount
-            << " Enemy Fighters: "      << EnemyFighterCount
-            << " GridCount:"            << Grid.size()
-            << " BulletCount: "         << DEBUG_BulletCount << endl;
+            gameObject->SetVelocity(Vector3Zero());
+            gameObject->Position = Utility::GetRandomPosInsideMap();
+            ParticleManager::GetInstance()->CreateShipSpawnFX(gameObject->Position,gameObject->GetTeam());
         }
+
+        //Cleanup destroyed objects
+        if(gameObject->GetHealth() <= 0)
+        {
+            gameObject->Destroy();
+            OnGameObjectDestroyed(gameObject);
+            activeGameObjects.erase(key.first);
+        }
+    }
+
+    //Print for debug
+    if(debugPrintTimer > 1)
+    {
+        debugPrintTimer = 0;
+        cout << " DEBUG: [ Object Count: "  << activeGameObjects.size() << " ]";
+        cout << " [ Ally Fighters: "       << AllyFighterCount << " ]";
+        cout << " [ Enemy Fighters: "      << EnemyFighterCount << " ]";
+        cout << " [ GridCount:"            << Grid.size() << " ]";
+        cout << " [ BulletCount: "         << DEBUG_BulletCount << " ]";
+        cout << " [ DestroyedObjects: "    << DEBUG_DestroyedObjectCount << " ]";
+        cout << endl;
     }
 }
 
@@ -99,21 +113,9 @@ void World::GenerateWorld() {
 
 
     //Generate Asteroids
-    for (int i = 0; i < 100; ++i) {
+    for (int i = 0; i < MAP_ASTEROID_COUNT; ++i) {
         Vector3 rndPos = Utility::GetRandomPosInsideMap();
         CreateNewAsteroid(rndPos);
-    }
-
-    //Generate Enemy ships
-    for (int i = 0; i < 0; ++i) {
-        Vector3 rndPos = Utility::GetRandomPosInsideMap();
-        CreateNewFighter(TEAM_ENEMY,rndPos);
-    }
-
-    //Genereate Ally ships
-    for (int i = 0; i < 0; ++i) {
-        Vector3 rndPos = Utility::GetRandomPosInsideMap();
-        CreateNewFighter(TEAM_ALLY,rndPos);
     }
 
     IsWorldReady = true;
@@ -168,19 +170,22 @@ shared_ptr<GameObject> World::CreateNewFighter(TEAM team, Vector3 position) {
     Model fighterModel = LoadModel(modelPath.c_str());
     newFighter->SetModel(fighterModel);
 
-    newFighter->Position = position;
-    newFighter->Scale = Vector3Scale(Vector3One(), 0.5f);
+    //newFighter->Position = position;
+/*    newFighter->Scale = Vector3Scale(Vector3One(), 0.5f);*/
     newFighter->Mass = 1;
     newFighter->CollisionSize = 2;
     newFighter->SetVelocity(Utility::GetRandomDirection());
     newFighter->SetHealth(STAT_HEALTH_FIGHTER);
+
+    //Spawn FX
+    ParticleManager::GetInstance()->CreateShipSpawnFX(position,team);
 
     InitObject(newFighter);
 
 
     if(team == TEAM_ALLY)
         AllyFighterCount++;
-    else
+    else if(team == TEAM_ENEMY)
         EnemyFighterCount++;
 
     return shared_ptr<GameObject>(newFighter);
@@ -211,16 +216,20 @@ shared_ptr<GameObject> World::CreateNewAsteroid(Vector3 position,float maxSize) 
     newAsteroid->Rotation.z = GetRandomValue(0, 360);
     newAsteroid->Mass = asteroidSize;
     InitObject(newAsteroid);
-
     newAsteroid->SetHealth(asteroidSize);
+
+    AsteroidCount++;
 
     return shared_ptr<GameObject>(newAsteroid);
 }
 
-void World::OnGameObjectDestroyed(shared_ptr<GameObject>& destroyedObject) {
+void World::OnGameObjectDestroyed(shared_ptr<GameObject> destroyedObject) {
+
+    DEBUG_DestroyedObjectCount++;
 
     if(destroyedObject->HasTag("Asteroid"))
     {
+        AsteroidCount--;
         Asteroid* destroyedAsteroid = dynamic_cast<Asteroid*>(destroyedObject.get());
 
         if(destroyedAsteroid->AsteroidSize < 25)
@@ -236,10 +245,10 @@ void World::OnGameObjectDestroyed(shared_ptr<GameObject>& destroyedObject) {
 
         Vector3 rndDirection = Utility::GetRandomDirection();
 
-        shared_ptr<GameObject> asteroid = World::GetInstance()->CreateNewAsteroid(destroyedAsteroid->Position,newAsteroidSize);
+        shared_ptr<GameObject> asteroid = CreateNewAsteroid(destroyedAsteroid->Position,newAsteroidSize);
         asteroid->SetVelocity(Vector3Scale(rndDirection, finalForce));
 
-        shared_ptr<GameObject> asteroid2 = World::GetInstance()->CreateNewAsteroid(destroyedAsteroid->Position,newAsteroidSize);
+        shared_ptr<GameObject> asteroid2 = CreateNewAsteroid(destroyedAsteroid->Position,newAsteroidSize);
         asteroid2->SetVelocity(Vector3Scale(Vector3Scale(rndDirection,-1), finalForce));
 
     }
@@ -250,7 +259,7 @@ void World::OnGameObjectDestroyed(shared_ptr<GameObject>& destroyedObject) {
 
         if(destroyedObject->GetTeam() == TEAM_ALLY)
             AllyFighterCount--;
-        else
+        else if(destroyedObject->GetTeam() == TEAM_ENEMY)
             EnemyFighterCount--;
     }
 
@@ -267,6 +276,7 @@ void World::OnGameObjectDestroyed(shared_ptr<GameObject>& destroyedObject) {
 #pragma region Collision
 void World::CheckCollision(GameObject* object) {
 
+
     if(object == nullptr)
         return;
 
@@ -275,6 +285,8 @@ void World::CheckCollision(GameObject* object) {
 
     if (Vector3LengthSqr(object->GetVelocity()) < 0.001f)
         return;
+
+
 
     CollisionGrid* objectGrid = GetGridFromRealPos(object->Position);
 
@@ -290,6 +302,8 @@ void World::CheckCollision(GameObject* object) {
         if (CheckCollisionSingle(object->Position, object->CollisionSize, otherObject->Position,otherObject->CollisionSize)) {
 
             Vector3 totalVel = Vector3Add(object->GetVelocity(), otherObject->GetVelocity());
+
+
             object->OnCollision(otherObject, totalVel);
 
             if(otherObject == nullptr)

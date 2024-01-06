@@ -44,7 +44,7 @@ private:
      float stopInertiaSpeed = 4.0f;
      float maxVelocity = 0.3f;
      float shootShakeTrauma = 0.2f;
-     float shootCooldown = 0.05f;
+     float shootCooldown = STAT_SHOOT_COOLDOWN_PLAYER;
      float shootBackwardsPush = 0.00035f;
      const float thrustFOVChange = 7.0f;
      const float shootFOVChange = -10.0f;

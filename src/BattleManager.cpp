@@ -135,6 +135,8 @@ void BattleManager::ProcessAI(shared_ptr<Fighter> fighter) {
 void BattleManager::StartBattle() {
     currentBattleState = BattleState::BattleStarted;
 
+    worldInstance->DEBUG_DestroyedObjectCount = 0;
+
     //Generate Enemy ships
     for (int i = 0; i < 50; ++i) {
         Vector3 rndPos = Utility::GetRandomPosInsideMap();
@@ -145,6 +147,13 @@ void BattleManager::StartBattle() {
     for (int i = 0; i < 50; ++i) {
         Vector3 rndPos = Utility::GetRandomPosInsideMap();
         worldInstance->CreateNewFighter(TEAM_ALLY,rndPos);
+    }
+
+    //Generate Asteroids to fill empty spaces
+    int asteroidsMissing = MAP_ASTEROID_COUNT - worldInstance->AsteroidCount;
+    for (int i = 0; i < asteroidsMissing; ++i) {
+        Vector3 rndPos = Utility::GetRandomPosInsideMap();
+        worldInstance->CreateNewAsteroid(rndPos);
     }
 }
 

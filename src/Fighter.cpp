@@ -8,7 +8,12 @@
 
 void Fighter::Update(float deltaTime) {
 
+
+
+
     GameObject::Update(deltaTime);
+
+
 
 /*
     Vector3 forward = GetForward();
@@ -28,6 +33,7 @@ void Fighter::Update(float deltaTime) {
 
 
 
+    //Change targets
     selectTargetTimer += deltaTime;
     float changeTargetTimerRatio = selectTargetTimer / ChangeTargetCooldown;
     if(selectTargetTimer > ChangeTargetCooldown)
@@ -35,9 +41,21 @@ void Fighter::Update(float deltaTime) {
         sameTargetRotateSpeedBonus = 1;
         selectTargetTimer = 0;
         LookForTargets();
-        return;
     }
 
+    //Making sure the action is happening inside the map
+    if(Utility::IsInsideMapArea(Position) == false)
+    {
+        if(CurrentAIState == AttackTarget)
+        {
+            selectTargetTimer = GetRandomValue(0,ChangeTargetCooldown * 50) * 0.01f;
+        }
+
+        SetMoveTarget((Vector3){0,100,0});
+    }
+
+    if(CurrentAIState == Idle || CurrentAIState == FindTarget)
+        currentVelocity = Vector3Lerp(currentVelocity, Vector3Zero(), deltaTime * 0.1f);
 
     if(CurrentAIState == AttackTarget) {
         if (target == nullptr || target->GetHealth() <= 0) {
@@ -45,19 +63,11 @@ void Fighter::Update(float deltaTime) {
             return;
         }
 
-        //DrawLine3D(Position, target->Position, RED);
         Vector3 predictedPos = target->Position;
         //This is highly dependent on bullet speed
         predictedPos = Vector3Add(predictedPos, Vector3Scale(target->GetVelocity(), 100.0f));
         targetPos = predictedPos;
-
-/*        targetPos = target->Position;*/
-
-        //DrawSphereWires(predictedPos, 1, 6, 6, PURPLE);
-
-
     }
-
 
 
     if(CurrentAIState == MoveTarget)
@@ -76,8 +86,10 @@ void Fighter::Update(float deltaTime) {
     else
         sameTargetRotateSpeedBonus = 1;
 
-    currentVelocity = Vector3ClampValue(currentVelocity, -MaxVelocity, MaxVelocity);
+    if(sameTargetRotateSpeedBonus < 1.0f)
+        sameTargetRotateSpeedBonus = 1.0f;
 
+    currentVelocity = Vector3ClampValue(currentVelocity, -MaxVelocity, MaxVelocity);
     smoothRot = QuaternionSlerp(smoothRot, lookRot, deltaTime * currentRotateSpeed * sameTargetRotateSpeedBonus);
     Rotation = smoothRot;
 
@@ -93,7 +105,7 @@ void Fighter::Destroy() {
     ParticleManager::GetInstance()->CreateShipExplosion(Position,myTeam);
 }
 
-Fighter::Fighter(TEAM team, Vector3 position) : GameObject() {
+Fighter::Fighter(TEAM team, Vector3 position)  {
 
     myTeam = team;
 
@@ -105,6 +117,13 @@ Fighter::Fighter(TEAM team, Vector3 position) : GameObject() {
     Position = position;
     LookForTargets();
     selectTargetTimer = GetRandomValue(0,ChangeTargetCooldown * 100) * 0.01f;
+    Scale = Vector3Scale(Vector3One(), 0.5f);
+    lookRot = QuaternionIdentity();
+    smoothRot = QuaternionIdentity();
+
+    CurrentAIState = FindTarget;
+    shootTimer = 0;
+    shootCanonIndex = 0;
 
 }
 
@@ -125,7 +144,6 @@ void Fighter::Render(float deltaTime) {
 void Fighter::OnInit() {
     GameObject::OnInit();
 
-    currentVelocity = Vector3Scale(Utility::GetRandomDirection(),0.001f);
     CollisionSize = 3.0f;
     CanCollide = false;
     currentRotateSpeed = (float)GetRandomValue(RotateSpeedMin * 100.0f,RotateSpeedMax * 100.0f) * 0.01f;
@@ -157,25 +175,26 @@ void Fighter::SetMoveTarget(Vector3 position) {
 
 void Fighter::ProcessMoveTarget(float deltaTime,Vector3 targetPos) {
 
-
-
     //Shoot System
     if (CurrentAIState == AttackTarget) {
         ProcessShoot(deltaTime, targetPos);
     }
 
-    //Making sure the action is happening inside the map
-    if(Utility::IsInsideMapArea(Position) == false)
-    {
-        if(CurrentAIState == AttackTarget)
-        {
-            selectTargetTimer = GetRandomValue(0,ChangeTargetCooldown * 50) * 0.01f;
-        }
-
-        SetMoveTarget((Vector3){0,100,0});
-    }
+    if(Vector3Equals(Position,targetPos))
+        return;
 
     lookRot = Utility::LookAt(Position, targetPos);
+
+    if(lookRot.x == NAN) {
+        cout << "ERROR: NAN ROTATION DETECTED! " << endl;
+        cout << " RAW OBJECT DATA: " << lookRot.x << " " << lookRot.y << " " << lookRot.z << " " << lookRot.w << endl;
+        cout << " POS: " << Position.x << " " << Position.y << " " << Position.z << ", TARGET POS:" << targetPos.x
+             << " " << targetPos.y << " " << targetPos.z << endl;
+        cout << "FIXING NAN.." << endl;
+        lookRot = QuaternionIdentity();
+    }
+
+
     Vector3 thrust = Vector3Scale(GetForward(), ThrustSpeed * deltaTime);
     currentVelocity = Vector3Add(currentVelocity, thrust);
 }

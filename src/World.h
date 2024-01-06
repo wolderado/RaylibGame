@@ -16,6 +16,7 @@
 #include "Fighter.h"
 #include "Player.h"
 #include "CollisionGrid.h"
+#include "ParticleManager.h"
 
 
 
@@ -45,8 +46,10 @@ public:
 
     int AllyFighterCount = 0;
     int EnemyFighterCount = 0;
+    int AsteroidCount = 0;
     bool IsWorldReady = false;
     int DEBUG_BulletCount = 0;
+    int DEBUG_DestroyedObjectCount = 0;
 
 
     map<tuple<int,int,int>,CollisionGrid> Grid;
@@ -58,7 +61,7 @@ private:
 
     void DebugHurtClosestObject();
     void UpdateGridForObject(shared_ptr<GameObject> object);
-    void OnGameObjectDestroyed(shared_ptr<GameObject>& destroyedObject);
+    void OnGameObjectDestroyed(shared_ptr<GameObject> destroyedObject);
 
 };
 
