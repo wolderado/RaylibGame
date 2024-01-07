@@ -27,6 +27,8 @@ public:
     void SetWaitTimerState(bool value) { waitTimerActive = value; }
     bool GetWaitTimerState() { return waitTimerActive; }
     int GetCurrentWave() { return currentWave; };
+    Event<void> OnBattleStart;
+    Event<void> OnBattleEnd;
 
     float AllyFighterBought = 0;
 

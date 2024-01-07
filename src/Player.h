@@ -13,6 +13,7 @@
 #include "GameObject.h"
 #include "BulletManager.h"
 #include "Event.h"
+#include "SoundManager.h"
 
 
 using namespace std;
@@ -62,7 +63,7 @@ private:
     const float maxVelocity = 0.3f;
     const float shootShakeTrauma = 0.2f;
     const float shootCooldown = STAT_SHOOT_COOLDOWN_PLAYER;
-    const float shootBackwardsPush = 0.00035f;
+    const float shootBackwardsPush = 0.0002f;
     const float thrustFOVChange = 7.0f;
     const float shootFOVChange = -10.0f;
     const float defaultFOV = 60.0f;
@@ -88,6 +89,9 @@ private:
     int totalScrap = 0;
     bool canRotate = true;
     bool canMove = true;
+    int shootSoundPlayCounter = 0;
+    int shootPanCounter = 0;
+    bool wasPlayingThrustSound = false;
 
 
     void ProcessInput(float deltaTime);

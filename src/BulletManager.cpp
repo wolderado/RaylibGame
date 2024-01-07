@@ -101,6 +101,14 @@ void BulletManager::BulletHit(int index, GameObject*  target) {
 
     target->Hurt(activeBullets[index].damage);
 
+    if(activeBullets[index].sourceTeam == TEAM_PLAYER) {
+        SoundManager::PlaySound2DRandomized("Bullet_Hit", 0.4f, 0.3f);
+    }
+
+
+
+
+
     if(activeBullets[index].sourceTeam == TEAM_PLAYER)
         target->ShowHealthBar = true;
 

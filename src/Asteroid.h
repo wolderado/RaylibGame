@@ -15,9 +15,9 @@ public:
     void Destroy() override;
     float AsteroidSize = 1;
 private:
-    Vector3 rndAxis;
-    float rndAngle;
-    float rotateSpeed;
+    Vector3 rndAxis = {0,0,0};
+    float rndAngle = 0;
+    float rotateSpeed = 0;
     float disableCollisionTimer = 2.0f;
 
 };

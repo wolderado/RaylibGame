@@ -17,6 +17,7 @@
 #include "Globals.h"
 #include "Color.h"
 #include "Renderer.h"
+#include "SoundManager.h"
 
 
 

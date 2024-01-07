@@ -155,7 +155,8 @@ void BattleManager::StartBattle() {
 /*    cout << "Wave started! Enemy count: " << enemyCount << " Enemy health: " << enemyHealth << endl;*/
 
     //Generate Ally ships
-    for (int i = 0; i < AllyFighterBought; ++i) {
+    int missingShips = AllyFighterBought - worldInstance->AllyFighterCount;
+    for (int i = 0; i < missingShips; ++i) {
         Vector3 rndPos = Utility::GetRandomPosInsideMap();
         worldInstance->CreateNewFighter(TEAM_ALLY,rndPos);
     }
@@ -166,6 +167,8 @@ void BattleManager::StartBattle() {
         Vector3 rndPos = Utility::GetRandomPosInsideMap();
         worldInstance->CreateNewAsteroid(rndPos);
     }
+
+    OnBattleStart.Invoke();
 }
 
 void BattleManager::EndBattle() {
@@ -177,7 +180,9 @@ void BattleManager::EndBattle() {
     for (auto& pair : worldInstance->activeGameObjects) {
         if(pair.second->GetHealth() > 0 && pair.second->HasTag("Fighter") && pair.second->GetTeam() == TEAM_ALLY)
         {
-            pair.second->Hurt(99999);
+            pair.second->Heal(9999);
         }
     }
+
+    OnBattleEnd.Invoke();
 }

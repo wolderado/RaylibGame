@@ -80,6 +80,7 @@ int main(void)
 #endif
 
     InitWindow(DefaultScreenWidth, DefaultScreenHeight, "AstroBlast 3D");
+    InitAudioDevice();
 
     //Divider
     std::cout << "---------------------------------------" << "\n";
@@ -92,6 +93,7 @@ int main(void)
     battleManager = BattleManager::GetInstance();
     SoundManager::LoadSounds();
 
+
     //Init world first
     world->GenerateWorld();
 
@@ -102,6 +104,7 @@ int main(void)
     world->InitObject(player);
 
     //Init
+    SoundManager::Init(player->GetCamera());
     renderer->InitRenderer(player->GetCamera());
     hud.Init(player);
     bulletManager->Init();
@@ -136,6 +139,7 @@ int main(void)
     //--------------------------------------------------------------------------------------
     renderer->Unload();
     UnloadRenderTexture(target);
+    SoundManager::Unload();
     
     // TODO: Unload all loaded resources at this point
 
@@ -170,14 +174,11 @@ void UpdateDrawFrame(void)
             world->ResumeWorld();
     }
 
-/*    if(isGamePaused)
+    //Fullscreen
+    if(IsKeyPressed(KEY_F))
     {
-        if(IsKeyPressed(KEY_ESCAPE))
-        {
-            battleManager->SetWaitTimerState(false);
-            battleManager->SetWaitTimerState(true);
-        }
-    }*/
+        ToggleFullscreen();
+    }
 
     // Draw
     //----------------------------------------------------------------------------------
@@ -192,6 +193,7 @@ void UpdateDrawFrame(void)
             battleManager->UpdateAI(deltaTime);
             renderer->Update(deltaTime);
 
+
             //Billboard Renders
             renderer->BeginAlphaCutoff();
                 bulletManager->UpdateAndRender(deltaTime);
@@ -200,6 +202,8 @@ void UpdateDrawFrame(void)
         EndMode3D();
     EndTextureMode();
 
+    //Update sounds
+    SoundManager::Update(deltaTime,isGamePaused);
 
     //HUD Camera Render
     BeginTextureMode(targetHUD);

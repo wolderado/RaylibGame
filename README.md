@@ -1,4 +1,4 @@
-## $(Game Title)
+## AstroBlast 3D
 
 ![$(Game Title)](screenshots/screenshot000.png "$(Game Title)")
 
@@ -6,9 +6,9 @@
 
 $(Your Game Description)
 
-### Features
+### Game Features
 
- - $(Game Feature 01)
+ - Epic 3D Space Battles
  - $(Game Feature 02)
  - $(Game Feature 03)
  
@@ -24,9 +24,10 @@ $(Your Game Description)
  - Responsive UI
  - Smooth LODs
  - Event System (Observer Pattern)
- - Alpha Clip Shader
  - Game Time Management
+ - Sound Management with 3D sounds
  - First-Person Player Camera
+ - Alpha Clip Shader
  - Windows & Web Ports
  
  
@@ -44,9 +45,15 @@ _TODO: Show your game to the world, animated GIFs recommended!._
 
 ### Developers
 
- - $(Developer 01) - $(Role/Tasks Developed)
- - $(Developer 02) - $(Role/Tasks Developed)
- - $(Developer 03) - $(Role/Tasks Developed)
+ - wolderado (Salih Ünal)
+ 
+### Tools Used
+
+ - Raylib
+ - Clion
+ - GitHub
+ - ChipTone (for SFX)
+ - Aseprite
 
 ### Links
 

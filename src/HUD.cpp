@@ -20,6 +20,9 @@ void HUD::Init(shared_ptr<Player> targetPlayer)
     store.OnStoreClose.AddListener(std::bind(&HUD::StoreCloseAnimFinished, this));
     store.OnBuyItem.AddListener(std::bind(&HUD::PlayerBuyAnim, this, std::placeholders::_1));
 
+    BattleManager::GetInstance()->OnBattleStart.AddListener(std::bind(&HUD::BattleStarted, this));
+    BattleManager::GetInstance()->OnBattleEnd.AddListener(std::bind(&HUD::BattleEnded, this));
+
     currentTutorialStage = TutorialStages::StageBasics;
     BattleManager::GetInstance()->SetWaitTimerState(false);
     fadeInTimer = 0;
@@ -68,18 +71,35 @@ void HUD::Render(float deltaTime)
             CloseStoreScreen();
     }
 
+    ProcessTutorial(deltaTime);
+
     //Store panel
     if(store.IsStoreActive) {
         DrawStoreScreen(deltaTime);
     }
 
 
-
     //Scrap Panel
     DrawScrapPanel(deltaTime);
 
-    ProcessTutorial(deltaTime);
+    //Wave Flash
+    if(BattleManager::GetInstance()->GetBattleState() == BattleState::BattleStarted)
+    {
+        //Wave start flash
+        waveTimer += deltaTime * 2.0f;
+        float t = Utility::Clamp01(waveTimer / 1.0f);
+        Color waveColor = Utility::GetColorWithCustomAlpha(PALETTE_RED2,200 * (1.0f - t));
+        DrawRectangle(0,0,GetScreenWidth(),GetScreenHeight(),waveColor);
+    }else
+    {
+        //Wave victory flash
+        waveTimer += deltaTime * 2.0f;
+        float t = Utility::Clamp01(waveTimer / 1.0f);
+        Color waveColor = Utility::GetColorWithCustomAlpha(PALETTE_GREEN1,200 * (1.0f - t));
+        DrawRectangle(0,0,GetScreenWidth(),GetScreenHeight(),waveColor);
+    }
 
+    //Pause Screen
     DrawPauseScreen(deltaTime);
 
     //Lose screen
@@ -105,6 +125,10 @@ void HUD::DrawTopText(float deltaTime) {
             stringstream stream;
             stream << std::fixed << std::setprecision(1) << BattleManager::GetInstance()->GetWaitTimer() << "s";
             DrawTextMiddleAligned(stream.str().c_str(), 40, PALETTE_GRAY1, 0.5f, 0.2f);
+
+            float diff = GAME_SHOP_WAIT_TIME - BattleManager::GetInstance()->GetWaitTimer();
+            if(diff < 4.0f && BattleManager::GetInstance()->GetCurrentWave() > 1)
+                DrawTextMiddleAligned(STR_WAVE_VICTORY, 40, PALETTE_GREEN1, 0.5f, 0.4f);
         }
         else if (BattleManager::GetInstance()->GetBattleState() == BattleState::BattleStarted)
         {
@@ -161,7 +185,6 @@ void HUD::DrawGuns(float deltaTime) {
         return;
     }
 
-
     Vector3 sway = player->GetSwayInput();
     smoothSway = Vector3Lerp(smoothSway,sway,swaySpeed * deltaTime);
 
@@ -178,8 +201,6 @@ void HUD::DrawGuns(float deltaTime) {
     gunRotationLeft = Vector3Add(gunRotationLeft,angleSway);
     Renderer::GetInstance()->RenderModelWithWires(playerGunModel,weaponLeftPos, gunRotationLeft,Vector3One(),PALETTE_BLUE2, true);
     Renderer::GetInstance()->RenderModelWithWires(playerGunMuzzleModel,Vector3Add(weaponLeftPos,leftGunShootOffset), gunRotationLeft,Vector3One(),PALETTE_BLUE2, true);
-
-
 
 
     //Right Gun
@@ -202,9 +223,6 @@ void HUD::GunShoot(int cannonID) {
         rightGunShootOffset = (Vector3){0,0,shootCannonOffsetAmount};
     else if(cannonID == 1)
         leftGunShootOffset = (Vector3){0,0,shootCannonOffsetAmount};
-
-
-
 }
 
 tuple<int, int> HUD::GetMiddleAlignedTextPosition(string text, int fontSize) {
@@ -350,9 +368,9 @@ void HUD::DrawPlayerHealthBar(float deltaTime) {
 
 
     //Hurt FX text
-    if(IsKeyPressed(KEY_P)) {
+/*    if(IsKeyPressed(KEY_P)) {
         Player::GetInstance()->Hurt(50);
-    }
+    }*/
 
     auto [x, y,w,h] = GetAlignPositionRectangleScreen(0.2f,0.92f,0.8f,0.98f);
     int health = player->GetHealth();
@@ -432,10 +450,13 @@ void HUD::OpenStoreScreen() {
     player->SetCanRotate(false);
     store.OpenStore();
     BattleManager::GetInstance()->SetWaitTimerState(false);
+
+    SoundManager::PlaySound2D("StoreOpen");
 }
 
 void HUD::CloseStoreScreen() {
 
+    SoundManager::PlaySound2D("StoreClose");
     store.CloseStore();
 }
 
@@ -466,6 +487,8 @@ void HUD::PlayerBuyAnim(int itemIndex) {
     }
 
     PlayScrapGainAnim(0);
+
+    SoundManager::PlaySound2D("StoreBuy");
 }
 
 
@@ -473,6 +496,8 @@ void HUD::PlayerDied() {
 
     isLoseScreenActive = true;
     BattleManager::GetInstance()->SetWaitTimerState(false);
+
+    SoundManager::PlaySound2D("GameLose");
 }
 
 void HUD::DrawLoseScreen(float deltaTime) {
@@ -548,6 +573,7 @@ void HUD::DrawLoseScreen(float deltaTime) {
 
 }
 
+
 void HUD::ProcessTutorial(float deltaTime) {
 
     if(currentTutorialStage == TutorialStages::StageFinished)
@@ -568,8 +594,7 @@ void HUD::ProcessTutorial(float deltaTime) {
         if(IsKeyDown(KEY_UP) || IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_RIGHT)) {
             tutorialLookTimer += deltaTime;
             if (tutorialLookTimer > 1.0f) {
-                currentTutorialStage = TutorialStages::StageThrust;
-                newTutorialTimer = 0;
+                ChangeTutorialStageTo(TutorialStages::StageThrust);
             }
         }
     }
@@ -580,10 +605,11 @@ void HUD::ProcessTutorial(float deltaTime) {
         DrawTextMiddleAligned(STR_TUTORIAL_THRUST, 40, tutorialTextTint, 0.5f, 0.1f);
         DrawTextMiddleAligned(STR_TUTORIAL_THRUST2, 40, tutorialTextTint, 0.5f, 0.2f);
 
-        if(player->GetVelocityRatioToMaxValue() > 0.9f)
+        if(player->GetVelocityRatioToMaxValue() > 0.6f)
         {
-            newTutorialTimer = 0;
-            currentTutorialStage = TutorialStages::StageShoot;
+            tutorialThrustTimer+=deltaTime;
+            if(tutorialThrustTimer > 3.0f)
+                ChangeTutorialStageTo(TutorialStages::StageShoot);
         }
     }
 
@@ -595,8 +621,7 @@ void HUD::ProcessTutorial(float deltaTime) {
         if(World::GetInstance()->ActiveBulletCount > 10) {
             tutorialShootTimer += deltaTime;
             if (tutorialShootTimer > 1.0f) {
-                newTutorialTimer = 0;
-                currentTutorialStage = TutorialStages::StageScrap;
+                ChangeTutorialStageTo(TutorialStages::StageScrap);
             }
         }
     }
@@ -608,8 +633,7 @@ void HUD::ProcessTutorial(float deltaTime) {
 
         if(player->GetScrap() > 150)
         {
-            newTutorialTimer = 0;
-            currentTutorialStage = TutorialStages::StageStore;
+            ChangeTutorialStageTo(TutorialStages::StageStore);
         }
     }
 
@@ -627,8 +651,7 @@ void HUD::ProcessTutorial(float deltaTime) {
 
         if(tutorialStoreOpened && store.IsStoreActive == false)
         {
-            newTutorialTimer = 0;
-            currentTutorialStage = TutorialStages::StageWaves;
+            ChangeTutorialStageTo(TutorialStages::StageWaves);
             BattleManager::GetInstance()->SetWaitTimerState(true);
         }
     }
@@ -649,7 +672,7 @@ void HUD::ProcessTutorial(float deltaTime) {
 
 
     //If player tries to cheat
-    if(player->GetScrap() > 600 || (currentTutorialStage < TutorialStages::StageStore && store.IsStoreActive))
+    if(player->GetScrap() > 700 || (currentTutorialStage < TutorialStages::StageStore && store.IsStoreActive))
     {
         BattleManager::GetInstance()->SetWaitTimerState(true);
         currentTutorialStage = TutorialStages::StageFinished;
@@ -670,4 +693,22 @@ void HUD::DrawPauseScreen(float deltaTime) {
 void HUD::ChangePauseState(bool newState) {
 
     isGamePaused = newState;
+}
+
+void HUD::ChangeTutorialStageTo(TutorialStages newStage) {
+
+    currentTutorialStage = newStage;
+    newTutorialTimer = 0;
+    SoundManager::PlaySound2D("Tutorial_Pop");
+}
+
+void HUD::BattleStarted() {
+    waveTimer = 0;
+    SoundManager::PlaySound2D("WaveStart");
+}
+
+void HUD::BattleEnded() {
+    waveTimer = 0;
+    SoundManager::PlaySound2D("WaveVictory");
+
 }

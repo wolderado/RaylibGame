@@ -71,6 +71,9 @@ void GameObject::Hurt(float damage) {
     if(health <= 0)
     {
         health = 0;
+
+        if(tags.find("Asteroid") != tags.end() || tags.find("Fighter") != tags.end())
+            SoundManager::PlaySound3D("Explosion",Position);
     }
 }
 

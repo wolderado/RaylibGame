@@ -49,7 +49,7 @@ const float STAT_UPGRADE_PER_LEVEL_DAMAGE = 0.15f;
 const float STAT_UPGRADE_PER_LEVEL_HEALTH = 0.25f;
 const float STAT_UPGRADE_PER_LEVEL_SPEED = 0.25f;
 
-const int EnemyCountIncreasePerWave = 5;
+const int EnemyCountIncreasePerWave = 8;
 const float EnemyHealthIncreasePerWave = 1.05f;
 
 const bool DEBUG_PRINT_WORLD_OBJECTS = false;

@@ -19,6 +19,7 @@
 #include "World.h"
 #include "BattleManager.h"
 #include "Store.h"
+#include "SoundManager.h"
 
 
 const bool DEBUG_SHOW_GIZMO = false;
@@ -67,7 +68,7 @@ private:
     const float healthChangeSpeed = 7.0f;
     //Text Shadow Offset
     const int bckTextYOffset = 4;
-    const float loseScreenAnimDuration = 3.0f;
+    const float loseScreenAnimDuration = 1.5f;
     const Color loseScreenFadeColor = PALETTE_PURPLE5;
 
     shared_ptr<Player> player;
@@ -104,6 +105,7 @@ private:
     float tutorialLookTimer = 0;
     float tutorialThrustTimer = 0;
     bool isGamePaused = false;
+    float waveTimer = 9999;
 
     void DrawGuns(float deltaTime);
     void DrawScrapPanel(float deltaTime);
@@ -127,6 +129,9 @@ private:
     void DrawLoseScreen(float deltaTime);
     void PlayerDied();
     void ProcessTutorial(float deltaTime);
+    void ChangeTutorialStageTo(TutorialStages newStage);
+    void BattleStarted();
+    void BattleEnded();
 
 
 
@@ -135,11 +140,12 @@ private:
     string STR_WAVE_NAME = "Wave ";
     string STR_WAVE_NAME_PLURAL = "Waves";
     string STR_WAVE_STARTING = " is coming in: ";
+    string STR_WAVE_VICTORY = "Victory!";
     string STR_ENEMY_COUNT = "Enemy left: ";
     string STR_TUTORIAL_STORE = "Press B to Open Store";
     string STR_LOSE_SCREEN_TITLE = "Game Over";
     string STR_LOSE_SCREEN_SURVIVED_FOR = "Survived For";
-    string STR_LOSE_SCREEN_QUIT_KEY = "Press ESC to Quit";
+    string STR_LOSE_SCREEN_QUIT_KEY = "Press F4 to Quit";
     string STR_LOSE_SCREEN_QUIT_KEY_WEB = "Press F5 to Restart";
     string STR_GAME_NAME = "AstroBlast 3D";
     string STR_CREDITS = "Made by Wolderado";
@@ -152,8 +158,8 @@ private:
     string STR_TUTORIAL_THRUST = "Left Shift to thrust";
     string STR_TUTORIAL_THRUST2 = "Left CTRL to stop";
     string STR_TUTORIAL_SHOOT = "Space to Shoot";
-    string STR_TUTORIAL_SCRAP = "Destroy Asteroids to Get Scrap";
-    string STR_TUTORIAL_STORE_HOWTO1 = "Spend Your Scraps at the Store";
+    string STR_TUTORIAL_SCRAP = "Destroy Asteroids to Get Scraps";
+    string STR_TUTORIAL_STORE_HOWTO1 = "Upgrade at The Store Using Scraps";
     string STR_TUTORIAL_STORE_HOWTO2 = "Press B to Open Store";
     string STR_TUTORIAL_WAVES1 = "They're coming!";
     string STR_TUTORIAL_WAVES2 = "Survive as long as you can!";

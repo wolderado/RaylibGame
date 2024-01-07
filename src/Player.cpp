@@ -50,6 +50,7 @@ void Player::Update(float deltaTime) {
     ProcessCamera(deltaTime);
 
 
+
     GameObject::Update(deltaTime);
 }
 
@@ -168,11 +169,13 @@ void Player::ProcessThrust(float deltaTime) {
     float accT = GetVelocityRatioToMaxValue();
     accT = accT * accT * accT;
     float acceleratePower = Lerp(thrustChangeSpeedMin, thrustChangeSpeedMax, accT);
+    bool holdingThrustKey = false;
 
 
     thrust = 0;
     if (IsKeyDown(KEY_LEFT_SHIFT)) {
         thrust += acceleratePower * deltaTime;
+        holdingThrustKey = true;
 
         if(trauma < thrustShakeTrauma)
             trauma = thrustShakeTrauma;
@@ -181,6 +184,23 @@ void Player::ProcessThrust(float deltaTime) {
     if (IsKeyDown(KEY_LEFT_CONTROL) || canMove == false) {
         thrust = 0;
         currentVelocity = Vector3Lerp(currentVelocity, Vector3Zero(), stopInertiaSpeed * deltaTime);
+    }
+
+    if(holdingThrustKey)
+    {
+        if(wasPlayingThrustSound == false)
+        {
+            SoundManager::PlaySoundLooped("Loop_Thrust");
+            wasPlayingThrustSound = true;
+        }
+    }
+    else
+    {
+        if(wasPlayingThrustSound == true)
+        {
+            SoundManager::StopSoundLooped("Loop_Thrust");
+            wasPlayingThrustSound = false;
+        }
     }
 
     smoothThrust = Lerp(smoothThrust, thrust, deltaTime * 10.0f);
@@ -254,6 +274,8 @@ void Player::OnCollision(GameObject *otherObject, Vector3 collisionTotalVelocity
     float collisionForce = Vector3Length(collisionTotalVelocity);
     float shakeForce = collisionForce / maxVelocity;
     ShakeCamera(shakeForce);
+
+    SoundManager::PlaySound2D("Collide_Player");
 }
 
 void Player::ProcessShoot(float deltaTime) {
@@ -268,6 +290,20 @@ void Player::ProcessShoot(float deltaTime) {
         shootTimer += deltaTime;
         if (shootTimer < shootCooldown)
             return;
+
+        shootSoundPlayCounter++;
+        if(shootSoundPlayCounter > 1)
+        {
+            shootSoundPlayCounter = 0;
+
+            shootPanCounter++;
+            if(shootPanCounter > 1)
+                shootPanCounter = 0;
+
+            SoundManager::PlaySound2DRandomized("Shoot_Player",0.1f,0.2f, shootPanCounter == 0 ? 0.7f : 0.4f);
+        }
+
+
 
         //Shoot
         shootTimer = 0;
@@ -308,7 +344,7 @@ void Player::ProcessShoot(float deltaTime) {
         BulletManager::GetInstance()->CreateBullet(globalShootPosition, shootDirection,playerDamage, 0, TEAM_PLAYER);
 
         //Push back
-        //currentVelocity = Vector3Add(currentVelocity, Vector3Scale(shootDirection, -shootBackwardsPush));
+        currentVelocity = Vector3Add(currentVelocity, Vector3Scale(shootDirection, -shootBackwardsPush));
 
         //Particle
         //cout << shootPosition.x << " " << shootPosition.y << " " << shootPosition.z << endl;
@@ -341,6 +377,9 @@ Player *Player::GetInstance() {
 void Player::AddScrap(int amount) {
     totalScrap += amount;
 
+    if(amount > 0)
+        SoundManager::PlaySound2DRandomized("Collect_Scrap",0.3f,0.2f);
+
     Vector3 particlePos = Vector3Add(GetCollectPosition(),Vector3Scale(GetCameraForward(&playerCamera),5.0f));
     particlePos = Vector3Add(particlePos,Vector3Scale(GetCameraUp(&playerCamera),1.0f));
     ParticleManager::GetInstance()->CreateCollectFX(particlePos, GetCameraForward(&playerCamera),PALETTE_PURPLE2);
@@ -359,7 +398,7 @@ void Player::Hurt(float damage) {
         return;
 
     damage = damage * STAT_HEALTH_PLAYER_DAMAGE_REDUCTION;
-
+    SoundManager::PlaySound2DRandomized("Hurt_Player",0.4f,0.2f);
 
     if(trauma < 0.4f)
         ShakeCamera(0.2f);
@@ -375,7 +414,6 @@ void Player::Hurt(float damage) {
 
 }
 
-
 void Player::UpgradeStat(PLAYER_UPGRADE_TYPE upgradeType){
 
     switch (upgradeType)
@@ -384,14 +422,13 @@ void Player::UpgradeStat(PLAYER_UPGRADE_TYPE upgradeType){
             upgradedDamage += STAT_UPGRADE_PER_LEVEL_DAMAGE * STAT_BULLET_DAMAGE_PLAYER;
             break;
         case PLAYER_UPGRADE_TYPE::Health: {
+            //Upgrade health but keep the health percentage the same
             upgradedHealth += STAT_UPGRADE_PER_LEVEL_HEALTH * STAT_HEALTH_PLAYER;
             float healthRatio = GetHealthRatio();
             float newMaxHealth = STAT_HEALTH_PLAYER + upgradedHealth;
             float newHealth = newMaxHealth * healthRatio;
             maxHealth = newMaxHealth;
             health = newHealth;
-
-            cout << "Upgraded health " << upgradedHealth << endl;
             break;
         } case PLAYER_UPGRADE_TYPE::Speed:
             upgradedSpeed += STAT_UPGRADE_PER_LEVEL_SPEED * maxVelocity;
