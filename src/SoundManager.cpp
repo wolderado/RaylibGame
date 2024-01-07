@@ -4,8 +4,6 @@
 
 #include "SoundManager.h"
 
-#define NOGDI
-#include <dirent.h>
 
 // Initialize the static member variable
 std::map<string,Sound> SoundManager::allSounds;
@@ -14,6 +12,8 @@ vector<string> SoundManager::loopingSounds;
 Camera* SoundManager::cam = nullptr;
 
 
+namespace fs = std::filesystem;
+
 void SoundManager::LoadSounds() {
 
     cout << "Loading sounds..." << endl;
@@ -21,32 +21,20 @@ void SoundManager::LoadSounds() {
     // Open the directory
     string folderPath  = "resources/Sounds";
 
+    for (const auto& entry : fs::directory_iterator(folderPath)) {
+        std::string fileName = entry.path().filename().string();
 
+        // Check if the file has a .wav extension
+        if (fileName.size() > 4 && fileName.substr(fileName.size() - 4) == ".wav") {
+            // Load the sound
+            std::string filePath = folderPath + "/" + fileName;
+            Sound sound = LoadSound(filePath.c_str());
 
-    DIR* dir;
-    struct dirent* entry;
-    if ((dir = opendir(folderPath.c_str())) != NULL) {
-        // Iterate over each file in the directory
-        while ((entry = readdir(dir)) != NULL) {
-            std::string fileName = entry->d_name;
+            // Insert the sound into the map with the file name (without extension) as the key
+            allSounds[fileName.substr(0, fileName.size() - 4)] = sound;
 
-            // Check if the file has a .wav extension
-            if (fileName.size() > 4 && fileName.substr(fileName.size() - 4) == ".wav") {
-                // Load the sound
-                std::string filePath = folderPath + "/" + fileName;
-                Sound sound = LoadSound(filePath.c_str());
-
-                // Insert the sound into the map with the file name (without extension) as the key
-                string key = fileName.substr(0, fileName.size() - 4);
-                allSounds[key] = sound;
-
-                //std::cout << "Loaded sound: " << fileName << std::endl;
-            }
+            //std::cout << "Loaded sound: " << fileName << std::endl;
         }
-
-        closedir(dir);
-    } else {
-        std::cerr << "Error opening directory " << folderPath << std::endl;
     }
 }
 
