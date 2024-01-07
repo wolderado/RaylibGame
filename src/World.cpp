@@ -107,14 +107,14 @@ void World::UpdateAll(float deltaTime) {
     }
 
     //Print for debug
-    if(debugPrintTimer > 1)
+    if(debugPrintTimer > 1 && DEBUG_PRINT_WORLD_OBJECTS)
     {
         debugPrintTimer = 0;
         cout << " DEBUG: [ Object Count: "  << activeGameObjects.size() << " ]";
         cout << " [ Ally Fighters: "       << AllyFighterCount << " ]";
         cout << " [ Enemy Fighters: "      << EnemyFighterCount << " ]";
         cout << " [ GridCount:"            << Grid.size() << " ]";
-        cout << " [ BulletCount: "         << DEBUG_BulletCount << " ]";
+        cout << " [ BulletCount: "         << ActiveBulletCount << " ]";
         cout << " [ DestroyedObjects: "    << DEBUG_DestroyedObjectCount << " ]";
         cout << endl;
     }

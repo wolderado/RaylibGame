@@ -19,6 +19,10 @@ void HUD::Init(shared_ptr<Player> targetPlayer)
 
     store.OnStoreClose.AddListener(std::bind(&HUD::StoreCloseAnimFinished, this));
     store.OnBuyItem.AddListener(std::bind(&HUD::PlayerBuyAnim, this, std::placeholders::_1));
+
+    currentTutorialStage = TutorialStages::StageBasics;
+    BattleManager::GetInstance()->SetWaitTimerState(false);
+    fadeInTimer = 0;
 }
 
 
@@ -28,6 +32,7 @@ void HUD::Render(float deltaTime)
 
     screenSizeRatio = (float)GetScreenWidth() / (float)DefaultScreenWidth;
 
+
     //Wave Timer, Enemy count, Wave count etc.
     DrawTopText(deltaTime);
 
@@ -35,10 +40,15 @@ void HUD::Render(float deltaTime)
     DrawPlayerHealthBar(deltaTime);
 
     //Open Store text
-    if(scrapPanelActive == false && store.IsStoreActive == false && BattleManager::GetInstance()->GetBattleState() == BattleState::Waiting){
+    if(scrapPanelActive == false
+    && store.IsStoreActive == false
+    && BattleManager::GetInstance()->GetBattleState() == BattleState::Waiting
+    && currentTutorialStage >= TutorialStages::StageFinished)
+    {
         if (openStoreTextTimer < 1.0f)
             openStoreTextTimer += deltaTime * 0.5f;
-    }else if(openStoreTextTimer > 0.0f)
+    }
+    else if(openStoreTextTimer > 0.0f)
         openStoreTextTimer -= deltaTime * 4.0f;
 
     openStoreTextTimer = Clamp(openStoreTextTimer,0,1.0f);
@@ -54,7 +64,7 @@ void HUD::Render(float deltaTime)
     }
     else
     {
-        if (IsKeyReleased(KEY_B) && store.IsInputEnabled())
+        if ((IsKeyReleased(KEY_B) || IsKeyReleased(KEY_ESCAPE)) && store.IsInputEnabled())
             CloseStoreScreen();
     }
 
@@ -68,14 +78,24 @@ void HUD::Render(float deltaTime)
     //Scrap Panel
     DrawScrapPanel(deltaTime);
 
+    ProcessTutorial(deltaTime);
+
+    DrawPauseScreen(deltaTime);
+
     //Lose screen
     if(isLoseScreenActive)
         DrawLoseScreen(deltaTime);
+
+    //Fade in on game start
+    if(fadeInTimer < 1.0f) {
+        fadeInTimer += deltaTime * 0.5f;
+        DrawRectangle(0,0,GetScreenWidth(),GetScreenHeight(),Utility::GetColorWithCustomAlpha(BLACK,255 * (1.0f - fadeInTimer)));
+    }
 }
 
 
 void HUD::DrawTopText(float deltaTime) {
-    if(store.IsStoreActive == false) {
+    if(store.IsStoreActive == false && BattleManager::GetInstance()->GetWaitTimerState()) {
         if (BattleManager::GetInstance()->GetBattleState() == BattleState::Waiting)
         {
             stringstream waveStr;
@@ -129,7 +149,7 @@ void HUD::DrawShopBackgroundShip(float deltaTime)
     float buyAnimTime = Clamp( store.GetBuyAnimTimer(),0,1);
     float buyAnimScaleMult = 0.75f + (Utility::EaseOutElastic(buyAnimTime) * 0.25f);
     Vector3 scale = Vector3Scale(Vector3One(),0.5f * store.GetStoreAnimScale() * buyAnimScaleMult);
-    Renderer::GetInstance()->RenderModelWire(playerShipModel,renderPos, rotation, scale,PALETTE_BLUE2);
+    Renderer::GetInstance()->RenderModelWire(playerShipModel,renderPos, rotation, scale,PALETTE_PURPLE1);
 }
 
 void HUD::DrawGuns(float deltaTime) {
@@ -511,7 +531,7 @@ void HUD::DrawLoseScreen(float deltaTime) {
 #if defined(PLATFORM_WEB)
         DrawTextMiddleAligned(STR_LOSE_SCREEN_QUIT_KEY_WEB, 40, tint, 0.5f, 0.9f);
 #endif
-        
+
     }
     else
     {
@@ -526,4 +546,128 @@ void HUD::DrawLoseScreen(float deltaTime) {
     }
 
 
+}
+
+void HUD::ProcessTutorial(float deltaTime) {
+
+    if(currentTutorialStage == TutorialStages::StageFinished)
+        return;
+
+    Player* player = Player::GetInstance();
+
+    newTutorialTimer+=deltaTime;
+    float t = Utility::Clamp01(newTutorialTimer / 1.0f);
+    Color tutorialTextTint = Utility::LerpColor(PALETTE_PURPLE1,PALETTE_PURPLE2,t);
+
+    //Rotate
+    if(currentTutorialStage == TutorialStages::StageBasics)
+    {
+        DrawTextMiddleAligned(STR_TUTORIAL_BASICS1, 40, tutorialTextTint, 0.5f, 0.1f);
+        DrawTextMiddleAligned(STR_TUTORIAL_BASICS2, 40, tutorialTextTint, 0.5f, 0.2f);
+
+        if(IsKeyDown(KEY_UP) || IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_RIGHT)) {
+            tutorialLookTimer += deltaTime;
+            if (tutorialLookTimer > 1.0f) {
+                currentTutorialStage = TutorialStages::StageThrust;
+                newTutorialTimer = 0;
+            }
+        }
+    }
+
+    //Thrust
+    if(currentTutorialStage == TutorialStages::StageThrust)
+    {
+        DrawTextMiddleAligned(STR_TUTORIAL_THRUST, 40, tutorialTextTint, 0.5f, 0.1f);
+        DrawTextMiddleAligned(STR_TUTORIAL_THRUST2, 40, tutorialTextTint, 0.5f, 0.2f);
+
+        if(player->GetVelocityRatioToMaxValue() > 0.9f)
+        {
+            newTutorialTimer = 0;
+            currentTutorialStage = TutorialStages::StageShoot;
+        }
+    }
+
+    //Shoot
+    if(currentTutorialStage == TutorialStages::StageShoot)
+    {
+        DrawTextMiddleAligned(STR_TUTORIAL_SHOOT, 40, tutorialTextTint, 0.5f, 0.1f);
+
+        if(World::GetInstance()->ActiveBulletCount > 10) {
+            tutorialShootTimer += deltaTime;
+            if (tutorialShootTimer > 1.0f) {
+                newTutorialTimer = 0;
+                currentTutorialStage = TutorialStages::StageScrap;
+            }
+        }
+    }
+
+    //Scrap
+    if(currentTutorialStage == TutorialStages::StageScrap)
+    {
+        DrawTextMiddleAligned(STR_TUTORIAL_SCRAP, 40, tutorialTextTint, 0.5f, 0.1f);
+
+        if(player->GetScrap() > 150)
+        {
+            newTutorialTimer = 0;
+            currentTutorialStage = TutorialStages::StageStore;
+        }
+    }
+
+
+    //Store
+    if(currentTutorialStage == TutorialStages::StageStore)
+    {
+        if(store.IsStoreActive)
+            tutorialStoreOpened = true;
+        else
+        {
+            DrawTextMiddleAligned(STR_TUTORIAL_STORE_HOWTO1, 40, tutorialTextTint, 0.5f, 0.1f);
+            DrawTextMiddleAligned(STR_TUTORIAL_STORE_HOWTO2, 40, tutorialTextTint, 0.5f, 0.2f);
+        }
+
+        if(tutorialStoreOpened && store.IsStoreActive == false)
+        {
+            newTutorialTimer = 0;
+            currentTutorialStage = TutorialStages::StageWaves;
+            BattleManager::GetInstance()->SetWaitTimerState(true);
+        }
+    }
+
+
+    //Waves
+    if(currentTutorialStage == TutorialStages::StageWaves)
+    {
+        DrawTextMiddleAligned(STR_TUTORIAL_WAVES1, 40, tutorialTextTint, 0.5f, 0.3f);
+        DrawTextMiddleAligned(STR_TUTORIAL_WAVES2, 40, tutorialTextTint, 0.5f, 0.35f);
+
+        if(BattleManager::GetInstance()->GetWaitTimer() < 45.0f)
+        {
+            newTutorialTimer = 0;
+            currentTutorialStage = TutorialStages::StageFinished;
+        }
+    }
+
+
+    //If player tries to cheat
+    if(player->GetScrap() > 600 || (currentTutorialStage < TutorialStages::StageStore && store.IsStoreActive))
+    {
+        BattleManager::GetInstance()->SetWaitTimerState(true);
+        currentTutorialStage = TutorialStages::StageFinished;
+    }
+}
+
+void HUD::DrawPauseScreen(float deltaTime) {
+
+    if(isGamePaused == true)
+    {
+        DrawRectangle(0,0,GetScreenWidth(),GetScreenHeight(),Utility::GetColorWithCustomAlpha(BLACK,200));
+        DrawTextMiddleAligned(STR_PAUSED_TITLE, 40, PALETTE_GRAY2, 0.5f, 0.3f);
+        DrawTextMiddleAligned(STR_PAUSED_RESUME, 40, PALETTE_GRAY2, 0.5f, 0.7f);
+        DrawTextMiddleAligned(STR_PAUSED_QUIT, 40, PALETTE_GRAY2, 0.5f, 0.8f);
+    }
+}
+
+void HUD::ChangePauseState(bool newState) {
+
+    isGamePaused = newState;
 }

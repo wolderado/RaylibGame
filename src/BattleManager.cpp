@@ -178,8 +178,6 @@ void BattleManager::EndBattle() {
         if(pair.second->GetHealth() > 0 && pair.second->HasTag("Fighter") && pair.second->GetTeam() == TEAM_ALLY)
         {
             pair.second->Hurt(99999);
-
-            worldInstance->CreateNewScrap( pair.second->Position, REWARD_SCRAP_FIGHTER);
         }
     }
 }

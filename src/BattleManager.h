@@ -25,6 +25,7 @@ public:
     BattleState GetBattleState(){ return currentBattleState; }
     float GetWaitTimer(){ return waitTimer; }
     void SetWaitTimerState(bool value) { waitTimerActive = value; }
+    bool GetWaitTimerState() { return waitTimerActive; }
     int GetCurrentWave() { return currentWave; };
 
     float AllyFighterBought = 0;

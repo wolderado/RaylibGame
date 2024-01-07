@@ -53,7 +53,7 @@ public:
     int EnemyFighterCount = 0;
     int AsteroidCount = 0;
     bool IsWorldReady = false;
-    int DEBUG_BulletCount = 0;
+    int ActiveBulletCount = 0;
     int DEBUG_DestroyedObjectCount = 0;
 
 

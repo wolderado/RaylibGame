@@ -24,6 +24,7 @@
 #include "HUD.h"
 #include "ParticleManager.h"
 #include "BattleManager.h"
+#include "SoundManager.h"
 
 
 #if defined(PLATFORM_WEB)
@@ -57,6 +58,8 @@ HUD hud;
 ParticleManager* particleManager;
 BattleManager* battleManager;
 
+bool isGamePaused = false;
+
 
 
 //TODO Optimizations:
@@ -70,6 +73,7 @@ BattleManager* battleManager;
 int main(void)
 {
     SetTraceLogLevel(LOG_NONE);
+
 
 #if defined(PLATFORM_DESKTOP)
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
@@ -86,6 +90,7 @@ int main(void)
     particleManager = ParticleManager::GetInstance();
     renderer = Renderer::GetInstance();
     battleManager = BattleManager::GetInstance();
+    SoundManager::LoadSounds();
 
     //Init world first
     world->GenerateWorld();
@@ -103,8 +108,6 @@ int main(void)
     battleManager->Init();
 
 
-
-
     // Render texture to draw full screen, enables screen scaling
     target = LoadRenderTexture(RenderWidth, RenderHeight);
     SetTextureFilter(target.texture, TEXTURE_FILTER_POINT);
@@ -116,6 +119,10 @@ int main(void)
     emscripten_set_main_loop(UpdateDrawFrame, 60, 1);
 #else
     SetTargetFPS(60);
+
+    SetExitKey(KEY_F4);
+
+    cout << "Game starting..." << endl;
 
 
     // Main game loop
@@ -146,6 +153,31 @@ void UpdateDrawFrame(void)
 {
     // Update
     float deltaTime = GetFrameTime() * TimeSpeed;
+
+    //Pause Screen
+    if(IsKeyPressed(KEY_ESCAPE) && hud.IsShopOpen() == false)
+    {
+
+        isGamePaused = !isGamePaused;
+
+        TimeSpeed = isGamePaused ? 0 : 1;
+        hud.ChangePauseState(isGamePaused);
+
+        //This is not required but we do save some resources
+        if(isGamePaused)
+            world->StopWorld();
+        else
+            world->ResumeWorld();
+    }
+
+/*    if(isGamePaused)
+    {
+        if(IsKeyPressed(KEY_ESCAPE))
+        {
+            battleManager->SetWaitTimerState(false);
+            battleManager->SetWaitTimerState(true);
+        }
+    }*/
 
     // Draw
     //----------------------------------------------------------------------------------
@@ -189,8 +221,8 @@ void UpdateDrawFrame(void)
     DrawTexturePro(targetHUD.texture, (Rectangle){ 0, 0, (float)targetHUD.texture.width, -(float)targetHUD.texture.height }, (Rectangle){ 0, 0, (float)GetScreenWidth(), (float)GetScreenHeight() }, (Vector2){ 0, 0 }, 0.0f, WHITE);
 
     // Draw UI
-    DrawFPS(10, 10);
-    DrawText("Version 24",10, 40, 20, PALETTE_YELLOW1);
+/*    DrawFPS(10, 10);
+    DrawText("Version 24",10, 40, 20, PALETTE_YELLOW1);*/
     hud.Render(deltaTime);
 
 

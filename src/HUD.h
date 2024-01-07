@@ -24,6 +24,17 @@
 const bool DEBUG_SHOW_GIZMO = false;
 
 
+enum TutorialStages
+{
+    StageBasics,
+    StageThrust,
+    StageShoot,
+    StageScrap,
+    StageStore,
+    StageWaves,
+    StageFinished
+};
+
 
 class HUD {
 public:
@@ -37,6 +48,9 @@ public:
     void Unload();
     void GunShoot(int cannonID);
     void PlayScrapGainAnim(int scrapAmount);
+    void ChangePauseState(bool newState);
+    bool IsShopOpen() { return store.IsStoreActive; };
+
 
 private:
     const float swayAngleAmount = 5.0f;
@@ -81,6 +95,15 @@ private:
     float loseScreenTimer = 0;
     float createLoseParticleTimer = 0;
     float spawnNewLoseLineTimer = 0;
+    TutorialStages currentTutorialStage;
+    float fadeInTimer;
+    float newTutorialTimer = 0;
+    vector<tuple<int,int>> loseScreenLines;
+    bool tutorialStoreOpened = false;
+    float tutorialShootTimer = 0;
+    float tutorialLookTimer = 0;
+    float tutorialThrustTimer = 0;
+    bool isGamePaused = false;
 
     void DrawGuns(float deltaTime);
     void DrawScrapPanel(float deltaTime);
@@ -100,9 +123,13 @@ private:
     void PlayerBuyAnim(int itemIndex);
     void DrawShopBackgroundShip(float deltaTime);
     void DrawTopText(float deltaTime);
+    void DrawPauseScreen(float deltaTime);
     void DrawLoseScreen(float deltaTime);
     void PlayerDied();
-    vector<tuple<int,int>> loseScreenLines;
+    void ProcessTutorial(float deltaTime);
+
+
+
 
     //STRING KEYS for easy localization for the future
     string STR_WAVE_NAME = "Wave ";
@@ -116,6 +143,20 @@ private:
     string STR_LOSE_SCREEN_QUIT_KEY_WEB = "Press F5 to Restart";
     string STR_GAME_NAME = "AstroBlast 3D";
     string STR_CREDITS = "Made by Wolderado";
+    string STR_PAUSED_TITLE = "Paused";
+    string STR_PAUSED_RESUME = "Esc to Resume";
+    string STR_PAUSED_QUIT = "F4 to Quit";
+
+    string STR_TUTORIAL_BASICS1 = "Welcome to AstroBlast 3D!";
+    string STR_TUTORIAL_BASICS2 = "Use Arrow keys to rotate";
+    string STR_TUTORIAL_THRUST = "Left Shift to thrust";
+    string STR_TUTORIAL_THRUST2 = "Left CTRL to stop";
+    string STR_TUTORIAL_SHOOT = "Space to Shoot";
+    string STR_TUTORIAL_SCRAP = "Destroy Asteroids to Get Scrap";
+    string STR_TUTORIAL_STORE_HOWTO1 = "Spend Your Scraps at the Store";
+    string STR_TUTORIAL_STORE_HOWTO2 = "Press B to Open Store";
+    string STR_TUTORIAL_WAVES1 = "They're coming!";
+    string STR_TUTORIAL_WAVES2 = "Survive as long as you can!";
 };
 
 

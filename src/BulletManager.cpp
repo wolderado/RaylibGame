@@ -11,7 +11,7 @@ void BulletManager::UpdateAndRender(float deltaTime) {
 
     //cout << "Active Bullets: " << activeBullets.size() << endl;
 
-    World::GetInstance()->DEBUG_BulletCount = activeBullets.size();
+    World::GetInstance()->ActiveBulletCount = activeBullets.size();
 
     //Loop through all active bullets
     for (int i = activeBullets.size()-1; i > 0; i--) {

@@ -52,7 +52,7 @@ const float STAT_UPGRADE_PER_LEVEL_SPEED = 0.25f;
 const int EnemyCountIncreasePerWave = 5;
 const float EnemyHealthIncreasePerWave = 1.05f;
 
-
+const bool DEBUG_PRINT_WORLD_OBJECTS = false;
 const bool DEBUG_SHOW_COLLISION_AREA = false;
 const bool DEBUG_SHOW_SHOOT_RANGE = false;
 const bool DEBUG_DISABLE_AI = false;
