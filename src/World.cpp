@@ -49,17 +49,6 @@ void World::DebugHurtClosestObject()
 float debugPrintTimer = 0;
 void World::UpdateAll(float deltaTime) {
 
-/*    for (const auto& entry : Grid)
-    {
-        const tuple<int, int, int>& key = entry.first;
-        CollisionGrid& grid = Grid[key];
-
-        for (const auto &target: grid.myObjects)
-        {
-            DrawSphereWires(target->Position, target->CollisionSize, 16, 16, PALETTE_GREEN1);
-        }
-    }*/
-
     //DebugHurtClosestObject();
 
     debugPrintTimer += deltaTime;
@@ -85,12 +74,16 @@ void World::UpdateAll(float deltaTime) {
             continue;
         }
 
+        if(worldStopped == false) {
+            gameObject->Update(deltaTime);
+            UpdateGridForObject(gameObject);
+            CheckCollision(gameObject.get());
+        }
 
-        gameObject->Update(deltaTime);
-        UpdateGridForObject(gameObject);
-        CheckCollision(gameObject.get());
         gameObject->Render(deltaTime);
-        gameObject->LateUpdate(deltaTime);
+
+        if(worldStopped == false)
+            gameObject->LateUpdate(deltaTime);
 
 
         //Out of bounds check
@@ -125,6 +118,11 @@ void World::UpdateAll(float deltaTime) {
         cout << " [ DestroyedObjects: "    << DEBUG_DestroyedObjectCount << " ]";
         cout << endl;
     }
+
+
+    //Stop the world if player is dead
+    if(Player::GetInstance()->GetHealth() <= 0)
+        worldStopped = true;
 }
 
 void World::GenerateWorld() {
@@ -256,6 +254,7 @@ shared_ptr<GameObject> World::CreateNewScrap(Vector3 position, float amount) {
     newScrap->SetHealth(100);
     newScrap->Position = position;
     newScrap->Scale = Vector3One();
+    newScrap->rewardAmount = amount;
     InitObject(newScrap);
     return newScrap;
 }

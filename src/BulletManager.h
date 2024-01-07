@@ -39,7 +39,7 @@ public:
     void Init();
     static BulletManager* GetInstance();
     void UpdateAndRender(float deltaTime);
-    void CreateBullet(Vector3 position,Vector3 direction,int spriteIndex,TEAM sourceTeam);
+    void CreateBullet(Vector3 position,Vector3 direction,float damage,int spriteIndex,TEAM sourceTeam);
     void BulletHit(int index,GameObject* target);
 
 

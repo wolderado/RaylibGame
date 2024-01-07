@@ -100,6 +100,8 @@ void Player::ProcessRotation(float deltaTime) {
 
     inputVec = Vector3Normalize(inputVec);
 
+    if(!canRotate)
+        inputVec = Vector3Zero();
 
 
 
@@ -176,7 +178,7 @@ void Player::ProcessThrust(float deltaTime) {
             trauma = thrustShakeTrauma;
     }
 
-    if (IsKeyDown(KEY_LEFT_CONTROL)) {
+    if (IsKeyDown(KEY_LEFT_CONTROL) || canMove == false) {
         thrust = 0;
         currentVelocity = Vector3Lerp(currentVelocity, Vector3Zero(), stopInertiaSpeed * deltaTime);
     }
@@ -186,7 +188,9 @@ void Player::ProcessThrust(float deltaTime) {
     Vector3 forward = GetCameraForward(&playerCamera);
     Vector3 velChange = Vector3Scale(forward, thrust);
     currentVelocity = Vector3Add(currentVelocity, velChange);
-    currentVelocity = Vector3ClampValue(currentVelocity, -maxVelocity, maxVelocity);
+
+    float upgradedMaxVelocity = maxVelocity + upgradedSpeed;
+    currentVelocity = Vector3ClampValue(currentVelocity, -upgradedMaxVelocity, upgradedMaxVelocity);
 }
 
 
@@ -254,6 +258,9 @@ void Player::OnCollision(GameObject *otherObject, Vector3 collisionTotalVelocity
 
 void Player::ProcessShoot(float deltaTime) {
 
+    if(canRotate == false)
+        return;
+
     shotThisFrame = false;
 
     if(IsKeyDown(KEY_SPACE)) {
@@ -297,7 +304,8 @@ void Player::ProcessShoot(float deltaTime) {
         //shootDirection = Vector3Normalize(shootDirection);
 
         Vector3 globalShootPosition = Vector3Add(Position, shootPosition);
-        BulletManager::GetInstance()->CreateBullet(globalShootPosition, shootDirection, 0, TEAM_PLAYER);
+        float playerDamage = STAT_BULLET_DAMAGE_FIGHTER + upgradedDamage;
+        BulletManager::GetInstance()->CreateBullet(globalShootPosition, shootDirection,playerDamage, 0, TEAM_PLAYER);
 
         //Push back
         //currentVelocity = Vector3Add(currentVelocity, Vector3Scale(shootDirection, -shootBackwardsPush));
@@ -347,6 +355,9 @@ Vector3 Player::GetCollectPosition() {
 
 void Player::Hurt(float damage) {
 
+    if(health <= 0)
+        return;
+
     damage = damage * STAT_HEALTH_PLAYER_DAMAGE_REDUCTION;
 
 
@@ -356,5 +367,38 @@ void Player::Hurt(float damage) {
     GameObject::Hurt(damage);
 
 
+    if(health <= 0)
+    {
+
+        OnPlayerDeath.Invoke();
+    }
+
 }
 
+
+void Player::UpgradeStat(PLAYER_UPGRADE_TYPE upgradeType){
+
+    switch (upgradeType)
+    {
+        case PLAYER_UPGRADE_TYPE::Damage:
+            upgradedDamage += STAT_UPGRADE_PER_LEVEL_DAMAGE * STAT_BULLET_DAMAGE_PLAYER;
+            break;
+        case PLAYER_UPGRADE_TYPE::Health: {
+            upgradedHealth += STAT_UPGRADE_PER_LEVEL_HEALTH * STAT_HEALTH_PLAYER;
+            float healthRatio = GetHealthRatio();
+            float newMaxHealth = STAT_HEALTH_PLAYER + upgradedHealth;
+            float newHealth = newMaxHealth * healthRatio;
+            maxHealth = newMaxHealth;
+            health = newHealth;
+
+            cout << "Upgraded health " << upgradedHealth << endl;
+            break;
+        } case PLAYER_UPGRADE_TYPE::Speed:
+            upgradedSpeed += STAT_UPGRADE_PER_LEVEL_SPEED * maxVelocity;
+            break;
+        default:
+            break;
+    }
+
+
+}

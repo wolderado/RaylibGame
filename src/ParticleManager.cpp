@@ -39,8 +39,11 @@ void ParticleManager::UpdateAndRender(float deltaTime) {
         float lifeRatio = particle->lifeTime / particle->maxLifeTime;
         Vector3 velocity = Vector3Scale(particle->direction, particle->speed * deltaTime);
 
+
+        //Not exactly working with game objects
         if(particle->useLocalSpace)
         {
+
 /*            Matrix worldMatrix = MatrixTranslate(particle->parentObject->Position.x, particle->parentObject->Position.y, particle->parentObject->Position.z);
             worldMatrix = MatrixMultiply(worldMatrix, QuaternionToMatrix(particle->parentObject->Rotation));
 

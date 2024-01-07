@@ -42,6 +42,9 @@ public:
     CollisionGrid* GetGrid(int x, int y, int z);
     CollisionGrid* GetGridFromRealPos(Vector3 realPos);
     tuple<int,int,int> GetGridPosFromRealPos(Vector3 realPos);
+    void ResumeWorld() { worldStopped = false; };
+    void StopWorld() { worldStopped = true; };
+    bool IsWorldStopped() { return worldStopped; };
 
     using newObjectCreation = function<void(shared_ptr<GameObject>)>;
     newObjectCreation OnNewObjectCreated;
@@ -59,6 +62,7 @@ public:
 private:
     uint32_t nextObjectId = 0;
     static World* instance;
+    bool worldStopped = false;
 
 
     void DebugHurtClosestObject();

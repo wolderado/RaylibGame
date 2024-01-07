@@ -26,6 +26,9 @@ void BattleManager::UpdateAI(float deltaTime) {
         return;
     }
 
+    if(worldInstance->IsWorldStopped())
+        return;
+
     if(currentBattleState == BattleState::Waiting) {
         ProcessWait(deltaTime);
     }
@@ -37,7 +40,9 @@ void BattleManager::UpdateAI(float deltaTime) {
 
 void BattleManager::ProcessWait(float deltaTime) {
 
-    waitTimer -= deltaTime;
+
+    if(waitTimerActive)
+        waitTimer -= deltaTime;
 
     if(waitTimer < 0) {
         StartBattle();
@@ -138,13 +143,19 @@ void BattleManager::StartBattle() {
     worldInstance->DEBUG_DestroyedObjectCount = 0;
 
     //Generate Enemy ships
-    for (int i = 0; i < 50; ++i) {
+    int enemyCount = 5 + (EnemyCountIncreasePerWave * (currentWave-1) );
+    float enemyHealth = EnemyHealthIncreasePerWave * (float)STAT_HEALTH_FIGHTER;
+
+    for (int i = 0; i < enemyCount; ++i) {
         Vector3 rndPos = Utility::GetRandomPosInsideMap();
-        worldInstance->CreateNewFighter(TEAM_ENEMY,rndPos);
+        shared_ptr<GameObject> fighter = worldInstance->CreateNewFighter(TEAM_ENEMY,rndPos);
+        fighter->SetHealth(enemyHealth);
     }
 
-    //Generate Enemy ships
-    for (int i = 0; i < 50; ++i) {
+/*    cout << "Wave started! Enemy count: " << enemyCount << " Enemy health: " << enemyHealth << endl;*/
+
+    //Generate Ally ships
+    for (int i = 0; i < AllyFighterBought; ++i) {
         Vector3 rndPos = Utility::GetRandomPosInsideMap();
         worldInstance->CreateNewFighter(TEAM_ALLY,rndPos);
     }
@@ -160,6 +171,7 @@ void BattleManager::StartBattle() {
 void BattleManager::EndBattle() {
     currentBattleState = BattleState::Waiting;
     waitTimer = GAME_SHOP_WAIT_TIME;
+    currentWave++;
 
     //Destroy all ally ships
     for (auto& pair : worldInstance->activeGameObjects) {

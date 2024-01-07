@@ -48,7 +48,7 @@ void BulletManager::UpdateAndRender(float deltaTime) {
 
 }
 
-void BulletManager::CreateBullet(Vector3 position,Vector3 direction,int spriteIndex,TEAM sourceTeam) {
+void BulletManager::CreateBullet(Vector3 position,Vector3 direction,float damage,int spriteIndex,TEAM sourceTeam) {
 
     Bullet newBullet;
     if(inactiveBullets.size() > 0)
@@ -69,7 +69,7 @@ void BulletManager::CreateBullet(Vector3 position,Vector3 direction,int spriteIn
 
     newBullet.spriteIndex = spriteIndex;
     newBullet.speed = 100.0f + GetRandomValue(0,50);
-    newBullet.damage = 4.0f;
+    newBullet.damage = damage;
     newBullet.sourceTeam = sourceTeam;
 
     activeBullets.push_back(newBullet);

@@ -35,4 +35,29 @@ private:
     std::vector<EventHandler> listeners;
 };
 
+
+
+// Partial specialization for void events
+template <>
+class Event<void> {
+public:
+    // Define a function signature for event handlers with no parameters
+    using EventHandler = std::function<void()>;
+
+    // Add a listener to the event
+    void AddListener(const EventHandler& listener);
+
+    // Remove a specific listener from the event
+    void RemoveListener(const EventHandler& listener);
+
+    // Remove all listeners from the event
+    void RemoveAllListeners();
+
+    // Invoke the event, calling all subscribed functions with no parameters
+    void Invoke();
+
+private:
+    std::vector<EventHandler> listeners;
+};
+
 #endif //SRC_EVENT_H

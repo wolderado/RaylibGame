@@ -24,8 +24,8 @@ public:
 private:
     const float ScrapMoveSpeed = 0.06f;
     const float ScrapMaxMoveSpeed = 0.8f;
-    const float CollectRange = 5.0f;
-    const float PullRange = 75.0f;
+    const float CollectRange = 10.0f;
+    const float PullRange = 100.0f;
     const float DriftFadeSpeed = 0.2f;
     const float StartDriftForce = 0.1f;
     const float MaxPullDuration = 5.0f;

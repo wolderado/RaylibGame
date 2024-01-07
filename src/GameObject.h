@@ -58,6 +58,7 @@ public:
     virtual void LateUpdate(float deltaTime);
     virtual void Render(float deltaTime);
     virtual void Hurt(float damage);
+    virtual void Heal(float amount);
     virtual float GetHealth();
     virtual void SetModel(Model model);
     virtual void Destroy();

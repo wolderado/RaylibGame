@@ -9,43 +9,96 @@ void HUD::Init(shared_ptr<Player> targetPlayer)
     player = shared_ptr<Player>(targetPlayer);
     playerGunModel = LoadModel("resources/PlayerGun.glb");
     playerGunMuzzleModel = LoadModel("resources/PlayerGunMuzzle.glb");
+    playerShipModel = LoadModel("resources/Ship.glb");
 
 
     player->OnShoot.AddListener(std::bind(&HUD::GunShoot, this, std::placeholders::_1));
     player->OnScrapGain.AddListener(std::bind(&HUD::PlayScrapGainAnim, this, std::placeholders::_1));
+    player->OnPlayerDeath.AddListener(std::bind(&HUD::PlayerDied, this));
+
+
+    store.OnStoreClose.AddListener(std::bind(&HUD::StoreCloseAnimFinished, this));
+    store.OnBuyItem.AddListener(std::bind(&HUD::PlayerBuyAnim, this, std::placeholders::_1));
 }
 
 
 void HUD::Render(float deltaTime)
 {
-/*    DrawTexturePro(cockpitTexture, (Rectangle){0,0,(float)cockpitTexture.width,(float)cockpitTexture.height},
-                   (Rectangle){0,0,ScreenWidth,ScreenHeight}, (Vector2){0,0}, 0, WHITE);*/
+    //TODO: Implement a canvas item based with render order and parent-child capabilities
 
-    int middleX = GetScreenWidth() / 2;
-    int middleY = GetScreenHeight() / 2;
+    screenSizeRatio = (float)GetScreenWidth() / (float)DefaultScreenWidth;
 
-    //Wave Timers
-    if(BattleManager::GetInstance()->GetBattleState() == BattleState::Waiting) {
+    //Wave Timer, Enemy count, Wave count etc.
+    DrawTopText(deltaTime);
 
-        DrawTextMiddleAligned(STR_WAVE_STARTING.c_str(),40,PALETTE_GRAY1,0.5f,0.1f);
+    //Health bar
+    DrawPlayerHealthBar(deltaTime);
 
-        stringstream stream;
-        stream << std::fixed << std::setprecision(1) << BattleManager::GetInstance()->GetWaitTimer() << "s";
-        DrawTextMiddleAligned(stream.str().c_str(),40,PALETTE_GRAY1,0.5f,0.2f);
+    //Open Store text
+    if(scrapPanelActive == false && store.IsStoreActive == false && BattleManager::GetInstance()->GetBattleState() == BattleState::Waiting){
+        if (openStoreTextTimer < 1.0f)
+            openStoreTextTimer += deltaTime * 0.5f;
+    }else if(openStoreTextTimer > 0.0f)
+        openStoreTextTimer -= deltaTime * 4.0f;
+
+    openStoreTextTimer = Clamp(openStoreTextTimer,0,1.0f);
+    Color textColor = Utility::GetColorWithCustomAlpha(PALETTE_PURPLE3,openStoreTextTimer * 255.0f);
+    DrawTextMiddleAligned(STR_TUTORIAL_STORE, 40, textColor, 0.5f, 0.8f);
+
+
+    //Store panel open / close functionality
+    if(store.IsStoreActive == false)
+    {
+        if(IsKeyReleased(KEY_B) && store.IsInputEnabled())
+            OpenStoreScreen();
     }
-    else if(BattleManager::GetInstance()->GetBattleState() == BattleState::BattleStarted) {
-        stringstream stream;
-        stream << STR_ENEMY_COUNT << World::GetInstance()->EnemyFighterCount;
-        DrawTextMiddleAligned(stream.str().c_str(),40,PALETTE_RED2,0.5f,0.1f);
+    else
+    {
+        if (IsKeyReleased(KEY_B) && store.IsInputEnabled())
+            CloseStoreScreen();
+    }
+
+    //Store panel
+    if(store.IsStoreActive) {
+        DrawStoreScreen(deltaTime);
     }
 
 
-    //Draw Scrap Circle
+
+    //Scrap Panel
     DrawScrapPanel(deltaTime);
 
-    DrawPlayerHealthBar(deltaTime);
+    //Lose screen
+    if(isLoseScreenActive)
+        DrawLoseScreen(deltaTime);
 }
 
+
+void HUD::DrawTopText(float deltaTime) {
+    if(store.IsStoreActive == false) {
+        if (BattleManager::GetInstance()->GetBattleState() == BattleState::Waiting)
+        {
+            stringstream waveStr;
+            waveStr << STR_WAVE_NAME << BattleManager::GetInstance()->GetCurrentWave() << STR_WAVE_STARTING;
+            DrawTextMiddleAligned(waveStr.str(), 40, PALETTE_GRAY1, 0.5f, 0.1f);
+
+            stringstream stream;
+            stream << std::fixed << std::setprecision(1) << BattleManager::GetInstance()->GetWaitTimer() << "s";
+            DrawTextMiddleAligned(stream.str().c_str(), 40, PALETTE_GRAY1, 0.5f, 0.2f);
+        }
+        else if (BattleManager::GetInstance()->GetBattleState() == BattleState::BattleStarted)
+        {
+            stringstream stream;
+            stream  << STR_WAVE_NAME << BattleManager::GetInstance()->GetCurrentWave();
+            DrawTextMiddleAligned(stream.str().c_str(), 40, PALETTE_RED2, 0.5f, 0.1f);
+
+
+            stringstream stream2;
+            stream2 << STR_ENEMY_COUNT << World::GetInstance()->EnemyFighterCount;
+            DrawTextMiddleAligned(stream2.str().c_str(), 40, PALETTE_RED2, 0.5f, 0.2f);
+        }
+    }
+}
 
 
 void HUD::Render3D(float deltaTime)
@@ -65,10 +118,29 @@ void HUD::Unload()
 {
     UnloadModel(playerGunModel);
     UnloadModel(playerGunMuzzleModel);
+    UnloadModel(playerShipModel);
     //UnloadTexture(cockpitTexture);
 }
 
+void HUD::DrawShopBackgroundShip(float deltaTime)
+{
+    Vector3 renderPos = {0,0,10};
+    Vector3 rotation = {0,store.GetStoreTimer(),0};
+    float buyAnimTime = Clamp( store.GetBuyAnimTimer(),0,1);
+    float buyAnimScaleMult = 0.75f + (Utility::EaseOutElastic(buyAnimTime) * 0.25f);
+    Vector3 scale = Vector3Scale(Vector3One(),0.5f * store.GetStoreAnimScale() * buyAnimScaleMult);
+    Renderer::GetInstance()->RenderModelWire(playerShipModel,renderPos, rotation, scale,PALETTE_BLUE2);
+}
+
 void HUD::DrawGuns(float deltaTime) {
+
+    //Draw ship at the background when store is opened
+    if(store.IsStoreActive) {
+
+        DrawShopBackgroundShip(deltaTime);
+        return;
+    }
+
 
     Vector3 sway = player->GetSwayInput();
     smoothSway = Vector3Lerp(smoothSway,sway,swaySpeed * deltaTime);
@@ -122,17 +194,14 @@ tuple<int, int> HUD::GetMiddleAlignedTextPosition(string text, int fontSize) {
 }
 
 void HUD::DrawTextMiddleAlignedInArea(string text,int fontSize,Color textColor,int areaWidth,int areaHeight,float xPosRatio,float yPosRatio) {
-    int middlePosX = areaWidth / 2;
-    int middlePosY = areaHeight / 2;
-    auto [offsetX, offsetY] = GetMiddleAlignedTextPosition(text,fontSize);
+
+    auto [offsetX, offsetY] = GetMiddleAlignedTextPosition(text,fontSize * screenSizeRatio);
 
     auto[xPos,yPos] = GetAlignPosition(areaWidth,areaHeight,xPosRatio,yPosRatio);
     xPos -= offsetX;
     yPos -= offsetY;
 
-    DrawBackText(text, xPos, yPos, fontSize, Utility::LerpColor(textColor,PALETTE_GRAY5,0.9f));
-    DrawText(text.c_str(), xPos, yPos, fontSize, textColor);
-
+    DrawTextPure(text,xPos,yPos,fontSize,textColor);
 }
 
 
@@ -141,12 +210,19 @@ void HUD::DrawTextMiddleAligned(string text, int fontSize, Color textColor, floa
 }
 
 
-void HUD::DrawBackText(string text, int realPosX, int realPosY, int fontSize, Color textColor) {
+void HUD::DrawTextPure(string text, int screenPosX, int screenPosY, int fontSize, Color textColor) {
 
-    DrawText(text.c_str(), realPosX, realPosY + bckTextYOffset, fontSize, textColor);
+    //Back Shadow Text
+    Color bckColor = Utility::LerpColor(textColor,PALETTE_GRAY5,0.9f);
+    bckColor.a = textColor.a;
+    DrawText(text.c_str(), screenPosX, screenPosY + bckTextYOffset, fontSize  * screenSizeRatio, bckColor);
+
+    //Real Text
+    DrawText(text.c_str(), screenPosX, screenPosY, fontSize * screenSizeRatio, textColor);
 }
 
 
+//Returns the real position when given the position ratios. This the heart of responsive UI
 tuple<int,int> HUD::GetAlignPosition(int areaWidth, int areaHeight, float xPosRatio, float yPosRatio) {
 
     int xPos = (int)((float)areaWidth * xPosRatio);
@@ -177,60 +253,98 @@ tuple<int, int, int, int> HUD::GetAlignPositionRectangleScreen(float xStart, flo
 
 
 void HUD::PlayScrapGainAnim(int scrapAmount) {
-    animEaseTimer = 0;
+
     scrapDisappearTimer = 0;
+
+    if (animEaseTimer2 > 0.0f)
+        animEaseTimer = 0;
+    else
+        animEaseTimer = scrapPopupDuration;
+
+    animEaseTimer2 = 0;
 }
 
 void HUD::DrawScrapPanel(float deltaTime) {
 
     scrapPanelActive = false;
+
+    //Why did I write something this complicated ._.
     if(scrapDisappearTimer < scrapDisappearDuration) {
-        //Scrap Panel active timer
+
+        //Popup anim & panel active
         scrapDisappearTimer += deltaTime;
         scrapActiveScale = 1.0f;
         animEaseTimer2 = 0;
         scrapPanelActive = true;
+
+        if (animEaseTimer < 1.0f + scrapPopupDuration) {
+            animEaseTimer += deltaTime;
+
+            if(animEaseTimer >= scrapPopupDuration || animEaseTimer2 > 0.0f)
+                animScrapScale = scrapActiveScale * 2.0f + ((1.0f - Utility::EaseOutElastic(animEaseTimer - scrapPopupDuration)));
+            else
+                animScrapScale = Lerp(0,scrapActiveScale * 2.0f + 1.0f,animEaseTimer / scrapPopupDuration);
+        }
     }
     else {
+
         //Disappear anim
         if (animEaseTimer2 < 1.0f) {
             animEaseTimer2 += deltaTime;
             scrapActiveScale = (1.0f - Utility::EaseOutElastic(animEaseTimer2));
             scrapPanelActive = true;
+
+            if (animEaseTimer < 1.0f)
+                animEaseTimer += deltaTime;
+
+            animScrapScale = scrapActiveScale * 2.0f + ((1.0f - Utility::EaseOutElastic(animEaseTimer)));
         }
     }
 
     if(scrapPanelActive == true) {
+
+        if(abs(animScrapScale) < 0.01f)
+            return;
+
         auto [circleX, circleY] = GetAlignPositionScreen(circlePosX, circlePosY);
         DrawCircle(circleX, circleY, 30 * animScrapScale, PALETTE_GRAY5);
         DrawCircleLines(circleX, circleY, 30 * animScrapScale, PALETTE_PURPLE3);
         Renderer::GetInstance()->RenderScrap((Vector3) {(float) circleX, (float) circleY, 0}, 20.0f * animScrapScale,
                                              true);
 
-        if(animScrapScale > 0.5f) {
+        if(animScrapScale > 0.3f) {
             int playerScrapCount = player->GetScrap();
             DrawTextMiddleAligned(to_string(playerScrapCount), 20 * animScrapScale, PALETTE_PURPLE1, circlePosX,
                                   circlePosY);
         }
-
-        if (animEaseTimer < 1.0f)
-            animEaseTimer += deltaTime;
-
-        animScrapScale = scrapActiveScale * 2.0f + ((1.0f - Utility::EaseOutElastic(animEaseTimer)));
     }
 }
 
 void HUD::DrawPlayerHealthBar(float deltaTime) {
 
+    if(store.IsStoreActive && showHealthBarWhileShopTimer <= 0.0f)
+        return;
 
-    if(IsKeyPressed(KEY_P))
-    {
-        player->Hurt(10);
+    if(showHealthBarWhileShopTimer > 0.0f)
+        showHealthBarWhileShopTimer-=deltaTime;
+
+
+    //Hurt FX text
+    if(IsKeyPressed(KEY_P)) {
+        Player::GetInstance()->Hurt(50);
     }
 
     auto [x, y,w,h] = GetAlignPositionRectangleScreen(0.2f,0.92f,0.8f,0.98f);
     int health = player->GetHealth();
-    smoothHealth = Lerp(smoothHealth,health,deltaTime * healthChangeSpeed);
+
+    //Health bar change smoothing
+    if(abs(health-smoothHealth) > 1)
+        smoothHealth = Lerp(smoothHealth,health,deltaTime * healthChangeSpeed);
+    else
+        smoothHealth = health;
+
+    smoothHealth = Clamp(smoothHealth,0,player->GetMaxHealth());
+
     float healthRatio = smoothHealth / player->GetMaxHealth();
 
     //Hurt FX
@@ -283,6 +397,133 @@ void HUD::DrawPlayerHealthBar(float deltaTime) {
 
     //Text
     DrawTextMiddleAligned(to_string((int)smoothHealth),(((float)40) * elasticScale),textColor,0.5f,0.95f);
+
+
+}
+
+
+void HUD::OpenStoreScreen() {
+
+    if((BattleManager::GetInstance()->GetBattleState() != BattleState::Waiting))
+        return;
+
+    PlayScrapGainAnim(0);
+    player->SetCanMove(false);
+    player->SetCanRotate(false);
+    store.OpenStore();
+    BattleManager::GetInstance()->SetWaitTimerState(false);
+}
+
+void HUD::CloseStoreScreen() {
+
+    store.CloseStore();
+}
+
+void HUD::DrawStoreScreen(float deltaTime) {
+
+    scrapDisappearTimer = 0;
+
+    auto [panelPosX, panelPosY, panelWidth,panelHeight] = GetAlignPositionRectangleScreen(0.3f,0.3f,0.7f,0.7f);
+
+
+    CanvasParams params = {panelPosX,panelPosY,panelWidth,panelHeight,screenSizeRatio,bckTextYOffset-1};
+    store.RenderAndUpdate(deltaTime,params);
+}
+
+void HUD::StoreCloseAnimFinished() {
+
+    scrapDisappearTimer = scrapDisappearDuration;
+    player->SetCanMove(true);
+    player->SetCanRotate(true);
+    BattleManager::GetInstance()->SetWaitTimerState(true);
+}
+
+void HUD::PlayerBuyAnim(int itemIndex) {
+
+    if(itemIndex == 0 || itemIndex == 4)
+    {
+        showHealthBarWhileShopTimer = 1.0f;
+    }
+
+    PlayScrapGainAnim(0);
+}
+
+
+void HUD::PlayerDied() {
+
+    isLoseScreenActive = true;
+    BattleManager::GetInstance()->SetWaitTimerState(false);
+}
+
+void HUD::DrawLoseScreen(float deltaTime) {
+
+
+    loseScreenTimer += deltaTime;
+
+    float t = Utility::Clamp01(loseScreenTimer / loseScreenAnimDuration);
+    t = pow(t,4);
+
+    if(t < 1)
+    {
+        //Lines
+        spawnNewLoseLineTimer += deltaTime;
+        if(spawnNewLoseLineTimer > 0.01f * loseScreenAnimDuration) {
+            loseScreenLines.push_back(make_tuple(GetRandomValue(0, GetScreenWidth()), GetRandomValue(0, GetScreenWidth())));
+        }
+
+        for (int i = 0; i < loseScreenLines.size(); ++i) {
+
+            auto[x, x2] = loseScreenLines[i];
+
+            DrawLine(x,0,x2,GetScreenHeight(),loseScreenFadeColor);
+        }
+    }
+
+
+    DrawRectangle(0,0,GetScreenWidth(),(float)GetScreenHeight() * 0.5f * t,loseScreenFadeColor);
+    DrawRectangle(0,GetScreenHeight() - (float)GetScreenHeight() * 0.5f * t,GetScreenWidth(),(float)GetScreenHeight() * 0.5f * t,loseScreenFadeColor);
+
+
+
+    if(t >= 1)
+    {
+        //Lose texts
+        float xSin = sin(loseScreenTimer) * 0.05f;
+
+        float tintT = Utility::Clamp01(loseScreenTimer - loseScreenAnimDuration);
+        Color tint = Utility::LerpColor(Utility::GetZeroAlphaColor(PALETTE_PURPLE2),PALETTE_PURPLE2,tintT);
+        Color tint2 = Utility::LerpColor(Utility::GetZeroAlphaColor(PALETTE_RED1),PALETTE_RED1,tintT);
+
+        DrawTextMiddleAligned(STR_LOSE_SCREEN_TITLE, 60, tint2, 0.5f + xSin, 0.2f);
+
+        stringstream waveStr;
+        waveStr << STR_LOSE_SCREEN_SURVIVED_FOR << " " << to_string(BattleManager::GetInstance()->GetCurrentWave()) << " " << STR_WAVE_NAME_PLURAL;
+        DrawTextMiddleAligned(waveStr.str(), 40, tint, 0.5f, 0.35f);
+
+        DrawTextMiddleAligned(STR_GAME_NAME, 40, tint, 0.5f, 0.6f);
+        DrawTextMiddleAligned(STR_CREDITS, 40, tint, 0.5f, 0.65f);
+
+        //Exit text
+#if defined(PLATFORM_DESKTOP)
+        DrawTextMiddleAligned(STR_LOSE_SCREEN_QUIT_KEY, 40, tint, 0.5f, 0.9f);
+#endif
+
+#if defined(PLATFORM_WEB)
+        DrawTextMiddleAligned(STR_LOSE_SCREEN_QUIT_KEY_WEB, 40, tint, 0.5f, 0.9f);
+#endif
+        
+    }
+    else
+    {
+        //Particles
+        createLoseParticleTimer+ deltaTime;
+        if(createLoseParticleTimer > 0.2f)
+        {
+            createLoseParticleTimer = 0;
+            ParticleManager::GetInstance()->CreateShipSpawnFX(player->Position,TEAM_PLAYER);
+            ParticleManager::GetInstance()->CreateScrapGlitter(player->Position,PALETTE_RED1);
+        }
+    }
 
 
 }

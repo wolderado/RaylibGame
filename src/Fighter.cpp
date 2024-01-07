@@ -237,7 +237,7 @@ void Fighter::ProcessShoot(float deltaTime, Vector3 targetPos) {
                 else
                     shootPosition = Vector3Add(shootPosition, Vector3Scale(right, -1.55f));
 
-                BulletManager::GetInstance()->CreateBullet(shootPosition, GetForward(), 0, myTeam);
+                BulletManager::GetInstance()->CreateBullet(shootPosition, GetForward(),STAT_BULLET_DAMAGE_FIGHTER, 0, myTeam);
                 ParticleManager::GetInstance()->CreateShootMuzzle(shootPosition, this);
             }
         }

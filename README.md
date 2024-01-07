@@ -11,6 +11,25 @@ $(Your Game Description)
  - $(Game Feature 01)
  - $(Game Feature 02)
  - $(Game Feature 03)
+ 
+ 
+ 
+### Project Features
+
+ - GameObject Management
+ - Particle System (with pooling)
+ - Spatial Partitioning For Optimized Collisions
+ - Finite State Machine (FSM) AI
+ - Thousands Of Optimized Projectile Bullets
+ - Responsive UI
+ - Smooth LODs
+ - Event System (Observer Pattern)
+ - Alpha Clip Shader
+ - Game Time Management
+ - First-Person Player Camera
+ - Windows & Web Ports
+ 
+ 
 
 ### Controls
 
@@ -35,6 +54,5 @@ _TODO: Show your game to the world, animated GIFs recommended!._
  - itch.io Release: $(itch.io Game Page)
  - Steam Release: $(Steam Game Page)
 
-### License
 
-This game sources are licensed under an unmodified zlib/libpng license, which is an OSI-certified, BSD-like license that allows static linking with closed source software. Check [LICENSE](LICENSE) for further details.
+

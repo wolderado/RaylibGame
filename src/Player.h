@@ -17,6 +17,14 @@
 
 using namespace std;
 
+enum PLAYER_UPGRADE_TYPE
+{
+    None,
+    Damage,
+    Health,
+    Speed
+};
+
 class Player : public GameObject {
 public:
     static Player* GetInstance();
@@ -34,8 +42,13 @@ public:
     void AddScrap(int amount);
     int GetScrap() { return totalScrap; };
     Vector3 GetCollectPosition();
+    void SetCanRotate(bool value) { canRotate = value; };
+    void SetCanMove(bool value) { canMove = value; };
+    void UpgradeStat(PLAYER_UPGRADE_TYPE upgradeType);
     Event<int> OnScrapGain;
     Event<int> OnShoot;
+    Event<void> OnPlayerDeath;
+
 
 private:
     static Player* instance;
@@ -55,6 +68,10 @@ private:
     const float defaultFOV = 60.0f;
     const float fovChangeSpeed = 10.0f;
 
+    float upgradedDamage = 0;
+    float upgradedHealth = 0;
+    float upgradedSpeed = 0;
+
     Camera3D playerCamera;
     Camera3D hudCamera;
     Vector3 smoothedInput;
@@ -69,6 +86,9 @@ private:
     int shootCanonIndex = 0;
     bool shotThisFrame = false;
     int totalScrap = 0;
+    bool canRotate = true;
+    bool canMove = true;
+
 
     void ProcessInput(float deltaTime);
     void ProcessRotation(float deltaTime);

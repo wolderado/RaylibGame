@@ -24,13 +24,18 @@ public:
     void ProcessAI(shared_ptr<Fighter> object);
     BattleState GetBattleState(){ return currentBattleState; }
     float GetWaitTimer(){ return waitTimer; }
+    void SetWaitTimerState(bool value) { waitTimerActive = value; }
+    int GetCurrentWave() { return currentWave; };
 
+    float AllyFighterBought = 0;
 
 private:
     World* worldInstance;
     static BattleManager* instance;
     BattleState currentBattleState = BattleState::Waiting;
     float waitTimer = 0;
+    bool waitTimerActive = true;
+    int currentWave = 1;
 
     void ProcessWait(float deltaTime);
     void ProcessBattle(float deltaTime);

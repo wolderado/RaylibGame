@@ -43,7 +43,7 @@ void Scrap::Update(float deltaTime) {
 
     //Particles
     //Distance cull particles
-    if(distToSource < PullRange * PullRange * 2.0f) {
+    if(distToSource < PullRange * PullRange * 3.0f) {
         createParticleTimer += deltaTime;
         if (createParticleTimer > 0.075f) {
             createParticleTimer = 0;
@@ -62,7 +62,7 @@ void Scrap::Render(float deltaTime) {
     GameObject::Render(deltaTime);
 
 
-    Renderer::GetInstance()->RenderScrap(Position,((float)rewardAmount*0.2f));
+    Renderer::GetInstance()->RenderScrap(Position,((float)rewardAmount*0.025f));
 
     if(isMoving)
     {

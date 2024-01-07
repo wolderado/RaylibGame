@@ -75,7 +75,7 @@ int main(void)
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 #endif
 
-    InitWindow(DefaultScreenWidth, DefaultScreenHeight, "Space Battle Game");
+    InitWindow(DefaultScreenWidth, DefaultScreenHeight, "AstroBlast 3D");
 
     //Divider
     std::cout << "---------------------------------------" << "\n";

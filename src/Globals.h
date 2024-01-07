@@ -18,17 +18,22 @@
 
 
 
+
+//Static Game Parameters
 #define STAT_HEALTH_FIGHTER 25
 #define STAT_HEALTH_PLAYER 200
 #define STAT_HEALTH_PLAYER_DAMAGE_REDUCTION 0.25f
 #define STAT_SHOOT_COOLDOWN_FIGHTER 0.15
 #define STAT_SHOOT_COOLDOWN_PLAYER 0.05
+#define STAT_BULLET_DAMAGE_FIGHTER 4.0f
+#define STAT_BULLET_DAMAGE_PLAYER 4.0f
 
-#define GAME_SHOP_WAIT_TIME 30.0f
+#define GAME_SHOP_WAIT_TIME 60.0f
 #define MAP_ASTEROID_COUNT 100
 #define REWARD_SCRAP_FIGHTER 25
 
 
+//More parameters
 static const int DefaultScreenWidth = 1280;
 static const int DefaultScreenHeight = 720;
 static const int RenderWidth = 640;
@@ -39,6 +44,14 @@ static const float MapSizeZ = 300;
 static const float AbsoluteMapLimitX = 500;
 static const float AbsoluteMapLimitY = 500;
 static const float AbsoluteMapLimitZ = 500;
+
+const float STAT_UPGRADE_PER_LEVEL_DAMAGE = 0.15f;
+const float STAT_UPGRADE_PER_LEVEL_HEALTH = 0.25f;
+const float STAT_UPGRADE_PER_LEVEL_SPEED = 0.25f;
+
+const int EnemyCountIncreasePerWave = 5;
+const float EnemyHealthIncreasePerWave = 1.05f;
+
 
 const bool DEBUG_SHOW_COLLISION_AREA = false;
 const bool DEBUG_SHOW_SHOOT_RANGE = false;
@@ -138,11 +151,16 @@ public:
         return (position.x > AbsoluteMapLimitX || position.x < -AbsoluteMapLimitX || position.y > AbsoluteMapLimitY || position.y < -AbsoluteMapLimitY || position.z > AbsoluteMapLimitZ || position.z < -AbsoluteMapLimitZ);
     }
 
+    static float Clamp01(float t)
+    {
+        return fmin(1.0f,fmax(0.0f,t));
+    }
+
     static float EaseOutElastic(float t)
     {
         t = fmin(1.0f, fmax(0.0f, t));
         float t2 = (t - 1) * (t - 1);
-        float result = 1.0f - t2 * t2 * cos( t * PI * 4.5f );
+        float result = 1.0f - t2 * t2 * cos( t * PI * 1.5f );
         result = fmin(2.0f, fmax(0.0f, result));
         return result;
     }
