@@ -411,7 +411,7 @@ void ParticleManager::CreateScrapGlitter(Vector3 position,Color color) {
 void ParticleManager::CreateCollectFX(Vector3 position,Vector3 forwardDirection, Color color) {
 
     //Lines
-    for (int i = 0; i < 50; ++i) {
+    for (int i = 0; i < 25; ++i) {
         Particle* newParticle = CreateParticle();
         newParticle->position = position;
         newParticle->speed = GetRandomValue(10,30);

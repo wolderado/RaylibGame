@@ -70,12 +70,18 @@ void World::UpdateAll(float deltaTime) {
         //Just in case
         if(gameObject == nullptr) {
             cout << "ERROR: NULL OBJECT IN ACTIVE OBJECTS LIST!" << endl;
+            gameObject->Destroy();
+            OnGameObjectDestroyed(gameObject);
+            it = activeGameObjects.erase(it);
             continue;
         }
 
         //Skip disabled objects
         if(gameObject->IsEnabled() == false) {
             cout << "ERROR: OBJECT IS DESTROYED BUT STILL IN ACTIVE OBJECTS LIST!" << endl;
+            gameObject->Destroy();
+            OnGameObjectDestroyed(gameObject);
+            it = activeGameObjects.erase(it);
             continue;
         }
 
@@ -285,14 +291,15 @@ void World::OnGameObjectDestroyed(shared_ptr<GameObject> destroyedObject) {
         }
     }
 
-    if(destroyedObject->HasTag("Fighter"))
-    {
+    if(destroyedObject->HasTag("Fighter")) {
         //cout << "Fighter destroyed" << endl;
 
-        if(destroyedObject->GetTeam() == TEAM_ALLY)
+        if (destroyedObject->GetTeam() == TEAM_ALLY)
             AllyFighterCount--;
-        else if(destroyedObject->GetTeam() == TEAM_ENEMY)
+        else if (destroyedObject->GetTeam() == TEAM_ENEMY) {
             EnemyFighterCount--;
+            CreateNewScrap(destroyedObject->Position, REWARD_SCRAP_FIGHTER);
+        }
     }
 
     //Update grid

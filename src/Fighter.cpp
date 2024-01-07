@@ -63,10 +63,18 @@ void Fighter::Update(float deltaTime) {
             return;
         }
 
-        Vector3 predictedPos = target->Position;
-        //This is highly dependent on bullet speed
-        predictedPos = Vector3Add(predictedPos, Vector3Scale(target->GetVelocity(), 100.0f));
-        targetPos = predictedPos;
+
+
+        if (target->GetTeam() == TEAM_PLAYER)
+            //Worse targeting for player
+            targetPos = target->Position;
+        else {
+            //Target prediction
+            Vector3 predictedPos = target->Position;
+            //This is highly dependent on bullet speed
+            predictedPos = Vector3Add(predictedPos, Vector3Scale(target->GetVelocity(), 100.0f));
+            targetPos = predictedPos;
+        }
     }
 
 

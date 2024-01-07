@@ -46,6 +46,11 @@ private:
     const float scrapDisappearDuration = 3.0f;
     const unsigned char hurtTintAlpha = 50;
     const float hurtAnimTime = 1.0f;
+    const float dotsMoveSpeed = -1.5f;
+    const float dotsSizeDiff = 10.0f;
+    const float healthChangeSpeed = 7.0f;
+    //Text Shadow Offset
+    const int bckTextYOffset = 4;
 
     shared_ptr<Player> player;
     Texture cockpitTexture;
@@ -60,6 +65,9 @@ private:
     float scrapDisappearTimer = 999;
     float scrapActiveScale = 0.0f;
     bool scrapPanelActive = false;
+    float healthBarYScale = 1.0f;
+    float dotsTimer = 0;
+    float smoothHealth = 0;
 
     void DrawGuns(float deltaTime);
     void DrawScrapPanel(float deltaTime);
@@ -71,6 +79,7 @@ private:
     tuple<int,int,int,int> GetAlignPositionRectangleScreen(float xStart,float yStart,float xEnd,float yEnd);
     void DrawTextMiddleAligned(string text,int fontSize,Color textColor,float xPosRatio,float yPosRatio);
     void DrawTextMiddleAlignedInArea(string text,int fontSize,Color textColor,int areaWidth,int areaHeight,float xPosRatio,float yPosRatio);
+    void DrawBackText(string text,int realPosX,int realPosY,int fontSize,Color textColor);
 
 
 

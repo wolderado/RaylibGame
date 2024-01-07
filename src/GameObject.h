@@ -79,6 +79,7 @@ public:
     Vector3 GetUp();
     bool IsEnabled();
     float GetHealthRatio() { return health / maxHealth; };
+    float GetMaxHealth() { return maxHealth; };
 
 
 protected:

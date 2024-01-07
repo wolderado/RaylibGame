@@ -27,16 +27,16 @@ void HUD::Render(float deltaTime)
     //Wave Timers
     if(BattleManager::GetInstance()->GetBattleState() == BattleState::Waiting) {
 
-        DrawTextMiddleAligned(STR_WAVE_STARTING.c_str(),20,PALETTE_GRAY1,0.5f,0.1f);
+        DrawTextMiddleAligned(STR_WAVE_STARTING.c_str(),40,PALETTE_GRAY1,0.5f,0.1f);
 
         stringstream stream;
         stream << std::fixed << std::setprecision(1) << BattleManager::GetInstance()->GetWaitTimer() << "s";
-        DrawTextMiddleAligned(stream.str().c_str(),20,PALETTE_GRAY1,0.5f,0.15f);
+        DrawTextMiddleAligned(stream.str().c_str(),40,PALETTE_GRAY1,0.5f,0.2f);
     }
     else if(BattleManager::GetInstance()->GetBattleState() == BattleState::BattleStarted) {
         stringstream stream;
         stream << STR_ENEMY_COUNT << World::GetInstance()->EnemyFighterCount;
-        DrawTextMiddleAligned(stream.str().c_str(),20,PALETTE_RED2,0.5f,0.1f);
+        DrawTextMiddleAligned(stream.str().c_str(),40,PALETTE_RED2,0.5f,0.1f);
     }
 
 
@@ -130,13 +130,22 @@ void HUD::DrawTextMiddleAlignedInArea(string text,int fontSize,Color textColor,i
     xPos -= offsetX;
     yPos -= offsetY;
 
+    DrawBackText(text, xPos, yPos, fontSize, Utility::LerpColor(textColor,PALETTE_GRAY5,0.9f));
     DrawText(text.c_str(), xPos, yPos, fontSize, textColor);
+
 }
 
 
 void HUD::DrawTextMiddleAligned(string text, int fontSize, Color textColor, float xPosRatio, float yPosRatio) {
     DrawTextMiddleAlignedInArea(text,fontSize,textColor,GetScreenWidth(),GetScreenHeight(),xPosRatio,yPosRatio);
 }
+
+
+void HUD::DrawBackText(string text, int realPosX, int realPosY, int fontSize, Color textColor) {
+
+    DrawText(text.c_str(), realPosX, realPosY + bckTextYOffset, fontSize, textColor);
+}
+
 
 tuple<int,int> HUD::GetAlignPosition(int areaWidth, int areaHeight, float xPosRatio, float yPosRatio) {
 
@@ -214,29 +223,66 @@ void HUD::DrawScrapPanel(float deltaTime) {
 void HUD::DrawPlayerHealthBar(float deltaTime) {
 
 
-    auto [x, y,w,h] = GetAlignPositionRectangleScreen(0.2f,0.93f,0.8f,0.97f);
-    float healthRatio = player->GetHealthRatio();
+    if(IsKeyPressed(KEY_P))
+    {
+        player->Hurt(10);
+    }
 
+    auto [x, y,w,h] = GetAlignPositionRectangleScreen(0.2f,0.92f,0.8f,0.98f);
+    int health = player->GetHealth();
+    smoothHealth = Lerp(smoothHealth,health,deltaTime * healthChangeSpeed);
+    float healthRatio = smoothHealth / player->GetMaxHealth();
+
+    //Hurt FX
     Color barColor = PALETTE_BLUE5;
     Color tintColor = Utility::GetZeroAlphaColor(PALETTE_RED1);
+    Color textColor = PALETTE_BLUE2;
+    float animHurtEaseTimer = 1.0f;
     if((GetTime() - player->LastHurtTime) < hurtAnimTime)
     {
+        animHurtEaseTimer = ((GetTime() - player->LastHurtTime)  / hurtAnimTime * hurtAnimTime);
         float t = (GetTime() - player->LastHurtTime) / hurtAnimTime;
         barColor = Utility::LerpColor(PALETTE_RED1,barColor,t);
         DrawRectangleLines(x,y,w,h, PALETTE_RED1);
 
         tintColor = Utility::LerpColor(Utility::GetColorWithCustomAlpha(PALETTE_RED1,hurtTintAlpha),tintColor,t);
         DrawRectangle(0,0,GetScreenWidth(),GetScreenHeight(), tintColor);
+
+        textColor = Utility::LerpColor(PALETTE_WHITE,textColor,t);
     }
 
+    float elasticScale = 0.75f + ((Utility::EaseOutElastic(animHurtEaseTimer)) * 0.25f) ;
+    float healthSize = ((float) w * healthRatio);
 
-    DrawRectangle(x,y,((float) w),h, PALETTE_BROWN5);
-    DrawRectangle(x,y,((float) w * healthRatio),h, barColor);
-    DrawRectangleLines(x,y,((float) w * healthRatio),h, barColor);
-    DrawRectangleLines(x,y,w,h, PALETTE_BLUE2);
+    //Fill
+    DrawRectangle(x,y,((float) w),h, PALETTE_BROWN7);
+    DrawRectangle(x,y,healthSize,h, barColor);
 
-    int health = player->GetHealth();
-    DrawTextMiddleAligned(to_string(health),20,PALETTE_BLUE2,0.5f,0.95f);
+
+
+    //Dots
+    dotsTimer += deltaTime * dotsMoveSpeed;
+    float xLimit = ((x + w) * healthRatio) / GetScreenWidth();
+    float spacing = 0.01f;
+    for (float dotX = 0.2f; dotX < xLimit; dotX+= spacing) {
+        float s = fabs(sin(dotsTimer + dotX * dotsSizeDiff));
+
+        Color dotColor = Utility::GetColorWithCustomAlpha(PALETTE_BLUE4, (s * 255));
+
+        for (float dotY = 0.92f; dotY < 0.97f; dotY += spacing) {
+
+            float animatedYPos = dotY - ((1.0f - s) * 0.015f);
+            auto [realDotX, animatedDotY] = GetAlignPositionScreen(dotX, animatedYPos);
+            DrawRectangle(realDotX, animatedDotY, 2, 2, dotColor);
+        }
+    }
+
+    //Lines
+    DrawRectangleLines(x,y,healthSize,h, PALETTE_BLUE2);
+    DrawRectangleLines(x,y ,w,h, PALETTE_BLUE2);
+
+    //Text
+    DrawTextMiddleAligned(to_string((int)smoothHealth),(((float)40) * elasticScale),textColor,0.5f,0.95f);
+
 
 }
-

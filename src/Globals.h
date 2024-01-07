@@ -24,8 +24,9 @@
 #define STAT_SHOOT_COOLDOWN_FIGHTER 0.15
 #define STAT_SHOOT_COOLDOWN_PLAYER 0.05
 
-#define GAME_SHOP_WAIT_TIME 1.0f
+#define GAME_SHOP_WAIT_TIME 30.0f
 #define MAP_ASTEROID_COUNT 100
+#define REWARD_SCRAP_FIGHTER 25
 
 
 static const int DefaultScreenWidth = 1280;
