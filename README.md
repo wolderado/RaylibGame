@@ -75,5 +75,5 @@ Web: Play [HERE](https://wolderado.itch.io/astroblast-3d)
 
 ### Links
 
- - YouTube Gameplay: $(https://youtu.be/x07EK-_R3P0)
- - itch.io Release: $(https://wolderado.itch.io/astroblast-3d)
+ - YouTube Gameplay: https://youtu.be/x07EK-_R3P0
+ - itch.io Release: https://wolderado.itch.io/astroblast-3d
