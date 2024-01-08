@@ -1,6 +1,6 @@
 ## AstroBlast 3D
 
-![$(Game Title)](images/cover.png "$(Game Title)")
+![$(AstroBlast 3D)](images/cover.png "$(Game Title)")
 
 ### Description
 
@@ -31,6 +31,10 @@ Made by Wolderado (Salih Ünal)
  - First-Person Player Camera
  - Alpha Clip Shader
  - Windows & Web Ports
+ 
+### Project Architecture
+
+![alt text](images/ProjectArchitecture.png)
 
 ### Controls
 
@@ -46,7 +50,11 @@ Made by Wolderado (Salih Ünal)
 
 ### Screenshots
 
-_TODO: Show your game to the world, animated GIFs recommended!._
+![alt text](images/ss1.png)
+
+![alt text](images/ss2.png)
+
+![alt text](images/ss3.png)
 
  
 ### Tools Used
