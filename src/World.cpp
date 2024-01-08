@@ -74,14 +74,17 @@ void World::UpdateAll(float deltaTime) {
             continue;
         }
 
+        //Main Game Update
         if(worldStopped == false) {
             gameObject->Update(deltaTime);
             UpdateGridForObject(gameObject);
             CheckCollision(gameObject.get());
         }
 
+        //Render Update
         gameObject->Render(deltaTime);
 
+        //Late Update
         if(worldStopped == false)
             gameObject->LateUpdate(deltaTime);
 

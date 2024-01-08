@@ -71,8 +71,8 @@ private:
 
 
     StoreItem items[5] = {
-            {STR_ITEM_REPAIR,25, 1},
-            {STR_ITEM_ALLYSHIP,100 , 0, PLAYER_UPGRADE_TYPE::None,false},
+            {STR_ITEM_REPAIR,100, 1, PLAYER_UPGRADE_TYPE::None,false},
+            {STR_ITEM_ALLYSHIP,200 , 0, PLAYER_UPGRADE_TYPE::None,false},
             {STR_ITEM_UPGRADE_DAMAGE,500, 1,PLAYER_UPGRADE_TYPE::Damage},
             {STR_ITEM_UPGRADE_SPEED,500, 1,PLAYER_UPGRADE_TYPE::Speed},
             {STR_ITEM_UPGRADE_MAXHEALTH,500,1,PLAYER_UPGRADE_TYPE::Health}

@@ -41,16 +41,17 @@ static const int RenderHeight = 360;
 static const float MapSizeX = 300;
 static const float MapSizeY = 300;
 static const float MapSizeZ = 300;
-static const float AbsoluteMapLimitX = 500;
-static const float AbsoluteMapLimitY = 500;
-static const float AbsoluteMapLimitZ = 500;
+static const float AbsoluteMapLimitX = 400;
+static const float AbsoluteMapLimitY = 400;
+static const float AbsoluteMapLimitZ = 400;
 
 const float STAT_UPGRADE_PER_LEVEL_DAMAGE = 0.15f;
 const float STAT_UPGRADE_PER_LEVEL_HEALTH = 0.25f;
 const float STAT_UPGRADE_PER_LEVEL_SPEED = 0.25f;
 
 const int EnemyCountIncreasePerWave = 8;
-const float EnemyHealthIncreasePerWave = 1.05f;
+const float EnemyHealthIncreasePerWave = 1.1f;
+const float PlayerDamageReductionDecreasePerWave = 0.1f;
 
 const bool DEBUG_PRINT_WORLD_OBJECTS = false;
 const bool DEBUG_SHOW_COLLISION_AREA = false;
@@ -134,10 +135,11 @@ public:
 
     static Vector3 GetRandomPosInsideMap()
     {
+        float extraSpace = 5;
         Vector3 result;
-        result.x = GetRandomValue(-MapSizeX,MapSizeX);
-        result.y = GetRandomValue(-MapSizeY,MapSizeY);
-        result.z = GetRandomValue(-MapSizeZ,MapSizeZ);
+        result.x = GetRandomValue(-MapSizeX+extraSpace,MapSizeX-extraSpace);
+        result.y = GetRandomValue(-MapSizeY+extraSpace,MapSizeY-extraSpace);
+        result.z = GetRandomValue(-MapSizeZ+extraSpace,MapSizeZ-extraSpace);
         return result;
     }
 

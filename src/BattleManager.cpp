@@ -143,7 +143,11 @@ void BattleManager::StartBattle() {
     worldInstance->DEBUG_DestroyedObjectCount = 0;
 
     //Generate Enemy ships
-    int enemyCount = 5 + (EnemyCountIncreasePerWave * (currentWave-1) );
+    int enemyCountIncrease = (EnemyCountIncreasePerWave * (currentWave-1) );
+    if(currentWave > 5)
+        enemyCountIncrease *= 2;
+
+    int enemyCount = 5 + enemyCountIncrease;
     float enemyHealth = EnemyHealthIncreasePerWave * (float)STAT_HEALTH_FIGHTER;
 
     for (int i = 0; i < enemyCount; ++i) {
@@ -152,7 +156,9 @@ void BattleManager::StartBattle() {
         fighter->SetHealth(enemyHealth);
     }
 
-/*    cout << "Wave started! Enemy count: " << enemyCount << " Enemy health: " << enemyHealth << endl;*/
+    //Increase player damage taken
+    Player::GetInstance()->DamageReduction += PlayerDamageReductionDecreasePerWave;
+
 
     //Generate Ally ships
     int missingShips = AllyFighterBought - worldInstance->AllyFighterCount;

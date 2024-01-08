@@ -50,6 +50,8 @@ public:
     Event<int> OnShoot;
     Event<void> OnPlayerDeath;
 
+    float DamageReduction = 0;
+
 
 private:
     static Player* instance;

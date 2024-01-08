@@ -397,7 +397,7 @@ void Player::Hurt(float damage) {
     if(health <= 0)
         return;
 
-    damage = damage * STAT_HEALTH_PLAYER_DAMAGE_REDUCTION;
+    damage = damage * (STAT_HEALTH_PLAYER_DAMAGE_REDUCTION + DamageReduction);
     SoundManager::PlaySound2DRandomized("Hurt_Player",0.4f,0.2f);
 
     if(trauma < 0.4f)

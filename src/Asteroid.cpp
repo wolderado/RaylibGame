@@ -28,6 +28,9 @@ void Asteroid::Update(float deltaTime) {
     //ParticleManager::GetInstance()->CreateShootMuzzle((Vector3){0,1.0f,0}, this);
 
     GameObject::Update(deltaTime);
+
+    if(Utility::IsInsideMapArea(Position) == false)
+        Hurt(9999);
 }
 
 Asteroid::Asteroid(float size) {

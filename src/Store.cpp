@@ -175,7 +175,9 @@ void Store::BuyItem(int itemIndex) {
 
     Player::GetInstance()->AddScrap(-items[itemIndex].Price);
 
-    items[itemIndex].Level++;
+    if(itemIndex > 0)
+        items[itemIndex].Level++;
+
     items[itemIndex].BoughtAnimTime = storeTimer;
     anyItemBoughtAnimTimer = 0;
 
