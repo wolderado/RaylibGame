@@ -8,6 +8,11 @@ Destroy asteroids, collect resources and upgrade your ship as you survive as lon
 
 Made by Wolderado (Salih Ünal)
 
+### Play
+
+Desktop: src/build/AstroBlast 3D/raylib_game.exe
+Web: Play here: $(https://wolderado.itch.io/astroblast-3d)
+
 ### Game Features
 
  - Epic 3D Space Battles
@@ -69,5 +74,5 @@ Made by Wolderado (Salih Ünal)
 
 ### Links
 
- - YouTube Gameplay: $(YouTube Link)
- - itch.io Release: $(itch.io Game Page)
+ - YouTube Gameplay: $(https://youtu.be/x07EK-_R3P0)
+ - itch.io Release: $(https://wolderado.itch.io/astroblast-3d)
