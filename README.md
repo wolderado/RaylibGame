@@ -12,7 +12,7 @@ Made by Wolderado (Salih Ünal)
 
 Desktop: src/build/AstroBlast 3D/raylib_game.exe
 
-Web: Play here: $(https://wolderado.itch.io/astroblast-3d)
+Web: Play [HERE](https://wolderado.itch.io/astroblast-3d)
 
 ### Game Features
 
