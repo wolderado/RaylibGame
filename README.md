@@ -70,6 +70,8 @@ Web: Play [HERE](https://wolderado.itch.io/astroblast-3d)
  - GitHub
  - ChipTone (for SFX)
  - Aseprite
+ - GNU
+ - Emscripten
  
  All assets are made by me
 
