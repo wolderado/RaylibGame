@@ -8,9 +8,9 @@ Destroy asteroids, collect resources and upgrade your ship as you survive as lon
 
 Made by Wolderado (Salih Ünal)
 
-### Play
+### How To Play
 
-Desktop: src/build/AstroBlast 3D/raylib_game.exe
+Desktop located at: src/build/AstroBlast 3D/raylib_game.exe
 
 Web: Play [HERE](https://wolderado.itch.io/astroblast-3d)
 
@@ -79,3 +79,5 @@ Web: Play [HERE](https://wolderado.itch.io/astroblast-3d)
 
  - YouTube Gameplay: https://youtu.be/x07EK-_R3P0
  - itch.io Release: https://wolderado.itch.io/astroblast-3d
+
+Copyright (c) $2024 Salih Ünal
