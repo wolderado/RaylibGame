@@ -28,12 +28,12 @@ Web: Play [HERE](https://wolderado.itch.io/astroblast-3d)
  - Particle System (with pooling)
  - Spatial Partitioning For Optimized Collisions
  - Thousands Of Optimized Projectile Bullets
- - Responsive UI
- - Smooth LODs
+ - Smoothly Fading LODs
  - Event System (Observer Pattern)
  - Game Time Management
  - Sound Management with 3D sounds
  - Finite State Machine (FSM) AI
+ - Responsive UI
  - First-Person Player Camera
  - Alpha Clip Shader
  - Windows & Web Ports
